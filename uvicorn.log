@@ -1,0 +1,117 @@
+INFO:     Started server process [33700]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:62786 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62787 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57323 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57323 - "OPTIONS /dashboard/today HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55930 - "OPTIONS /dashboard/kpis?period=day HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56815 - "OPTIONS /dashboard/weekly-revenue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55930 - "OPTIONS /dashboard/weekly-revenue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61166 - "OPTIONS /dashboard/alerts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63221 - "OPTIONS /dashboard/alerts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57323 - "GET /dashboard/today HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49673 - "GET /dashboard/kpis?period=day HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56815 - "GET /dashboard/weekly-revenue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55930 - "GET /dashboard/alerts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49673 - "GET /dashboard/kpis?period=day HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56815 - "GET /dashboard/alerts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63221 - "GET /dashboard/today HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57323 - "GET /dashboard/weekly-revenue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51808 - "OPTIONS /clients?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58486 - "OPTIONS /clients?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58486 - "GET /clients?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51808 - "GET /clients?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51808 - "OPTIONS /appointments?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58486 - "OPTIONS /appointments?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58486 - "GET /appointments?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51808 - "GET /appointments?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56073 - "OPTIONS /professionals HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54370 - "OPTIONS /professionals HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54370 - "GET /professionals HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54370 - "OPTIONS /professionals/1/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "OPTIONS /professionals/2/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50503 - "OPTIONS /professionals/3/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63174 - "OPTIONS /professionals/4/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56073 - "GET /professionals HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54370 - "GET /professionals/1/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50503 - "GET /professionals/3/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60740 - "GET /professionals/4/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "GET /professionals/2/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56073 - "GET /professionals/1/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54370 - "GET /professionals/3/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55115 - "GET /professionals/4/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60740 - "GET /professionals/2/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60740 - "OPTIONS /services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55115 - "OPTIONS /service-categories HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54370 - "OPTIONS /services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56073 - "OPTIONS /service-categories HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "GET /service-categories HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60740 - "GET /services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56073 - "GET /service-categories HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "GET /services HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "OPTIONS /products HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56073 - "OPTIONS /products HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56073 - "GET /products HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "GET /products HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "OPTIONS /loyalty/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56073 - "OPTIONS /loyalty/transactions?limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51808 - "OPTIONS /clients?limit=200 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51505 - "OPTIONS /loyalty/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60110 - "OPTIONS /loyalty/transactions?limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53968 - "OPTIONS /clients?limit=200 HTTP/1.1" 200 OK
+Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+Traceback (most recent call last):
+  File "C:\Users\A538382\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\A538382\AppData\Local\Programs\Python\Python313\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+Traceback (most recent call last):
+  File "C:\Users\A538382\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\A538382\AppData\Local\Programs\Python\Python313\Lib\asyncio\proactor_events.py", line 165, in _call_connection_lost
+    self._sock.shutdown(socket.SHUT_RDWR)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+INFO:     127.0.0.1:51808 - "GET /clients?limit=200 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62100 - "GET /loyalty/transactions?limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "GET /loyalty/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59549 - "GET /clients?limit=200 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51808 - "GET /loyalty/transactions?limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62100 - "GET /loyalty/overview HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62100 - "OPTIONS /reports/revenue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51808 - "OPTIONS /reports/clients HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59549 - "OPTIONS /reports/loyalty-monthly?months=6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "OPTIONS /reports/referrals-monthly?months=6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63547 - "OPTIONS /reports/revenue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50905 - "OPTIONS /reports/clients HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62100 - "OPTIONS /reports/loyalty-monthly?months=6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51808 - "OPTIONS /reports/referrals-monthly?months=6 HTTP/1.1" 200 OK
+C:\Users\A538382\Downloads\Claude-projetos\Claude\Velour\routers\reports.py:108: SAWarning: Coercing Subquery object into a select() for use in IN(); please pass a select() construct explicitly
+  churn_count = db.query(Client).filter(Client.is_active == True, ~Client.id.in_(ids_ativos)).count()
+INFO:     127.0.0.1:65527 - "GET /reports/revenue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63547 - "GET /reports/loyalty-monthly?months=6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50905 - "GET /reports/clients HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59549 - "GET /reports/referrals-monthly?months=6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51808 - "GET /reports/revenue HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63547 - "GET /reports/clients HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "GET /reports/loyalty-monthly?months=6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50905 - "GET /reports/referrals-monthly?months=6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50905 - "OPTIONS /referrals?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "OPTIONS /referrals/ranking HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63547 - "OPTIONS /referrals?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51808 - "OPTIONS /referrals/ranking HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "GET /clients?limit=200 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50905 - "GET /referrals/ranking HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63547 - "GET /referrals?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65527 - "GET /referrals/ranking HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50905 - "GET /referrals?limit=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51808 - "GET /clients?limit=200 HTTP/1.1" 200 OK
