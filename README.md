@@ -39,13 +39,13 @@ Os testes usam SQLite em memória — não afetam o `velour.db` de desenvolvimen
 
 ```
 Velour/
-├── main.py                  # FastAPI app: CORS, routers, monta /uploads
+├── main.py                  # FastAPI app: CORS, routers, GET /uploads/{filename} (autenticado), /health
 ├── database.py              # SQLite engine, SessionLocal, get_db()
-├── auth.py                  # JWT HS256 + PBKDF2 + get_current_user + require_admin
+├── auth.py                  # JWT HS256 + PBKDF2 + get_current_user + require_admin (SECRET_KEY obrigatória via env)
 ├── birthday_scheduler.py    # APScheduler — 100 pts no aniversário, roda às 08h
 ├── seed.py                  # Popula banco com dados de dev
 │                            # (velour.db é gerado aqui — não commitar)
-├── uploads/                 # fotos antes/depois dos atendimentos (servidas em /uploads)
+├── uploads/                 # fotos antes/depois dos atendimentos (servidas via endpoint autenticado)
 │
 ├── models/                  # SQLAlchemy ORM
 │   ├── __init__.py          # re-exporta todos os modelos
@@ -55,7 +55,10 @@ Velour/
 │   ├── service.py           # ServiceCategory, Service, GenderTarget
 │   ├── appointment.py       # Appointment, AppointmentStatus
 │   ├── loyalty.py           # LoyaltyTransaction, TransactionType
-│   └── referral.py          # Referral, ReferralStatus
+│   ├── referral.py          # Referral, ReferralStatus
+│   ├── product.py           # Product, ProductUnit — insumos de estoque
+│   ├── service_recipe.py    # ServiceRecipe — ficha técnica (insumo × qtd por serviço)
+│   └── stock_movement.py    # StockMovement — ledger append-only de estoque
 │
 ├── schemas/                 # Pydantic — request/response
 │   ├── __init__.py
@@ -65,26 +68,33 @@ Velour/
 │   ├── service.py
 │   ├── appointment.py
 │   ├── loyalty.py
-│   └── referral.py
+│   ├── referral.py
+│   └── product.py           # Product/StockEntry/RecipeItem/RecipeOverride
 │
 ├── routers/                 # Um router por domínio
-│   ├── auth.py              # POST /auth/login · GET /auth/me
+│   ├── auth.py              # POST /auth/login (rate limited) · GET /auth/me
 │   ├── users.py             # /users
 │   ├── clients.py           # /clients + /{id}/briefing
 │   ├── professionals.py     # /professionals + /{id}/stats
 │   ├── services.py          # /service-categories + /services
+│   ├── products.py          # /products (estoque) + /services/{id}/recipe (ficha técnica)
 │   ├── appointments.py      # /appointments + /{id}/complete + /{id}/photos
 │   ├── loyalty.py           # /loyalty/transactions + /loyalty/overview
 │   ├── referrals.py         # /referrals + /referrals/ranking
 │   ├── dashboard.py         # /dashboard/today|kpis|weekly-revenue|alerts|upcoming
 │   └── reports.py           # /reports/revenue|clients|loyalty-monthly|referrals-monthly
 │
-└── tests/                   # pytest — SQLite em memória
-    ├── conftest.py           # fixture db + helpers
-    ├── test_tiers.py         # calculate_tier() — 11 casos
-    ├── test_loyalty.py       # lógica de desconto — 6 casos
-    ├── test_appointments.py  # _check_conflict — 6 casos
-    └── test_referrals.py     # conversão de indicação — 5 casos
+└── tests/                   # pytest — SQLite em memória (58 testes)
+    ├── conftest.py               # fixture db + helpers
+    ├── test_tiers.py             # calculate_tier()
+    ├── test_loyalty.py           # lógica de desconto e resgate de pontos
+    ├── test_tier_discount.py     # desconto automático por tier
+    ├── test_appointments.py      # _check_conflict — sobreposição de horário
+    ├── test_referrals.py         # conversão de indicação
+    ├── test_stock.py             # baixa automática de estoque na conclusão
+    ├── test_dashboard_alerts.py  # alertas de estoque baixo/validade
+    ├── test_professional_dashboard.py  # meta do mês + cadência de retorno
+    └── test_api_integration.py   # HTTP fim-a-fim via TestClient: login, 401, 403, 409, rate limit
 ```
 
 ---
@@ -230,6 +240,24 @@ PATCH  /services/{id}             requer admin
 DELETE /services/{id}             soft-delete, requer admin
 ```
 
+### Estoque / insumos
+```
+GET    /products                    query: is_active?, low_stock?
+GET    /products/{id}
+POST   /products                    requer admin
+PATCH  /products/{id}               requer admin — saldo NÃO é editável aqui
+DELETE /products/{id}               soft-delete, requer admin
+POST   /products/{id}/stock         requer admin — entrada/perda/ajuste, gera movimentação
+                                    → rejeita com 422 se a perda deixar o saldo negativo
+GET    /products/{id}/movements     histórico do ledger de estoque
+```
+
+### Ficha técnica (receita do serviço)
+```
+GET    /services/{id}/recipe        insumos consumidos pelo serviço
+PUT    /services/{id}/recipe        requer admin — substitui a ficha técnica inteira
+```
+
 ### Agendamentos
 ```
 GET    /appointments              query: date_from?, date_to?, status?, professional_id?, client_id?
@@ -241,8 +269,15 @@ POST   /appointments/{id}/complete body: { price_charged, discount_points_used, 
                                   → processa pontos, tier e conversão de indicação em uma transação
                                   → discount_points_used deve ser múltiplo de 100
 POST   /appointments/{id}/photos  multipart: photo_before?, photo_after?
-                                  → salva em /uploads/, retorna URLs
+                                  → identifica o tipo pelos magic bytes do conteúdo (não pelo
+                                    Content-Type enviado), salva em uploads/, retorna URLs
 DELETE /appointments/{id}         muda status para "cancelled"
+```
+
+### Arquivos enviados
+```
+GET    /uploads/{filename}        requer autenticação (qualquer usuário logado);
+                                  sanitizado contra path traversal
 ```
 
 ### Fidelidade
@@ -338,8 +373,13 @@ Roles:
   require_admin()     → admin ou manager
 ```
 
-> **Atenção:** `SECRET_KEY` e `DATABASE_URL` estão hardcoded em `auth.py` e `database.py`.
-> Para produção, mova para variáveis de ambiente.
+- `SECRET_KEY` e `DATABASE_URL` vêm de variáveis de ambiente (`.env`, com `.env.example` versionado). O servidor **recusa subir** se `SECRET_KEY` não estiver definida — sem fallback hardcoded.
+- Upload de fotos identifica o tipo da imagem pelos **magic bytes** do conteúdo (JPEG/PNG/WebP), não pelo header `Content-Type` enviado pelo cliente — evita que um arquivo com extensão/tipo falsificado seja aceito. Limite de 5MB por arquivo.
+- `/uploads/{filename}` exige autenticação e é sanitizado contra path traversal.
+- `POST /auth/login` tem rate limiting em memória: 5 tentativas com credenciais erradas em 5 minutos por (IP, e-mail) → HTTP 429. Logins bem-sucedidos não consomem a cota.
+- `POST /appointments` e `POST /appointments/{id}/complete` rodam sob lock (processo único): evita overbooking sob requisições concorrentes e evita que a conclusão simultânea de dois atendimentos credite pontos de indicação em duplicidade.
+
+> **Pendência conhecida:** rate limiting e locks funcionam por processo único (`threading.Lock`, dict em memória) — suficiente para como o projeto roda (`uvicorn` sem `--workers`), mas não seria em um deploy multi-worker/multi-processo. Em produção, precisaria de Redis para coordenar entre processos.
 
 ---
 

@@ -127,7 +127,7 @@ Tela inicial após o login. Mostra:
   8. Se for o primeiro atendimento concluído de um cliente indicado, **converte a indicação** (+150 pts a quem indicou, +75 ao indicado).
   9. Grava `tier_at_service` e `tier_discount_amount` no agendamento (para relatórios).
 - **Cancelar:** muda o status para `cancelled` (não exclui).
-- **Upload de fotos:** envia foto antes/depois, salvas em `/uploads/`.
+- **Upload de fotos:** envia foto antes/depois; o tipo é validado pelo conteúdo real do arquivo (magic bytes), não pela extensão/header enviado. As fotos ficam atrás de um endpoint autenticado (`GET /uploads/{filename}`), não são públicas.
 
 ### 4.4 Profissionais (`/professionals`)
 - **Lista** em cards: nome, especialidade, comissão, e estatísticas do mês (atendimentos, receita, comissão, top serviço).
@@ -354,8 +354,12 @@ GET    /reports/referrals-monthly   query: months=6
 - **JWT** HS256, expiração de 8h (480 min).
 - **Senha:** PBKDF2-HMAC-SHA256, 200.000 iterações, salt de 16 bytes (sem dependência externa de hash).
 - **Dependências de papel:** `get_current_user` (qualquer autenticado) e `require_admin` (admin ou manager).
-- **Variáveis sensíveis:** `SECRET_KEY` e `DATABASE_URL` agora vêm de variáveis de ambiente (arquivo `.env`, com `.env.example` versionado). Em produção, gere um `SECRET_KEY` novo e migre o banco para PostgreSQL.
-- **Pendências conhecidas (dev):** sem rate limiting nas rotas de auth.
+- **Variáveis sensíveis:** `SECRET_KEY` e `DATABASE_URL` vêm de variáveis de ambiente (arquivo `.env`, com `.env.example` versionado). O servidor **não sobe** se `SECRET_KEY` não estiver definida — sem fallback hardcoded (fail-closed).
+- **Rate limiting no login:** `POST /auth/login` bloqueia após 5 tentativas com credenciais erradas em 5 minutos, por (IP, e-mail) → HTTP 429. Só conta tentativas falhas; login certo não consome a cota.
+- **Upload de fotos:** o tipo da imagem é identificado pelos **magic bytes** do conteúdo (JPEG/PNG/WebP), não pelo header `Content-Type` enviado pelo cliente (que pode ser falsificado). Limite de 5MB por arquivo.
+- **`/uploads/{filename}`:** exige autenticação (qualquer usuário logado) e é sanitizado contra path traversal — deixou de ser servido publicamente como arquivo estático.
+- **Concorrência:** `POST /appointments` e `POST /appointments/{id}/complete` rodam sob lock em memória, evitando overbooking e crédito duplicado de pontos de indicação quando duas requisições concorrem.
+- **Pendências conhecidas (dev):** rate limiting e locks são por processo único (`threading.Lock`/dict em memória) — corretos para como o projeto roda hoje (`uvicorn` sem `--workers`), mas não coordenariam entre processos num deploy multi-worker; exigiria Redis nesse cenário. Em produção também seria necessário migrar o banco para PostgreSQL (SQLite é single-writer).
 
 ---
 
@@ -363,9 +367,9 @@ GET    /reports/referrals-monthly   query: months=6
 
 ```
 Velour/
-├── main.py                  # App FastAPI: CORS, routers, /uploads, /health
+├── main.py                  # App FastAPI: CORS, routers, GET /uploads/{filename} (autenticado), /health
 ├── database.py              # Engine SQLite, sessão, DATABASE_URL via env
-├── auth.py                  # JWT + PBKDF2 + dependências de papel (SECRET_KEY via env)
+├── auth.py                  # JWT + PBKDF2 + dependências de papel (SECRET_KEY obrigatória via env)
 ├── birthday_scheduler.py    # APScheduler — bônus de aniversário às 08h
 ├── seed.py                  # Popula o banco com dados de dev
 ├── requirements.txt         # Dependências de runtime
@@ -378,8 +382,9 @@ Velour/
 │                            #   service_recipe, stock_movement)
 ├── schemas/                 # Pydantic (request/response)
 ├── routers/                 # 1 router por domínio (+ products = estoque/ficha técnica)
-├── tests/                   # pytest — 52 testes (tiers, loyalty, conflito, indicações,
-│                            #   estoque, desconto por tier, painel, alertas)
+├── tests/                   # pytest — 58 testes (tiers, loyalty, conflito, indicações,
+│                            #   estoque, desconto por tier, painel, alertas,
+│                            #   + integração HTTP fim-a-fim: login, 401, 403, 409, rate limit)
 │
 └── frontend/src/
     ├── api/                 # client.ts (Axios) + types.ts (tipos)
