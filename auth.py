@@ -1,7 +1,7 @@
 import hashlib
 import os
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
@@ -14,8 +14,11 @@ from models.user import User
 
 load_dotenv()
 
-# Lidos de variáveis de ambiente; fallback para valores de desenvolvimento.
-SECRET_KEY = os.getenv("SECRET_KEY", "velour-secret-key-salao-premium-2026")
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError(
+        "SECRET_KEY não configurada. Defina no .env (veja .env.example) antes de iniciar o servidor."
+    )
 ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 TOKEN_EXPIRE_MINUTES = int(os.getenv("TOKEN_EXPIRE_MINUTES", "480"))  # 8 horas
 
@@ -42,7 +45,7 @@ def verify_password(password: str, hashed: str) -> bool:
 # ── JWT ────────────────────────────────────────────────────────────────────
 
 def create_access_token(user_id: int, email: str, role: str) -> str:
-    expire = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
     payload = {"sub": str(user_id), "email": email, "role": role, "exp": expire}
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 

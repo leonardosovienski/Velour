@@ -1,9 +1,11 @@
 import os
+from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
+from auth import get_current_user
 from database import engine, Base
 import models  # noqa: F401 — registra todos os modelos no metadata
 
@@ -50,7 +52,23 @@ app.include_router(referrals_router)
 app.include_router(dashboard_router)
 app.include_router(reports_router)
 
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+UPLOAD_ROOT = Path("uploads").resolve()
+
+
+@app.get("/uploads/{filename}", tags=["uploads"])
+def get_upload(filename: str, _=Depends(get_current_user)):
+    # Sanitiza contra path traversal: aceita só o componente de nome puro
+    # (rejeita "../", separadores de diretório etc.) e confere que o
+    # caminho resolvido continua dentro de UPLOAD_ROOT.
+    safe_name = Path(filename).name
+    if safe_name != filename:
+        raise HTTPException(status_code=400, detail="Nome de arquivo inválido")
+
+    filepath = (UPLOAD_ROOT / safe_name).resolve()
+    if not filepath.is_relative_to(UPLOAD_ROOT) or not filepath.is_file():
+        raise HTTPException(status_code=404, detail="Arquivo não encontrado")
+
+    return FileResponse(filepath)
 
 
 @app.on_event("startup")

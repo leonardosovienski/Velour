@@ -29,6 +29,12 @@ router = APIRouter(prefix="/appointments", tags=["appointments"])
 # requisições concorrentes (a checagem e o INSERT não são atômicos no banco).
 _booking_lock = threading.Lock()
 
+# Serializa o fechamento de atendimentos: evita que duas conclusões
+# concorrentes do primeiro atendimento de clientes diferentes indicados
+# pela mesma pessoa leiam a indicação pendente como não-convertida ao
+# mesmo tempo e apliquem os pontos de indicação em duplicidade.
+_completion_lock = threading.Lock()
+
 # Tipos de imagem aceitos em upload de fotos (before/after)
 ALLOWED_IMAGE_TYPES = {
     "image/jpeg": ".jpg",
@@ -36,6 +42,18 @@ ALLOWED_IMAGE_TYPES = {
     "image/webp": ".webp",
 }
 MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+
+
+def _sniff_image_type(content: bytes) -> Optional[str]:
+    """Identifica o tipo da imagem pelos magic bytes, não pelo header Content-Type
+    (que é enviado pelo cliente e pode ser falsificado)."""
+    if content.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if content.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if content[:4] == b"RIFF" and content[8:12] == b"WEBP":
+        return "image/webp"
+    return None
 
 # Pontos por R$1 gasto
 POINTS_PER_BRL = 1
@@ -333,51 +351,54 @@ def complete_appointment(
     db: Session = Depends(get_db),
     _=Depends(get_current_user),
 ):
-    appt = db.query(Appointment).filter(Appointment.id == appt_id).first()
-    if not appt:
-        raise HTTPException(status_code=404, detail="Agendamento não encontrado")
-    if appt.status == AppointmentStatus.completed:
-        raise HTTPException(status_code=409, detail="Atendimento já concluído")
-    if appt.status in (AppointmentStatus.cancelled, AppointmentStatus.no_show):
-        raise HTTPException(status_code=422, detail="Não é possível concluir um atendimento cancelado")
+    with _completion_lock:
+        appt = db.query(Appointment).filter(Appointment.id == appt_id).first()
+        if not appt:
+            raise HTTPException(status_code=404, detail="Agendamento não encontrado")
+        if appt.status == AppointmentStatus.completed:
+            raise HTTPException(status_code=409, detail="Atendimento já concluído")
+        if appt.status in (AppointmentStatus.cancelled, AppointmentStatus.no_show):
+            raise HTTPException(status_code=422, detail="Não é possível concluir um atendimento cancelado")
 
-    # Validar resgate de pontos
-    if body.discount_points_used > 0:
-        if body.discount_points_used % 100 != 0:
-            raise HTTPException(status_code=422, detail="Resgate deve ser múltiplo de 100 pontos")
-        if body.discount_points_used > appt.client.loyalty_points:
-            raise HTTPException(status_code=422, detail="Pontos insuficientes")
+        # Validar resgate de pontos
+        if body.discount_points_used > 0:
+            if body.discount_points_used % 100 != 0:
+                raise HTTPException(status_code=422, detail="Resgate deve ser múltiplo de 100 pontos")
+            if body.discount_points_used > appt.client.loyalty_points:
+                raise HTTPException(status_code=422, detail="Pontos insuficientes")
 
-    appt.price_charged = body.price_charged
-    appt.discount_points_used = body.discount_points_used
-    appt.photo_before_url = body.photo_before_url
-    appt.photo_after_url = body.photo_after_url
-    appt.formula_used = body.formula_used
-    if body.notes:
-        appt.notes = body.notes
-    appt.status = AppointmentStatus.completed
+        appt.price_charged = body.price_charged
+        appt.discount_points_used = body.discount_points_used
+        appt.photo_before_url = body.photo_before_url
+        appt.photo_after_url = body.photo_after_url
+        appt.formula_used = body.formula_used
+        if body.notes:
+            appt.notes = body.notes
+        appt.status = AppointmentStatus.completed
 
-    # Mesma transação atômica: fidelidade + baixa de estoque.
-    # Qualquer exceção aqui aborta o commit inteiro (Unit of Work).
-    _apply_loyalty_completion(db, appt)
-    _apply_stock_deduction(db, appt, body.recipe_overrides)
+        # Mesma transação atômica: fidelidade + baixa de estoque.
+        # Qualquer exceção aqui aborta o commit inteiro (Unit of Work).
+        _apply_loyalty_completion(db, appt)
+        _apply_stock_deduction(db, appt, body.recipe_overrides)
 
-    db.commit()
-    db.refresh(appt)
+        db.commit()
+        db.refresh(appt)
     return appt
 
 
 async def _save_photo(photo: UploadFile, upload_dir: Path) -> str:
-    if photo.content_type not in ALLOWED_IMAGE_TYPES:
-        raise HTTPException(
-            status_code=422,
-            detail="Formato de imagem não suportado. Envie JPEG, PNG ou WebP.",
-        )
     content = await photo.read()
     if len(content) > MAX_UPLOAD_SIZE_BYTES:
         raise HTTPException(status_code=422, detail="Imagem muito grande (máximo 5MB)")
 
-    ext = ALLOWED_IMAGE_TYPES[photo.content_type]
+    sniffed_type = _sniff_image_type(content)
+    if sniffed_type is None:
+        raise HTTPException(
+            status_code=422,
+            detail="Formato de imagem não suportado. Envie JPEG, PNG ou WebP.",
+        )
+
+    ext = ALLOWED_IMAGE_TYPES[sniffed_type]
     fname = f"{uuid4().hex}{ext}"
     (upload_dir / fname).write_bytes(content)
     return f"/uploads/{fname}"

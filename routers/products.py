@@ -102,6 +102,11 @@ def move_stock(product_id: int, body: StockEntry, db: Session = Depends(get_db),
     delta = -body.qty if body.type == StockMovementType.loss else body.qty
     qty_before = product.stock_qty
     qty_after = qty_before + delta
+    if body.type == StockMovementType.loss and qty_after < 0:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Perda maior que o saldo disponível (saldo atual: {qty_before})",
+        )
     product.stock_qty = qty_after
 
     db.add(StockMovement(
