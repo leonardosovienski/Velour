@@ -94,6 +94,21 @@ def test_role_errada_retorna_403(db, api):
     assert resp.status_code == 403
 
 
+def test_login_rate_limit_apos_5_tentativas_retorna_429(db, api):
+    make_user(db, email="ratelimit@teste.com", password="senha123", role=UserRole.admin)
+
+    for _ in range(5):
+        resp = api.post("/auth/login", data={"username": "ratelimit@teste.com", "password": "errada"})
+        assert resp.status_code == 401
+
+    bloqueado = api.post("/auth/login", data={"username": "ratelimit@teste.com", "password": "errada"})
+    assert bloqueado.status_code == 429
+
+    # mesmo com a senha certa, a cota já foi consumida pelas tentativas erradas
+    ainda_bloqueado = api.post("/auth/login", data={"username": "ratelimit@teste.com", "password": "senha123"})
+    assert ainda_bloqueado.status_code == 429
+
+
 def test_conflito_de_agenda_retorna_409(db, api):
     make_user(db, email="admin3@teste.com", password="senha123", role=UserRole.admin)
     login = api.post("/auth/login", data={"username": "admin3@teste.com", "password": "senha123"})
