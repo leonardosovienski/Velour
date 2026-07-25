@@ -40,10 +40,10 @@ Browser ↔ React SPA (Vite, port 5173) ↔ FastAPI (Python, port 8000) ↔ SQLi
 - `components/` — Layout, Sidebar, Modal, TierBadge, StatusBadge, BriefingDrawer, Spinner
 
 **Backend** (repo root):
-- `routers/` — one router per domain (auth, users, clients, professionals, services, appointments, loyalty, referrals, dashboard, reports)
+- `routers/` — one router per domain (auth, users, clients, professionals, services, products, appointments, loyalty, referrals, dashboard, reports)
 - `models/` — SQLAlchemy ORM models; `__init__.py` re-exports everything
 - `schemas/` — Pydantic request/response schemas
-- `auth.py` — JWT HS256 + PBKDF2; `get_current_user`, `require_admin` dependencies
+- `auth.py` — JWT HS256 + PBKDF2; `get_current_user`, `require_admin` dependencies; `SECRET_KEY` is required from the environment (no hardcoded fallback — the app fails to start without it)
 - `birthday_scheduler.py` — APScheduler job at 08h, awards 100 pts on client birthday
 - `seed.py` — populates velour.db with realistic dev data
 
@@ -65,8 +65,16 @@ Browser ↔ React SPA (Vite, port 5173) ↔ FastAPI (Python, port 8000) ↔ SQLi
 | LoyaltyTxType | `earned_appointment`, `earned_referral`, `earned_birthday`, `redeemed` | same |
 | GenderTarget | `M`, `F`, `all` | `'M'`, `'F'`, `'all'` |
 
+## Security
+
+- `SECRET_KEY` and `DATABASE_URL` are read from environment variables (`.env`, `.env.example` checked in). The server refuses to start if `SECRET_KEY` is unset — no hardcoded fallback.
+- Photo uploads (`POST /appointments/{id}/photos`) are validated by magic bytes (JPEG/PNG/WebP), not by the client-supplied `Content-Type` header. Max 5MB.
+- `/uploads/{filename}` requires authentication and is sanitized against path traversal — it is not served as a public static directory.
+- `POST /auth/login` rate-limits to 5 failed attempts per (IP, email) in 5 minutes → HTTP 429. Successful logins don't consume the quota.
+- `POST /appointments` and `POST /appointments/{id}/complete` run under an in-process lock to prevent double-booking and duplicate referral-point crediting under concurrent requests.
+
 ## Known Limitations
 
-- `SECRET_KEY` and `DATABASE_URL` are hardcoded (not environment variables) — fine for dev, must change for production
 - Frontend `baseURL` is hardcoded to `http://127.0.0.1:8000` in `api/client.ts`
-- No rate limiting on auth endpoints
+- Rate limiting and locks are per-process (`threading.Lock` / in-memory dict) — correct for how the project runs today (`uvicorn` without `--workers`), but wouldn't coordinate across processes in a multi-worker deployment; would need Redis for that.
+- SQLite is single-writer; fine for this scope, would need PostgreSQL for real multi-user concurrency.

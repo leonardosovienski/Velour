@@ -1,6 +1,6 @@
 # Velour — Backend (FastAPI + SQLite)
 
-API REST do sistema de gestão para salão de beleza premium. Documentação do frontend em [`frontend/README.md`](frontend/README.md).
+API REST do sistema de gestão para salão de beleza premium. Documentação completa (incluindo o frontend) em [`DOCUMENTACAO.md`](DOCUMENTACAO.md).
 
 ---
 
