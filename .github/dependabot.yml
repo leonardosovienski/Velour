@@ -1,0 +1,86 @@
+version: 2
+
+updates:
+  # Backend Python
+  - package-ecosystem: "pip"
+    directory: "/"
+
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Sao_Paulo"
+
+    open-pull-requests-limit: 5
+
+    groups:
+      backend-minor-patch:
+        applies-to: "version-updates"
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+    pull-request-branch-name:
+      separator: "/"
+
+  # Frontend React / TypeScript
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:15"
+      timezone: "America/Sao_Paulo"
+
+    open-pull-requests-limit: 5
+
+    groups:
+      frontend-minor-patch:
+        applies-to: "version-updates"
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+    pull-request-branch-name:
+      separator: "/"
+
+  # Actions usadas nos workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:30"
+      timezone: "America/Sao_Paulo"
+
+    open-pull-requests-limit: 3
+
+    groups:
+      actions-minor-patch:
+        applies-to: "version-updates"
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+
+    pull-request-branch-name:
+      separator: "/"
