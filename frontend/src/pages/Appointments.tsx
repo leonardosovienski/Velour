@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { format } from 'date-fns'
 import { Plus, Search, CheckCircle, XCircle, BookOpen, ChevronDown } from 'lucide-react'
 import { appointmentsApi, clientsApi, professionalsApi, servicesApi, recipesApi } from '../api/client'
@@ -24,6 +24,14 @@ const statusOptions = [
   { value: 'no_show', label: 'Não compareceu' },
 ]
 
+function extractErrorDetail(err: unknown): string | undefined {
+  if (typeof err === 'object' && err !== null && 'response' in err) {
+    const anyErr = err as any
+    return anyErr.response?.data?.detail
+  }
+  return undefined
+}
+
 export function Appointments() {
   const [appointments, setAppointments] = useState<AppointmentDetail[]>([])
   const [loading, setLoading] = useState(true)
@@ -48,15 +56,15 @@ export function Appointments() {
 
   useEffect(() => { load() }, [statusFilter, dateFrom])
 
-  const filtered = appointments.filter(a => {
-    if (!search) return true
+  const filtered = useMemo(() => {
+    if (!search) return appointments
     const q = search.toLowerCase()
-    return (
+    return appointments.filter(a =>
       a.client?.name.toLowerCase().includes(q) ||
       a.professional?.name.toLowerCase().includes(q) ||
       a.service?.name.toLowerCase().includes(q)
     )
-  })
+  }, [appointments, search])
 
   async function handleCancel(id: number) {
     await appointmentsApi.cancel(id)
@@ -116,9 +124,23 @@ export function Appointments() {
         </div>
       )}
 
-      <CreateModal open={creating} onClose={() => setCreating(false)} onSuccess={() => { setCreating(false); load() }} />
-      <CompleteModal appt={completing} onClose={() => setCompleting(null)} onSuccess={() => { setCompleting(null); load() }} />
-      <BriefingDrawer clientId={briefingClientId} onClose={() => setBriefingClientId(null)} />
+      <CreateModal
+        key={creating ? 'create-creating' : 'create-none'}
+        open={creating}
+        onClose={() => setCreating(false)}
+        onSuccess={() => { setCreating(false); load() }}
+      />
+      <CompleteModal
+        key={completing?.id ?? 'complete-null'}
+        appt={completing}
+        onClose={() => setCompleting(null)}
+        onSuccess={() => { setCompleting(null); load() }}
+      />
+      <BriefingDrawer
+        key={briefingClientId ?? 'briefing-null'}
+        clientId={briefingClientId}
+        onClose={() => setBriefingClientId(null)}
+      />
       <Modal title="Cancelar agendamento" open={cancelId !== null} onClose={() => setCancelId(null)} width="max-w-sm">
         <p className="text-muted text-sm mb-5">Esta ação não pode ser desfeita. Confirma o cancelamento?</p>
         <div className="flex justify-end gap-3">
@@ -254,8 +276,8 @@ function CreateModal({ open, onClose, onSuccess }: { open: boolean; onClose: () 
       })
       onSuccess()
       setForm({ client_id: 0, professional_id: 0, service_id: 0, scheduled_at: '' })
-    } catch (err: any) {
-      const detail = err.response?.data?.detail
+    } catch (err: unknown) {
+      const detail = extractErrorDetail(err)
       setError(typeof detail === 'string' ? detail : 'Erro ao criar agendamento. Verifique conflito de horário.')
     } finally {
       setLoading(false)
@@ -323,7 +345,7 @@ const TIER_RATES: Record<LoyaltyTier, number> = { bronze: 0, silver: 0.05, gold:
 const TIER_LABEL: Record<LoyaltyTier, string> = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', platinum: 'Platinum' }
 
 function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail | null; onClose: () => void; onSuccess: () => void }) {
-  const [form, setForm] = useState<AppointmentComplete>({ price_charged: 0, discount_points_used: 0 })
+  const [form, setForm] = useState<AppointmentComplete>(() => ({ price_charged: appt?.service?.price ?? 0, discount_points_used: 0 }))
   const [photoBefore, setPhotoBefore] = useState<File | null>(null)
   const [photoAfter, setPhotoAfter] = useState<File | null>(null)
   const [recipe, setRecipe] = useState<ServiceRecipeResponse[]>([])
@@ -332,16 +354,15 @@ function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail |
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (!appt) return
-    setForm({ price_charged: appt.service?.price ?? 0, discount_points_used: 0 })
-    setPhotoBefore(null); setPhotoAfter(null); setRecipe([]); setOverrides({})
-    if (appt.service_id) {
-      recipesApi.get(appt.service_id).then(r => {
-        setRecipe(r)
-        setOverrides(Object.fromEntries(r.map(i => [i.product_id, i.qty_consumed])))
-      }).catch(() => setRecipe([]))
-    }
-  }, [appt])
+    if (!appt?.service_id) return
+    let mounted = true
+    recipesApi.get(appt.service_id).then(r => {
+      if (!mounted) return
+      setRecipe(r)
+      setOverrides(Object.fromEntries(r.map(i => [i.product_id, i.qty_consumed])))
+    }).catch(() => { if (mounted) setRecipe([]) })
+    return () => { mounted = false }
+  }, [appt?.service_id])
 
   function set(field: keyof AppointmentComplete, value: string | number) {
     setForm(f => ({ ...f, [field]: value }))
@@ -365,8 +386,9 @@ function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail |
         await appointmentsApi.uploadPhotos(appt.id, photoBefore ?? undefined, photoAfter ?? undefined)
       }
       onSuccess()
-    } catch (err: any) {
-      setError(err.response?.data?.detail ?? 'Erro ao concluir atendimento.')
+    } catch (err: unknown) {
+      const detail = extractErrorDetail(err)
+      setError(detail ?? 'Erro ao concluir atendimento.')
     } finally {
       setLoading(false)
     }
