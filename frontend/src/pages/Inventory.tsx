@@ -23,6 +23,14 @@ function isExpiringSoon(date?: string): boolean {
   return days <= 30
 }
 
+function extractErrorDetail(err: unknown): string | undefined {
+  if (typeof err === 'object' && err !== null && 'response' in err) {
+    const anyErr = err as any
+    return anyErr.response?.data?.detail
+  }
+  return undefined
+}
+
 export function Inventory() {
   const [products, setProducts] = useState<ProductResponse[]>([])
   const [loading, setLoading] = useState(true)
@@ -140,13 +148,23 @@ export function Inventory() {
       )}
 
       <ProductModal
+        key={editing?.id ?? (creating ? 'creating' : 'product-none')}
         open={creating || !!editing}
         product={editing}
         onClose={() => { setCreating(false); setEditing(null) }}
         onSuccess={() => { setCreating(false); setEditing(null); load() }}
       />
-      <StockModal product={stockFor} onClose={() => setStockFor(null)} onSuccess={() => { setStockFor(null); load() }} />
-      <MovementsModal product={movementsFor} onClose={() => setMovementsFor(null)} />
+      <StockModal
+        key={stockFor?.id ?? 'stock-null'}
+        product={stockFor}
+        onClose={() => setStockFor(null)}
+        onSuccess={() => { setStockFor(null); load() }}
+      />
+      <MovementsModal
+        key={movementsFor?.id ?? 'movements-null'}
+        product={movementsFor}
+        onClose={() => setMovementsFor(null)}
+      />
     </Layout>
   )
 }
@@ -155,19 +173,12 @@ function ProductModal({ open, product, onClose, onSuccess }: {
   open: boolean; product: ProductResponse | null; onClose: () => void; onSuccess: () => void
 }) {
   const blank: ProductCreate = { name: '', unit: 'ml', stock_qty: 0, min_stock: 0, cost_per_unit: 0 }
-  const [form, setForm] = useState<ProductCreate>(blank)
+  const [form, setForm] = useState<ProductCreate>(() => product ? {
+    name: product.name, unit: product.unit, stock_qty: product.stock_qty,
+    min_stock: product.min_stock, expiry_date: product.expiry_date, cost_per_unit: product.cost_per_unit,
+  } : blank)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    if (product) {
-      setForm({
-        name: product.name, unit: product.unit, stock_qty: product.stock_qty,
-        min_stock: product.min_stock, expiry_date: product.expiry_date, cost_per_unit: product.cost_per_unit,
-      })
-    } else setForm(blank)
-    setError('')
-  }, [product, open])
 
   function set<K extends keyof ProductCreate>(field: K, value: ProductCreate[K]) {
     setForm(f => ({ ...f, [field]: value }))
@@ -188,8 +199,9 @@ function ProductModal({ open, product, onClose, onSuccess }: {
         await productsApi.create(form)
       }
       onSuccess()
-    } catch (err: any) {
-      setError(err.response?.data?.detail ?? 'Erro ao salvar insumo.')
+    } catch (err: unknown) {
+      const detail = extractErrorDetail(err)
+      setError(detail ?? 'Erro ao salvar insumo.')
     } finally {
       setLoading(false)
     }
@@ -253,11 +265,9 @@ function ProductModal({ open, product, onClose, onSuccess }: {
 function StockModal({ product, onClose, onSuccess }: {
   product: ProductResponse | null; onClose: () => void; onSuccess: () => void
 }) {
-  const [form, setForm] = useState<StockEntry>({ qty: 0, type: 'purchase' })
+  const [form, setForm] = useState<StockEntry>(() => ({ qty: 0, type: 'purchase' }))
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => { setForm({ qty: 0, type: 'purchase' }); setError('') }, [product])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -267,8 +277,9 @@ function StockModal({ product, onClose, onSuccess }: {
     try {
       await productsApi.moveStock(product.id, form)
       onSuccess()
-    } catch (err: any) {
-      setError(err.response?.data?.detail ?? 'Erro ao movimentar estoque.')
+    } catch (err: unknown) {
+      const detail = extractErrorDetail(err)
+      setError(detail ?? 'Erro ao movimentar estoque.')
     } finally {
       setLoading(false)
     }
