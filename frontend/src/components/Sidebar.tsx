@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router'
 import {
   LayoutDashboard, Users, Calendar, Scissors,
   Star, Share2, BarChart2, LogOut, UserCog, ChevronRight, X, Package,

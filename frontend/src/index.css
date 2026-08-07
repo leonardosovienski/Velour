@@ -1,6 +1,20 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0A0A0A;
+  --color-surface: #111111;
+  --color-border: #1E1E1E;
+  --color-gold: #C9A84C;
+  --color-gold-dim: #8A6F2E;
+  --color-cream: #F5F4F0;
+  --color-muted: #6B6B6B;
+  --color-success: #4A7C59;
+  --color-danger: #8B2635;
+
+  --font-display: "Cormorant Garamond", serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
 
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
@@ -44,11 +58,6 @@
     cursor: pointer;
   }
   select option { background-color: #111111; }
-}
-
-@layer utilities {
-  .font-display { font-family: 'Cormorant Garamond', serif; }
-  .font-mono    { font-family: 'JetBrains Mono', monospace; }
 }
 
 @layer components {

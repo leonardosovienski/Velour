@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { useAuth } from '../context/useAuth'
 import { getErrorStatus } from '../api/client'
 import { Spinner } from '../components/Spinner'
