@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import {
   Plus, Package, AlertTriangle, CalendarClock, Pencil, PlusCircle, History, ToggleLeft, ToggleRight,
 } from 'lucide-react'
-import { productsApi } from '../api/client'
+import { productsApi, getErrorDetail } from '../api/client'
 import type {
   ProductResponse, ProductCreate, ProductUpdate, ProductUnit,
   StockEntry, StockMovementType, StockMovementResponse,
@@ -21,14 +21,6 @@ function isExpiringSoon(date?: string): boolean {
   if (!date) return false
   const days = Math.ceil((new Date(date).getTime() - Date.now()) / 86_400_000)
   return days <= 30
-}
-
-function extractErrorDetail(err: unknown): string | undefined {
-  if (typeof err === 'object' && err !== null && 'response' in err) {
-    const anyErr = err as any
-    return anyErr.response?.data?.detail
-  }
-  return undefined
 }
 
 export function Inventory() {
@@ -200,7 +192,7 @@ function ProductModal({ open, product, onClose, onSuccess }: {
       }
       onSuccess()
     } catch (err: unknown) {
-      const detail = extractErrorDetail(err)
+      const detail = getErrorDetail(err)
       setError(detail ?? 'Erro ao salvar insumo.')
     } finally {
       setLoading(false)
@@ -278,7 +270,7 @@ function StockModal({ product, onClose, onSuccess }: {
       await productsApi.moveStock(product.id, form)
       onSuccess()
     } catch (err: unknown) {
-      const detail = extractErrorDetail(err)
+      const detail = getErrorDetail(err)
       setError(detail ?? 'Erro ao movimentar estoque.')
     } finally {
       setLoading(false)

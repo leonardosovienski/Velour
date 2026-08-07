@@ -17,6 +17,20 @@ const api = axios.create({
   baseURL: 'http://127.0.0.1:8000',
 })
 
+export function getErrorDetail(err: unknown): string | undefined {
+  if (axios.isAxiosError(err)) {
+    return err.response?.data?.detail
+  }
+  return undefined
+}
+
+export function getErrorStatus(err: unknown): number | undefined {
+  if (axios.isAxiosError(err)) {
+    return err.response?.status
+  }
+  return undefined
+}
+
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('access_token')
   if (token) config.headers.Authorization = `Bearer ${token}`

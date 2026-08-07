@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { TrendingUp, Scissors, Plus, Pencil, ToggleLeft, ToggleRight, Gauge, Target, UserX } from 'lucide-react'
-import { professionalsApi } from '../api/client'
+import { professionalsApi, getErrorDetail } from '../api/client'
 import type { ProfessionalResponse, ProfessionalStats, ProfessionalCreate, ProfessionalDashboard, Gender } from '../api/types'
 import { Layout, PageHeader, Card } from '../components/Layout'
 import { Modal } from '../components/Modal'
@@ -258,8 +258,8 @@ function ProfessionalModal({ open, professional, onClose, onSuccess }: {
         await professionalsApi.create(form)
       }
       onSuccess()
-    } catch (err: any) {
-      setError(err.response?.data?.detail ?? 'Erro ao salvar profissional.')
+    } catch (err) {
+      setError(getErrorDetail(err) ?? 'Erro ao salvar profissional.')
     } finally {
       setLoading(false)
     }

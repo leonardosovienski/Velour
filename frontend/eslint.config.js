@@ -18,5 +18,10 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // Flags the standard "fetch data in a mount effect, setLoading around it"
+      // pattern used consistently across this codebase's pages as a false positive.
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
 ])

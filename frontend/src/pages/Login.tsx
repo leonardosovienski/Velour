@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/useAuth'
+import { getErrorStatus } from '../api/client'
 import { Spinner } from '../components/Spinner'
 
 export function Login() {
@@ -18,8 +19,8 @@ export function Login() {
     try {
       await login(email, password)
       navigate('/')
-    } catch (err: any) {
-      if (err?.response?.status === 401) {
+    } catch (err) {
+      if (getErrorStatus(err) === 401) {
         setError('Email ou senha incorretos.')
       } else {
         setError('Não foi possível conectar ao servidor. Verifique se o backend está rodando na porta 8000.')

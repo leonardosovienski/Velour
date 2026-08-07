@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Search, Plus, ChevronRight, Phone, Mail } from 'lucide-react'
-import { clientsApi } from '../api/client'
+import { clientsApi, getErrorDetail } from '../api/client'
 import type { ClientResponse, LoyaltyTier, ClientCreate, Gender, ChatPreference } from '../api/types'
 import { Layout, PageHeader, Card } from '../components/Layout'
 import { TierBadge } from '../components/TierBadge'
@@ -157,8 +157,8 @@ function CreateClientModal({ open, onClose, onSuccess }: { open: boolean; onClos
       await clientsApi.create(form)
       onSuccess()
       setForm({ name: '', phone: '', gender: 'F', chat_preference: 'neutral' })
-    } catch (err: any) {
-      setError(err.response?.data?.detail ?? 'Erro ao criar cliente.')
+    } catch (err) {
+      setError(getErrorDetail(err) ?? 'Erro ao criar cliente.')
     } finally {
       setLoading(false)
     }

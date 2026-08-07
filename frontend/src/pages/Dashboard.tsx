@@ -3,15 +3,15 @@ import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { Calendar, TrendingUp, Users, Star, Cake, Crown, BookOpen, AlertTriangle, CalendarClock } from 'lucide-react'
 import { dashboardApi } from '../api/client'
-import type { DashboardToday, DashboardKPIs, WeeklyRevenueItem, DashboardAlerts } from '../api/types'
+import type { AppointmentStatus, DashboardToday, DashboardKPIs, WeeklyRevenueItem, DashboardAlerts } from '../api/types'
 import { Layout, Card } from '../components/Layout'
 import { TierBadge } from '../components/TierBadge'
 import { StatusBadge } from '../components/StatusBadge'
 import { BriefingDrawer } from '../components/BriefingDrawer'
 import { PageSpinner } from '../components/Spinner'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/useAuth'
 
-const statusOrder = ['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show']
+const statusOrder: AppointmentStatus[] = ['scheduled', 'confirmed', 'in_progress', 'completed', 'cancelled', 'no_show']
 
 export function Dashboard() {
   const { user } = useAuth()
@@ -204,7 +204,7 @@ export function Dashboard() {
             return (
               <div key={status} className="bg-surface border border-border rounded-lg p-3 text-center">
                 <div className="font-mono text-xl text-cream">{count}</div>
-                <StatusBadge status={status as any} />
+                <StatusBadge status={status} />
               </div>
             )
           })}
