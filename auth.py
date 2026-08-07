@@ -6,7 +6,8 @@ from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+import jwt
+from jwt import PyJWTError
 from sqlalchemy.orm import Session
 
 from database import get_db
@@ -59,7 +60,7 @@ def get_current_user(
         user_id: str = payload.get("sub")
         if not user_id:
             raise HTTPException(status_code=401, detail="Token inválido")
-    except JWTError:
+    except PyJWTError:
         raise HTTPException(status_code=401, detail="Token inválido ou expirado")
 
     user = db.query(User).filter(User.id == int(user_id), User.is_active == True).first()

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { ArrowLeft, Phone, Mail, Coffee, Music, Thermometer, MessageCircle, AlertTriangle, Star, Calendar } from 'lucide-react'
