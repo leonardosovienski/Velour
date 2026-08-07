@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Plus, ToggleRight, ToggleLeft, Pencil, ShieldCheck, Shield, User } from 'lucide-react'
-import { usersApi } from '../api/client'
+import { usersApi, getErrorDetail } from '../api/client'
 import type { UserResponse, UserRole } from '../api/types'
 import { Layout, PageHeader, Card } from '../components/Layout'
 import { Modal } from '../components/Modal'
@@ -174,8 +174,8 @@ function UserModal({ open, user, onClose, onSuccess }: {
         await usersApi.create({ name, email, password, role })
       }
       onSuccess()
-    } catch (err: any) {
-      setError(err.response?.data?.detail ?? 'Erro ao salvar usuário.')
+    } catch (err) {
+      setError(getErrorDetail(err) ?? 'Erro ao salvar usuário.')
     } finally {
       setLoading(false)
     }

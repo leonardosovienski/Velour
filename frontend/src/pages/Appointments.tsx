@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { format } from 'date-fns'
 import { Plus, Search, CheckCircle, XCircle, BookOpen, ChevronDown } from 'lucide-react'
-import { appointmentsApi, clientsApi, professionalsApi, servicesApi, recipesApi } from '../api/client'
+import { appointmentsApi, clientsApi, professionalsApi, servicesApi, recipesApi, getErrorDetail } from '../api/client'
 import type {
   AppointmentDetail, ClientResponse, ProfessionalResponse,
   ServiceResponse, AppointmentCreate, AppointmentComplete,
@@ -23,14 +23,6 @@ const statusOptions = [
   { value: 'cancelled', label: 'Cancelado' },
   { value: 'no_show', label: 'Não compareceu' },
 ]
-
-function extractErrorDetail(err: unknown): string | undefined {
-  if (typeof err === 'object' && err !== null && 'response' in err) {
-    const anyErr = err as any
-    return anyErr.response?.data?.detail
-  }
-  return undefined
-}
 
 export function Appointments() {
   const [appointments, setAppointments] = useState<AppointmentDetail[]>([])
@@ -277,7 +269,7 @@ function CreateModal({ open, onClose, onSuccess }: { open: boolean; onClose: () 
       onSuccess()
       setForm({ client_id: 0, professional_id: 0, service_id: 0, scheduled_at: '' })
     } catch (err: unknown) {
-      const detail = extractErrorDetail(err)
+      const detail = getErrorDetail(err)
       setError(typeof detail === 'string' ? detail : 'Erro ao criar agendamento. Verifique conflito de horário.')
     } finally {
       setLoading(false)
@@ -387,7 +379,7 @@ function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail |
       }
       onSuccess()
     } catch (err: unknown) {
-      const detail = extractErrorDetail(err)
+      const detail = getErrorDetail(err)
       setError(detail ?? 'Erro ao concluir atendimento.')
     } finally {
       setLoading(false)

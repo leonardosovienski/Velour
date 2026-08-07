@@ -4,7 +4,7 @@ import {
   Scissors, Palette, Sparkles, Gem, Zap, Flower2, Droplets, Crown,
   type LucideIcon,
 } from 'lucide-react'
-import { servicesApi, serviceCategoriesApi, productsApi, recipesApi } from '../api/client'
+import { servicesApi, serviceCategoriesApi, productsApi, recipesApi, getErrorDetail } from '../api/client'
 import type {
   ServiceResponse, ServiceCategoryResponse, ServiceCreate, ServiceUpdate,
   ProductResponse, RecipeItem,
@@ -220,8 +220,8 @@ function RecipeModal({ service, onClose }: { service: ServiceResponse | null; on
     try {
       await recipesApi.set(service.id, items.filter(i => i.qty_consumed > 0))
       onClose()
-    } catch (err: any) {
-      setError(err.response?.data?.detail ?? 'Erro ao salvar ficha técnica.')
+    } catch (err) {
+      setError(getErrorDetail(err) ?? 'Erro ao salvar ficha técnica.')
     } finally {
       setSaving(false)
     }
@@ -320,8 +320,8 @@ function ServiceModal({ open, service, categories, onClose, onSuccess }: {
         await servicesApi.create(form)
       }
       onSuccess()
-    } catch (err: any) {
-      setError(err.response?.data?.detail ?? 'Erro ao salvar serviço.')
+    } catch (err) {
+      setError(getErrorDetail(err) ?? 'Erro ao salvar serviço.')
     } finally {
       setLoading(false)
     }

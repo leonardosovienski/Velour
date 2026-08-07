@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, Calendar, Scissors,
   Star, Share2, BarChart2, LogOut, UserCog, ChevronRight, X, Package,
 } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/useAuth'
 
 const navItems = [
   { to: '/',              icon: LayoutDashboard, label: 'Dashboard' },
