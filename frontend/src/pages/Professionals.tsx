@@ -214,14 +214,17 @@ function DashboardModal({ professional, onClose }: { professional: ProfessionalR
   )
 }
 
+const EMPTY_PROFESSIONAL: ProfessionalCreate = {
+  name: '', phone: '', gender: 'F', specialty: '', commission_rate: 0.40, monthly_goal: 0,
+}
+
 function ProfessionalModal({ open, professional, onClose, onSuccess }: {
   open: boolean
   professional: ProfessionalResponse | null
   onClose: () => void
   onSuccess: () => void
 }) {
-  const blank: ProfessionalCreate = { name: '', phone: '', gender: 'F', specialty: '', commission_rate: 0.40, monthly_goal: 0 }
-  const [form, setForm] = useState<ProfessionalCreate>(blank)
+  const [form, setForm] = useState<ProfessionalCreate>(EMPTY_PROFESSIONAL)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -238,7 +241,7 @@ function ProfessionalModal({ open, professional, onClose, onSuccess }: {
         monthly_goal: professional.monthly_goal,
       })
     } else {
-      setForm(blank)
+      setForm(EMPTY_PROFESSIONAL)
     }
     setError('')
   }, [professional, open])

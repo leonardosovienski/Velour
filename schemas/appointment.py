@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Optional, List
 
 from pydantic import BaseModel, Field
@@ -30,7 +31,7 @@ class RecipeOverride(BaseModel):
 
 
 class AppointmentComplete(BaseModel):
-    price_charged: float = Field(ge=0)
+    price_charged: Decimal = Field(ge=0, decimal_places=2)
     discount_points_used: int = Field(default=0, ge=0)
     photo_before_url: Optional[str] = None
     photo_after_url: Optional[str] = None
@@ -53,10 +54,10 @@ class AppointmentResponse(BaseModel):
     photo_after_url: Optional[str]
     formula_used: Optional[str]
     points_awarded: int
-    price_charged: Optional[float]
+    price_charged: Optional[Decimal]
     discount_points_used: int
     tier_at_service: Optional[LoyaltyTier]
-    tier_discount_amount: float
+    tier_discount_amount: Decimal
     created_at: datetime
 
     model_config = {"from_attributes": True}

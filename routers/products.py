@@ -3,7 +3,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from auth import get_current_user, require_admin
+from auth import get_current_user, require_admin, require_manager
 from database import get_db
 from models.product import Product
 from models.service import Service
@@ -28,7 +28,7 @@ def list_products(
     is_active: bool = True,
     low_stock: bool = False,
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    _=Depends(require_manager),
 ):
     q = db.query(Product).filter(Product.is_active == is_active)
     if low_stock:
@@ -37,7 +37,7 @@ def list_products(
 
 
 @prod_router.get("/{product_id}", response_model=ProductResponse)
-def get_product(product_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def get_product(product_id: int, db: Session = Depends(get_db), _=Depends(require_manager)):
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Insumo não encontrado")
@@ -123,7 +123,7 @@ def move_stock(product_id: int, body: StockEntry, db: Session = Depends(get_db),
 
 
 @prod_router.get("/{product_id}/movements", response_model=List[StockMovementResponse])
-def list_movements(product_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def list_movements(product_id: int, db: Session = Depends(get_db), _=Depends(require_manager)):
     if not db.query(Product).filter(Product.id == product_id).first():
         raise HTTPException(status_code=404, detail="Insumo não encontrado")
     return (

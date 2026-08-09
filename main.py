@@ -1,12 +1,10 @@
-import os
-from pathlib import Path
-
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from sqlalchemy import text
 
 from auth import get_current_user
-from database import engine, Base
+from database import engine, Base, SessionLocal
 import models  # noqa: F401 — registra todos os modelos no metadata
 
 from routers.auth import router as auth_router
@@ -20,11 +18,15 @@ from routers.loyalty import router as loyalty_router
 from routers.referrals import router as referrals_router
 from routers.dashboard import router as dashboard_router
 from routers.reports import router as reports_router
+from routers.audit_logs import router as audit_logs_router
 from birthday_scheduler import start_scheduler
+from config import settings
+from audit import AuditMiddleware
 
-Base.metadata.create_all(bind=engine)
+if settings.auto_create_tables:
+    Base.metadata.create_all(bind=engine)
 
-os.makedirs("uploads", exist_ok=True)
+settings.upload_dir.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(
     title="Velour — Sistema de Gestão para Salão Premium",
@@ -34,11 +36,12 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=list(settings.cors_origins),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.add_middleware(AuditMiddleware)
 
 app.include_router(auth_router)
 app.include_router(users_router)
@@ -51,8 +54,9 @@ app.include_router(loyalty_router)
 app.include_router(referrals_router)
 app.include_router(dashboard_router)
 app.include_router(reports_router)
+app.include_router(audit_logs_router)
 
-UPLOAD_ROOT = Path("uploads").resolve()
+UPLOAD_ROOT = settings.upload_dir
 
 
 @app.get("/uploads/{filename}", tags=["uploads"])
@@ -73,9 +77,15 @@ def get_upload(filename: str, _=Depends(get_current_user)):
 
 @app.on_event("startup")
 async def startup():
-    start_scheduler()
+    if settings.scheduler_enabled:
+        start_scheduler()
 
 
 @app.get("/health", tags=["health"])
 def health():
-    return {"status": "ok", "system": "Velour"}
+    try:
+        with SessionLocal() as db:
+            db.execute(text("SELECT 1"))
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Banco de dados indisponível") from exc
+    return {"status": "ok", "system": "Velour", "environment": settings.environment}

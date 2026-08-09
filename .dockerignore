@@ -1,0 +1,12 @@
+.git
+.github
+.venv
+__pycache__
+*.pyc
+.env
+velour.db
+uploads
+frontend/node_modules
+frontend/dist
+tests
+uvicorn.log

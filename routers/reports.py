@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from auth import get_current_user
+from auth import require_manager
 from database import get_db
 from models.appointment import Appointment, AppointmentStatus
 from models.client import Client, LoyaltyTier
@@ -31,7 +32,7 @@ def revenue_report(
     professional_id: Optional[int] = None,
     category_id: Optional[int] = None,
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    _=Depends(require_manager),
 ):
     inicio, fim = _parse_period(period_start, period_end)
 
@@ -55,7 +56,7 @@ def revenue_report(
     por_prof: dict = {}
     for a in appts:
         nome = a.professional.name
-        por_prof.setdefault(nome, {"appointments": 0, "revenue": 0.0})
+        por_prof.setdefault(nome, {"appointments": 0, "revenue": Decimal("0")})
         por_prof[nome]["appointments"] += 1
         por_prof[nome]["revenue"] += a.price_charged or a.service.price
 
@@ -63,7 +64,7 @@ def revenue_report(
     por_cat: dict = {}
     for a in appts:
         nome = a.service.category.name
-        por_cat.setdefault(nome, {"appointments": 0, "revenue": 0.0})
+        por_cat.setdefault(nome, {"appointments": 0, "revenue": Decimal("0")})
         por_cat[nome]["appointments"] += 1
         por_cat[nome]["revenue"] += a.price_charged or a.service.price
 
@@ -71,7 +72,7 @@ def revenue_report(
     por_genero: dict = {}
     for a in appts:
         g = a.client.gender.value
-        por_genero.setdefault(g, {"appointments": 0, "revenue": 0.0})
+        por_genero.setdefault(g, {"appointments": 0, "revenue": Decimal("0")})
         por_genero[g]["appointments"] += 1
         por_genero[g]["revenue"] += a.price_charged or a.service.price
 
@@ -91,7 +92,7 @@ def client_report(
     period_start: Optional[str] = None,
     period_end: Optional[str] = None,
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    _=Depends(require_manager),
 ):
     inicio, fim = _parse_period(period_start, period_end)
 
@@ -126,7 +127,7 @@ def client_report(
 def loyalty_monthly(
     months: int = Query(6, ge=1, le=24),
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    _=Depends(require_manager),
 ):
     hoje = datetime.now()
     resultado = []
@@ -164,7 +165,7 @@ def loyalty_monthly(
 def referrals_monthly(
     months: int = Query(6, ge=1, le=24),
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    _=Depends(require_manager),
 ):
     hoje = datetime.now()
     resultado = []

@@ -1,7 +1,7 @@
 from datetime import datetime
 import enum
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, Float, Enum as SAEnum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, Float, Numeric, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -24,7 +24,7 @@ class Product(Base):
     stock_qty = Column(Float, nullable=False, default=0.0)        # saldo atual
     min_stock = Column(Float, nullable=False, default=0.0)        # gatilho de alerta de reposição
     expiry_date = Column(Date, nullable=True)                     # vencimento (alerta a < 30 dias)
-    cost_per_unit = Column(Float, nullable=False, default=0.0)    # custo por unidade de medida
+    cost_per_unit = Column(Numeric(14, 4), nullable=False, default=0)  # custo por unidade de medida
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)
 

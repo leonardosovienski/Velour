@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from auth import get_current_user
+from auth import get_current_user, require_manager
 from database import get_db
 from models.client import Client, LoyaltyTier
 from models.loyalty import LoyaltyTransaction, TransactionType
@@ -38,7 +38,7 @@ def list_transactions(
 
 
 @router.get("/overview", response_model=LoyaltyOverview)
-def loyalty_overview(db: Session = Depends(get_db), _=Depends(get_current_user)):
+def loyalty_overview(db: Session = Depends(get_db), _=Depends(require_manager)):
     hoje = datetime.now()
     inicio_mes = datetime(hoje.year, hoje.month, 1)
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { format } from 'date-fns'
 import { Plus, Search, CheckCircle, XCircle, BookOpen, ChevronDown } from 'lucide-react'
 import { appointmentsApi, clientsApi, professionalsApi, servicesApi, recipesApi, getErrorDetail } from '../api/client'
@@ -35,7 +35,7 @@ export function Appointments() {
   const [briefingClientId, setBriefingClientId] = useState<number | null>(null)
   const [cancelId, setCancelId] = useState<number | null>(null)
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true)
     const data = await appointmentsApi.list({
       status: statusFilter || undefined,
@@ -44,9 +44,9 @@ export function Appointments() {
     })
     setAppointments(data)
     setLoading(false)
-  }
+  }, [statusFilter, dateFrom])
 
-  useEffect(() => { load() }, [statusFilter, dateFrom])
+  useEffect(() => { load() }, [load])
 
   const filtered = useMemo(() => {
     if (!search) return appointments

@@ -50,7 +50,13 @@ def login(request: Request, form: OAuth2PasswordRequestForm = Depends(), db: Ses
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
 
     token = create_access_token(user.id, user.email, user.role.value)
-    return {"access_token": token, "token_type": "bearer", "role": user.role, "name": user.name}
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "role": user.role,
+        "name": user.name,
+        "professional_id": user.professional_id,
+    }
 
 
 @router.get("/me", response_model=UserResponse)

@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { format } from 'date-fns'
 import {
   Plus, Package, AlertTriangle, CalendarClock, Pencil, PlusCircle, History, ToggleLeft, ToggleRight,
@@ -32,13 +32,13 @@ export function Inventory() {
   const [stockFor, setStockFor] = useState<ProductResponse | null>(null)
   const [movementsFor, setMovementsFor] = useState<ProductResponse | null>(null)
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true)
     setProducts(await productsApi.list({ low_stock: lowOnly || undefined }))
     setLoading(false)
-  }
+  }, [lowOnly])
 
-  useEffect(() => { load() }, [lowOnly])
+  useEffect(() => { load() }, [load])
 
   async function toggleActive(p: ProductResponse) {
     await productsApi.update(p.id, { is_active: !p.is_active })

@@ -303,7 +303,7 @@ function ServiceModal({ open, service, categories, onClose, onSuccess }: {
     } else {
       setForm({ category_id: categories[0]?.id ?? 0, name: '', duration_minutes: 30, price: 0, points_reward: 0 })
     }
-  }, [service, open])
+  }, [service, open, categories])
 
   function set(field: keyof ServiceCreate, value: string | number) {
     setForm(f => ({ ...f, [field]: value }))

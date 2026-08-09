@@ -1,7 +1,7 @@
 from datetime import datetime
 import enum
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, Enum as SAEnum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Numeric, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -24,8 +24,8 @@ class Professional(Base):
     photo_url = Column(String(500), nullable=True)
     specialty = Column(String(300), nullable=False)
     bio = Column(String(1000), nullable=True)
-    commission_rate = Column(Float, default=0.40)
-    monthly_goal = Column(Float, default=0.0)  # meta de receita do mês (R$)
+    commission_rate = Column(Numeric(5, 4), default=0.40)
+    monthly_goal = Column(Numeric(14, 2), default=0)  # meta de receita do mês (R$)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)
 

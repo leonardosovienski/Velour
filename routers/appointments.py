@@ -1,5 +1,6 @@
 import threading
 from datetime import datetime, timedelta
+from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 from typing import List, Optional
 from uuid import uuid4
@@ -7,7 +8,7 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from sqlalchemy.orm import Session
 
-from auth import get_current_user
+from auth import get_current_user, ensure_professional_scope
 from database import get_db
 from models.appointment import Appointment, AppointmentStatus
 from models.client import Client, LoyaltyTier, calculate_tier
@@ -18,6 +19,7 @@ from models.referral import Referral, ReferralStatus
 from models.service import Service
 from models.service_recipe import ServiceRecipe
 from models.stock_movement import StockMovement, StockMovementType
+from models.user import User
 from schemas.appointment import (
     AppointmentCreate, AppointmentResponse, AppointmentStatusUpdate,
     AppointmentComplete, AppointmentDetail,
@@ -60,14 +62,14 @@ POINTS_PER_BRL = 1
 # Pontos para resgate: 100 pts = R$10
 POINTS_REDEMPTION_RATE = 0.10
 # Desconto máximo por atendimento (50%)
-MAX_DISCOUNT_RATIO = 0.5
+MAX_DISCOUNT_RATIO = 0.50
 # Pontos ganhos por indicação convertida
 REFERRAL_POINTS_REFERRER = 150
 REFERRAL_POINTS_REFERRED = 75
 
 # Desconto automático por tier de fidelidade (sobre o valor base do serviço)
 TIER_DISCOUNT_RATES = {
-    LoyaltyTier.bronze: 0.0,
+    LoyaltyTier.bronze: 0.00,
     LoyaltyTier.silver: 0.05,
     LoyaltyTier.gold: 0.10,
     LoyaltyTier.platinum: 0.15,
@@ -102,23 +104,23 @@ def _check_conflict(db: Session, prof_id: int, start: datetime, end: datetime, i
 def _apply_loyalty_completion(db: Session, appt: Appointment):
     """Processa pontos, tier e indicações ao concluir um atendimento."""
     client = appt.client
-    base_price = appt.price_charged or appt.service.price
+    base_price = Decimal(appt.price_charged or appt.service.price)
 
     # Tier vigente ANTES de incorporar o gasto deste atendimento (sem downgrade).
     tier_at_service = client.loyalty_tier
-    tier_rate = TIER_DISCOUNT_RATES.get(tier_at_service, 0.0)
-    tier_discount = base_price * tier_rate
+    tier_rate = Decimal(str(TIER_DISCOUNT_RATES.get(tier_at_service, 0)))
+    tier_discount = (base_price * tier_rate).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
     # Teto absoluto: desconto combinado (tier + pontos) <= 50% do valor base.
-    max_total_discount = base_price * MAX_DISCOUNT_RATIO
+    max_total_discount = base_price * Decimal(str(MAX_DISCOUNT_RATIO))
 
     # Desconto por resgate de pontos, aplicado DEPOIS do tier e limitado ao que
     # sobra do teto. Os pontos usados são debitados integralmente (mesmo que o
     # desconto efetivo seja menor por causa do teto).
-    points_discount = 0.0
+    points_discount = Decimal("0")
     if appt.discount_points_used > 0:
-        points_discount = appt.discount_points_used * POINTS_REDEMPTION_RATE
-        remaining_cap = max(max_total_discount - tier_discount, 0.0)
+        points_discount = Decimal(appt.discount_points_used) * Decimal(str(POINTS_REDEMPTION_RATE))
+        remaining_cap = max(max_total_discount - tier_discount, Decimal("0"))
         points_discount = min(points_discount, remaining_cap)
 
         client.loyalty_points -= appt.discount_points_used
@@ -131,7 +133,9 @@ def _apply_loyalty_completion(db: Session, appt: Appointment):
         )
         db.add(tx_redeem)
 
-    final_price = max(base_price - tier_discount - points_discount, 0.0)
+    final_price = max(base_price - tier_discount - points_discount, Decimal("0")).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP
+    )
 
     # Pontos ganhos pelo atendimento (sobre o valor efetivamente pago)
     points_earned = int(final_price) * POINTS_PER_BRL
@@ -139,7 +143,7 @@ def _apply_loyalty_completion(db: Session, appt: Appointment):
         points_earned = appt.service.points_reward
 
     client.loyalty_points += points_earned
-    client.total_spent += final_price
+    client.total_spent = Decimal(str(client.total_spent or 0)) + final_price
     client.total_visits += 1
 
     appt.points_awarded = points_earned
@@ -265,9 +269,13 @@ def list_appointments(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     q = db.query(Appointment)
+    if current_user.role == "professional":
+        if current_user.professional_id is None:
+            return []
+        q = q.filter(Appointment.professional_id == current_user.professional_id)
     if date_from:
         q = q.filter(Appointment.scheduled_at >= date_from)
     if date_to:
@@ -282,15 +290,17 @@ def list_appointments(
 
 
 @router.get("/{appt_id}", response_model=AppointmentDetail)
-def get_appointment(appt_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def get_appointment(appt_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     appt = db.query(Appointment).filter(Appointment.id == appt_id).first()
     if not appt:
         raise HTTPException(status_code=404, detail="Agendamento não encontrado")
+    ensure_professional_scope(current_user, appt.professional_id)
     return appt
 
 
 @router.post("", response_model=AppointmentResponse, status_code=201)
-def create_appointment(body: AppointmentCreate, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def create_appointment(body: AppointmentCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    ensure_professional_scope(current_user, body.professional_id)
     client = db.query(Client).filter(Client.id == body.client_id, Client.is_active == True).first()
     if not client:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
@@ -328,11 +338,12 @@ def update_status(
     appt_id: int,
     body: AppointmentStatusUpdate,
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     appt = db.query(Appointment).filter(Appointment.id == appt_id).first()
     if not appt:
         raise HTTPException(status_code=404, detail="Agendamento não encontrado")
+    ensure_professional_scope(current_user, appt.professional_id)
     if body.status == AppointmentStatus.completed:
         raise HTTPException(
             status_code=422,
@@ -349,12 +360,13 @@ def complete_appointment(
     appt_id: int,
     body: AppointmentComplete,
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     with _completion_lock:
         appt = db.query(Appointment).filter(Appointment.id == appt_id).first()
         if not appt:
             raise HTTPException(status_code=404, detail="Agendamento não encontrado")
+        ensure_professional_scope(current_user, appt.professional_id)
         if appt.status == AppointmentStatus.completed:
             raise HTTPException(status_code=409, detail="Atendimento já concluído")
         if appt.status in (AppointmentStatus.cancelled, AppointmentStatus.no_show):
@@ -410,11 +422,12 @@ async def upload_photos(
     photo_before: Optional[UploadFile] = File(None),
     photo_after: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     appt = db.query(Appointment).filter(Appointment.id == appt_id).first()
     if not appt:
         raise HTTPException(status_code=404, detail="Agendamento não encontrado")
+    ensure_professional_scope(current_user, appt.professional_id)
 
     upload_dir = Path("uploads")
     upload_dir.mkdir(exist_ok=True)
@@ -431,10 +444,11 @@ async def upload_photos(
 
 
 @router.delete("/{appt_id}", status_code=204)
-def cancel_appointment(appt_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def cancel_appointment(appt_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     appt = db.query(Appointment).filter(Appointment.id == appt_id).first()
     if not appt:
         raise HTTPException(status_code=404, detail="Agendamento não encontrado")
+    ensure_professional_scope(current_user, appt.professional_id)
     if appt.status == AppointmentStatus.completed:
         raise HTTPException(status_code=409, detail="Não é possível cancelar um atendimento concluído")
     appt.status = AppointmentStatus.cancelled

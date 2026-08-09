@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Optional
 
 from pydantic import BaseModel, Field
@@ -14,8 +15,8 @@ class ProfessionalCreate(BaseModel):
     photo_url: Optional[str] = None
     specialty: str = Field(min_length=2, max_length=300)
     bio: Optional[str] = None
-    commission_rate: float = Field(default=0.40, ge=0, le=1)
-    monthly_goal: float = Field(default=0.0, ge=0)
+    commission_rate: Decimal = Field(default=Decimal("0.40"), ge=0, le=1, decimal_places=4)
+    monthly_goal: Decimal = Field(default=Decimal("0"), ge=0, decimal_places=2)
 
 
 class ProfessionalUpdate(BaseModel):
@@ -26,8 +27,8 @@ class ProfessionalUpdate(BaseModel):
     photo_url: Optional[str] = None
     specialty: Optional[str] = Field(None, min_length=2, max_length=300)
     bio: Optional[str] = None
-    commission_rate: Optional[float] = Field(None, ge=0, le=1)
-    monthly_goal: Optional[float] = Field(None, ge=0)
+    commission_rate: Optional[Decimal] = Field(None, ge=0, le=1, decimal_places=4)
+    monthly_goal: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
     is_active: Optional[bool] = None
 
 
@@ -40,8 +41,8 @@ class ProfessionalResponse(BaseModel):
     photo_url: Optional[str]
     specialty: str
     bio: Optional[str]
-    commission_rate: float
-    monthly_goal: float
+    commission_rate: Decimal
+    monthly_goal: Decimal
     is_active: bool
     created_at: datetime
 

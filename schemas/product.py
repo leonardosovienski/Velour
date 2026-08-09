@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from decimal import Decimal
 from typing import Optional, List
 
 from pydantic import BaseModel, Field
@@ -15,7 +16,7 @@ class ProductCreate(BaseModel):
     stock_qty: float = Field(default=0.0, ge=0)
     min_stock: float = Field(default=0.0, ge=0)
     expiry_date: Optional[date] = None
-    cost_per_unit: float = Field(default=0.0, ge=0)
+    cost_per_unit: Decimal = Field(default=Decimal("0"), ge=0, decimal_places=4)
 
 
 class ProductUpdate(BaseModel):
@@ -23,7 +24,7 @@ class ProductUpdate(BaseModel):
     unit: Optional[ProductUnit] = None
     min_stock: Optional[float] = Field(None, ge=0)
     expiry_date: Optional[date] = None
-    cost_per_unit: Optional[float] = Field(None, ge=0)
+    cost_per_unit: Optional[Decimal] = Field(None, ge=0, decimal_places=4)
     is_active: Optional[bool] = None
     # stock_qty NÃO é editável aqui: saldo só muda via movimentações (ledger)
 
@@ -35,7 +36,7 @@ class ProductResponse(BaseModel):
     stock_qty: float
     min_stock: float
     expiry_date: Optional[date]
-    cost_per_unit: float
+    cost_per_unit: Decimal
     is_active: bool
     created_at: datetime
 

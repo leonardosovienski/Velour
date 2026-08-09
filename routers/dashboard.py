@@ -6,6 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from auth import get_current_user
+from models.user import User
 from database import get_db
 from models.appointment import Appointment, AppointmentStatus
 from models.client import Client
@@ -15,6 +16,14 @@ from models.product import Product
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 
+def _scope_appointments(query, current_user: User | None):
+    if current_user is not None and current_user.role == "professional":
+        if current_user.professional_id is None:
+            return query.filter(False)
+        return query.filter(Appointment.professional_id == current_user.professional_id)
+    return query
+
+
 @router.get("/today")
 def today_summary(db: Session = Depends(get_db), _=Depends(get_current_user)):
     hoje = datetime.now().date()
@@ -22,7 +31,7 @@ def today_summary(db: Session = Depends(get_db), _=Depends(get_current_user)):
     fim = datetime(hoje.year, hoje.month, hoje.day, 23, 59, 59)
 
     appts_hoje = (
-        db.query(Appointment)
+        _scope_appointments(db.query(Appointment), _)
         .filter(Appointment.scheduled_at >= inicio, Appointment.scheduled_at <= fim)
         .order_by(Appointment.scheduled_at)
         .all()
@@ -73,16 +82,21 @@ def kpis(period: str = Query("month", pattern="^(day|week|month)$"), db: Session
         inicio = datetime(hoje.year, hoje.month, 1)
 
     appts = (
-        db.query(Appointment)
+        _scope_appointments(db.query(Appointment), _)
         .filter(Appointment.scheduled_at >= inicio, Appointment.status == AppointmentStatus.completed)
         .all()
     )
 
     receita = sum(a.price_charged or a.service.price for a in appts)
 
-    total_clientes_ativos = db.query(Client).filter(Client.is_active == True).count()
+    clients_query = db.query(Client).filter(Client.is_active == True)
+    if _ is not None and _.role == "professional":
+        clients_query = clients_query.join(Appointment).filter(
+            Appointment.professional_id == current_user.professional_id
+        ).distinct()
+    total_clientes_ativos = clients_query.count()
 
-    pts_emitidos = (
+    pts_emitidos = 0 if _ is not None and _.role == "professional" else (
         db.query(func.sum(LoyaltyTransaction.points))
         .filter(LoyaltyTransaction.created_at >= inicio, LoyaltyTransaction.points > 0)
         .scalar() or 0
@@ -107,7 +121,7 @@ def weekly_revenue(db: Session = Depends(get_db), _=Depends(get_current_user)):
         inicio_dia = datetime(dia.year, dia.month, dia.day, 0, 0, 0)
         fim_dia = datetime(dia.year, dia.month, dia.day, 23, 59, 59)
         appts = (
-            db.query(Appointment)
+            _scope_appointments(db.query(Appointment), _)
             .filter(
                 Appointment.scheduled_at >= inicio_dia,
                 Appointment.scheduled_at <= fim_dia,
@@ -130,8 +144,13 @@ def alerts(db: Session = Depends(get_db), _=Depends(get_current_user)):
     dia = hoje.date()
 
     # Aniversários do dia
+    birthday_query = db.query(Client)
+    if _ is not None and _.role == "professional":
+        birthday_query = birthday_query.join(Appointment).filter(
+            Appointment.professional_id == _.professional_id
+        ).distinct()
     aniversariantes = (
-        db.query(Client)
+        birthday_query
         .filter(
             Client.is_active == True,
             func.strftime("%m-%d", Client.birthdate) == dia.strftime("%m-%d"),
@@ -144,7 +163,7 @@ def alerts(db: Session = Depends(get_db), _=Depends(get_current_user)):
     fim_dia = datetime(dia.year, dia.month, dia.day, 23, 59, 59)
     from models.client import LoyaltyTier
     platinum_hoje = (
-        db.query(Appointment)
+        _scope_appointments(db.query(Appointment), _)
         .join(Client)
         .filter(
             Appointment.scheduled_at >= inicio_dia,
@@ -175,6 +194,9 @@ def alerts(db: Session = Depends(get_db), _=Depends(get_current_user)):
         .order_by(Product.expiry_date)
         .all()
     )
+    if _ is not None and _.role == "professional":
+        low_stock = []
+        expiring = []
 
     return {
         "birthdays_today": [
@@ -206,15 +228,20 @@ def alerts(db: Session = Depends(get_db), _=Depends(get_current_user)):
 def upcoming_appointments(
     days: int = Query(2, ge=1, le=7),
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     amanha = datetime.now().date() + timedelta(days=1)
     ate = amanha + timedelta(days=days - 1)
     inicio = datetime(amanha.year, amanha.month, amanha.day)
     fim = datetime(ate.year, ate.month, ate.day, 23, 59, 59)
 
+    query = db.query(Appointment)
+    if current_user.role == "professional":
+        if current_user.professional_id is None:
+            return []
+        query = query.filter(Appointment.professional_id == current_user.professional_id)
     appts = (
-        db.query(Appointment)
+        query
         .filter(
             Appointment.scheduled_at >= inicio,
             Appointment.scheduled_at <= fim,

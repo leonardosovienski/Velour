@@ -1,13 +1,15 @@
 from typing import List, Optional
 from collections import defaultdict
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from auth import get_current_user, require_admin
+from auth import get_current_user, require_admin, ensure_professional_scope
 from database import get_db
 from models.professional import Professional
+from models.user import User
 from models.appointment import Appointment, AppointmentStatus
 from models.client import Client
 from schemas.professional import ProfessionalCreate, ProfessionalUpdate, ProfessionalResponse
@@ -26,6 +28,8 @@ def list_professionals(
 
 @router.get("/{prof_id}", response_model=ProfessionalResponse)
 def get_professional(prof_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+    if _ is not None:
+        ensure_professional_scope(_, prof_id)
     prof = db.query(Professional).filter(Professional.id == prof_id).first()
     if not prof:
         raise HTTPException(status_code=404, detail="Profissional não encontrado")
@@ -34,6 +38,8 @@ def get_professional(prof_id: int, db: Session = Depends(get_db), _=Depends(get_
 
 @router.get("/{prof_id}/stats")
 def professional_stats(prof_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+    if _ is not None:
+        ensure_professional_scope(_, prof_id)
     prof = db.query(Professional).filter(Professional.id == prof_id).first()
     if not prof:
         raise HTTPException(status_code=404, detail="Profissional não encontrado")
@@ -73,6 +79,8 @@ def professional_stats(prof_id: int, db: Session = Depends(get_db), _=Depends(ge
 
 @router.get("/{prof_id}/dashboard")
 def professional_dashboard(prof_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+    if _ is not None:
+        ensure_professional_scope(_, prof_id)
     """
     Painel do profissional: progresso da meta financeira do mês +
     clientes inativos (que ultrapassaram a própria cadência histórica de retorno).
@@ -95,7 +103,7 @@ def professional_dashboard(prof_id: int, db: Session = Depends(get_db), _=Depend
         .all()
     )
     receita_mes = sum(a.price_charged or a.service.price for a in appts_mes)
-    meta = prof.monthly_goal or 0.0
+    meta = prof.monthly_goal or Decimal("0")
     progresso = round(receita_mes / meta, 4) if meta > 0 else None
 
     # ── Clientes inativos por cadência ────────────────────────────────────────
@@ -148,7 +156,7 @@ def professional_dashboard(prof_id: int, db: Session = Depends(get_db), _=Depend
             "revenue": round(receita_mes, 2),
             "commission": round(receita_mes * prof.commission_rate, 2),
             "progress": progresso,                       # None se não houver meta definida
-            "remaining": round(max(meta - receita_mes, 0.0), 2) if meta > 0 else None,
+            "remaining": round(max(meta - receita_mes, Decimal("0")), 2) if meta > 0 else None,
         },
         "inactive_clients": inativos,
     }

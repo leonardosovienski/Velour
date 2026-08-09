@@ -12,18 +12,21 @@ export interface UserCreate {
   email: string
   password: string
   role: UserRole
+  professional_id?: number
 }
 
 export interface UserUpdate {
   name?: string
   role?: UserRole
   is_active?: boolean
+  professional_id?: number | null
 }
 
 export interface LoginResponse {
   access_token: string
   token_type: string
   role: UserRole
+  professional_id?: number
   name: string
 }
 
@@ -33,6 +36,7 @@ export interface UserResponse {
   name: string
   email: string
   role: UserRole
+  professional_id?: number
   is_active: boolean
   created_at: string
 }

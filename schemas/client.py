@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from decimal import Decimal
 from typing import Optional, List
 
 from pydantic import BaseModel, Field
@@ -56,7 +57,7 @@ class ClientResponse(BaseModel):
     notes: Optional[str]
     loyalty_points: int
     loyalty_tier: LoyaltyTier
-    total_spent: float
+    total_spent: Decimal
     total_visits: int
     referral_code: str
     referred_by_id: Optional[int]
@@ -83,7 +84,7 @@ class ClientBriefing(BaseModel):
     name: str
     loyalty_tier: LoyaltyTier
     loyalty_points: int
-    total_spent: float
+    total_spent: Decimal
     total_visits: int
     first_visit: date
     preferred_drink: Optional[str]
@@ -93,6 +94,6 @@ class ClientBriefing(BaseModel):
     allergies: Optional[str]
     notes: Optional[str]
     last_appointment: Optional[LastAppointmentBrief]
-    spent_to_next_tier: Optional[float]  # quanto falta para próximo tier
+    spent_to_next_tier: Optional[Decimal]  # quanto falta para próximo tier
 
     model_config = {"from_attributes": True}

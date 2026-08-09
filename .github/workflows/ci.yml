@@ -43,6 +43,15 @@ jobs:
           SECRET_KEY: ci-only-secret-key-not-for-production
         run: python -m pytest tests/ -v
 
+      - name: Validate database migrations
+        env:
+          SECRET_KEY: ci-only-secret-key-not-for-production
+          DATABASE_URL: sqlite:///./migration_ci.db
+          AUTO_CREATE_TABLES: "false"
+        run: |
+          alembic upgrade head
+          alembic downgrade base
+
   frontend:
     name: Frontend lint and build
     runs-on: ubuntu-latest
@@ -70,4 +79,6 @@ jobs:
         run: npm run lint
 
       - name: Build frontend
+        env:
+          VITE_API_URL: /api
         run: npm run build

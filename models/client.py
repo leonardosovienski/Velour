@@ -3,7 +3,7 @@ import enum
 import random
 import string
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, Float, ForeignKey, Enum as SAEnum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, Numeric, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -76,7 +76,7 @@ class Client(Base):
     # Fidelidade
     loyalty_points = Column(Integer, default=0)
     loyalty_tier = Column(SAEnum(LoyaltyTier), nullable=False, default=LoyaltyTier.bronze)
-    total_spent = Column(Float, default=0.0)
+    total_spent = Column(Numeric(14, 2), default=0)
     total_visits = Column(Integer, default=0)
 
     # Indicação

@@ -1,17 +1,32 @@
 import threading
 from datetime import date
+from decimal import Decimal
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from auth import get_current_user, require_admin
+from auth import get_current_user, require_admin, require_manager
 from database import get_db
 from models.client import Client, LoyaltyTier, calculate_tier, generate_referral_code
 from models.appointment import Appointment, AppointmentStatus
+from models.user import User
 from schemas.client import ClientCreate, ClientUpdate, ClientResponse, ClientBriefing, LastAppointmentBrief
 
 router = APIRouter(prefix="/clients", tags=["clients"])
+
+
+def _ensure_client_access(db: Session, current_user: User, client_id: int) -> None:
+    if current_user.role != "professional":
+        return
+    if current_user.professional_id is None:
+        raise HTTPException(status_code=403, detail="Usuário profissional sem vínculo configurado")
+    has_relationship = db.query(Appointment.id).filter(
+        Appointment.client_id == client_id,
+        Appointment.professional_id == current_user.professional_id,
+    ).first()
+    if not has_relationship:
+        raise HTTPException(status_code=403, detail="Cliente fora do escopo do profissional")
 
 # Serializa a geração de código VLR-xxxxx e referral_code para evitar
 # colisões sob criação concorrente de clientes (nenhum dos dois é atômico
@@ -25,7 +40,7 @@ def _next_vlr_code(db: Session) -> str:
     return f"VLR-{seq:05d}"
 
 
-def _spent_to_next_tier(total_spent: float, tier: LoyaltyTier) -> Optional[float]:
+def _spent_to_next_tier(total_spent: Decimal, tier: LoyaltyTier) -> Optional[Decimal]:
     thresholds = {
         LoyaltyTier.bronze:   500,
         LoyaltyTier.silver:   1500,
@@ -33,7 +48,7 @@ def _spent_to_next_tier(total_spent: float, tier: LoyaltyTier) -> Optional[float
         LoyaltyTier.platinum: None,
     }
     target = thresholds[tier]
-    return round(target - total_spent, 2) if target is not None else None
+    return Decimal(target) - total_spent if target is not None else None
 
 
 @router.get("", response_model=List[ClientResponse])
@@ -45,9 +60,15 @@ def list_clients(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     q = db.query(Client).filter(Client.is_active == is_active)
+    if current_user.role == "professional":
+        if current_user.professional_id is None:
+            return []
+        q = q.join(Appointment, Appointment.client_id == Client.id).filter(
+            Appointment.professional_id == current_user.professional_id
+        ).distinct()
     if tier:
         q = q.filter(Client.loyalty_tier == tier)
     if gender:
@@ -67,18 +88,20 @@ def list_clients(
 
 
 @router.get("/{client_id}", response_model=ClientResponse)
-def get_client(client_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def get_client(client_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     client = db.query(Client).filter(Client.id == client_id).first()
     if not client:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
+    _ensure_client_access(db, current_user, client_id)
     return client
 
 
 @router.get("/{client_id}/briefing", response_model=ClientBriefing)
-def get_briefing(client_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def get_briefing(client_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     client = db.query(Client).filter(Client.id == client_id).first()
     if not client:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
+    _ensure_client_access(db, current_user, client_id)
 
     last_appt = (
         db.query(Appointment)
@@ -119,7 +142,7 @@ def get_briefing(client_id: int, db: Session = Depends(get_db), _=Depends(get_cu
 
 
 @router.post("", response_model=ClientResponse, status_code=201)
-def create_client(body: ClientCreate, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def create_client(body: ClientCreate, db: Session = Depends(get_db), _=Depends(require_manager)):
     referred_by_id = None
     if body.referral_code_used:
         referrer = db.query(Client).filter(Client.referral_code == body.referral_code_used).first()
@@ -154,7 +177,7 @@ def create_client(body: ClientCreate, db: Session = Depends(get_db), _=Depends(g
 
 
 @router.patch("/{client_id}", response_model=ClientResponse)
-def update_client(client_id: int, body: ClientUpdate, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def update_client(client_id: int, body: ClientUpdate, db: Session = Depends(get_db), _=Depends(require_manager)):
     client = db.query(Client).filter(Client.id == client_id).first()
     if not client:
         raise HTTPException(status_code=404, detail="Cliente não encontrado")

@@ -8,6 +8,7 @@ from models.referral import Referral, ReferralStatus
 from models.product import Product, ProductUnit
 from models.service_recipe import ServiceRecipe
 from models.stock_movement import StockMovement, StockMovementType
+from models.audit_log import AuditLog
 
 __all__ = [
     "User", "UserRole",

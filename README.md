@@ -19,6 +19,8 @@ uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
 Swagger interativo: `http://127.0.0.1:8000/docs`
 
+Para executar a base de produção com PostgreSQL, migrações e containers, consulte [`PRODUCTION.md`](PRODUCTION.md). O arquivo `seed.py` é exclusivo para desenvolvimento e nunca deve ser executado com dados reais.
+
 **Credenciais de dev:**
 ```
 Admin:   admin@velour.com / velour2026

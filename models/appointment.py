@@ -1,7 +1,7 @@
 from datetime import datetime
 import enum
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum as SAEnum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Numeric, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -33,11 +33,11 @@ class Appointment(Base):
     photo_after_url = Column(String(500), nullable=True)
     formula_used = Column(String(500), nullable=True)
     points_awarded = Column(Integer, default=0)
-    price_charged = Column(Float, nullable=True)
+    price_charged = Column(Numeric(12, 2), nullable=True)
     discount_points_used = Column(Integer, default=0)
     # Registro do benefício de tier aplicado no fechamento (para relatórios)
     tier_at_service = Column(SAEnum(LoyaltyTier), nullable=True)
-    tier_discount_amount = Column(Float, default=0.0)
+    tier_discount_amount = Column(Numeric(12, 2), default=0)
     created_at = Column(DateTime, default=datetime.now)
 
     client = relationship("Client", back_populates="appointments", foreign_keys=[client_id])

@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { Search, Plus, ChevronRight, Phone, Mail } from 'lucide-react'
 import { clientsApi, getErrorDetail } from '../api/client'
@@ -23,14 +23,14 @@ export function Clients() {
   const [tier, setTier] = useState('')
   const [creating, setCreating] = useState(false)
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true)
     const data = await clientsApi.list({ tier: tier || undefined, limit: 100 })
     setClients(data)
     setLoading(false)
-  }
+  }, [tier])
 
-  useEffect(() => { load() }, [tier])
+  useEffect(() => { load() }, [load])
 
   const filtered = clients.filter(c =>
     !search || c.name.toLowerCase().includes(search.toLowerCase()) ||

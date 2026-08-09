@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from auth import get_current_user
+from auth import require_manager
 from database import get_db
 from models.client import Client
 from models.referral import Referral, ReferralStatus
@@ -20,7 +20,7 @@ def list_referrals(
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    _=Depends(require_manager),
 ):
     q = db.query(Referral)
     if status:
@@ -31,7 +31,7 @@ def list_referrals(
 
 
 @router.get("/ranking")
-def referral_ranking(db: Session = Depends(get_db), _=Depends(get_current_user)):
+def referral_ranking(db: Session = Depends(get_db), _=Depends(require_manager)):
     """Top indicadores de todos os tempos por indicações convertidas."""
     rows = (
         db.query(

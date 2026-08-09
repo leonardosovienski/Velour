@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Plus, ToggleRight, ToggleLeft, Pencil, ShieldCheck, Shield, User } from 'lucide-react'
-import { usersApi, getErrorDetail } from '../api/client'
-import type { UserResponse, UserRole } from '../api/types'
+import { usersApi, professionalsApi, getErrorDetail } from '../api/client'
+import type { UserResponse, UserRole, ProfessionalResponse } from '../api/types'
 import { Layout, PageHeader, Card } from '../components/Layout'
 import { Modal } from '../components/Modal'
 import { PageSpinner, Spinner } from '../components/Spinner'
@@ -148,6 +148,8 @@ function UserModal({ open, user, onClose, onSuccess }: {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<UserRole>('professional')
+  const [professionalId, setProfessionalId] = useState<number | ''>('')
+  const [professionals, setProfessionals] = useState<ProfessionalResponse[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -156,12 +158,17 @@ function UserModal({ open, user, onClose, onSuccess }: {
       setName(user.name)
       setEmail(user.email)
       setRole(user.role)
+      setProfessionalId(user.professional_id ?? '')
       setPassword('')
     } else {
-      setName(''); setEmail(''); setPassword(''); setRole('professional')
+      setName(''); setEmail(''); setPassword(''); setRole('professional'); setProfessionalId('')
     }
     setError('')
   }, [user, open])
+
+  useEffect(() => {
+    if (open) professionalsApi.list().then(setProfessionals).catch(() => setProfessionals([]))
+  }, [open])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -169,9 +176,19 @@ function UserModal({ open, user, onClose, onSuccess }: {
     setLoading(true)
     try {
       if (user) {
-        await usersApi.update(user.id, { name, role })
+        await usersApi.update(user.id, {
+          name,
+          role,
+          professional_id: role === 'professional' ? Number(professionalId) : null,
+        })
       } else {
-        await usersApi.create({ name, email, password, role })
+        await usersApi.create({
+          name,
+          email,
+          password,
+          role,
+          professional_id: role === 'professional' ? Number(professionalId) : undefined,
+        })
       }
       onSuccess()
     } catch (err) {
@@ -188,6 +205,19 @@ function UserModal({ open, user, onClose, onSuccess }: {
           <label className="field-label">Nome completo *</label>
           <input value={name} onChange={e => setName(e.target.value)} required />
         </div>
+        {role === 'professional' && (
+          <div>
+            <label className="field-label">Cadastro profissional *</label>
+            <select
+              value={professionalId}
+              onChange={e => setProfessionalId(e.target.value ? Number(e.target.value) : '')}
+              required
+            >
+              <option value="">Selecione o profissional</option>
+              {professionals.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </select>
+          </div>
+        )}
         {!user && (
           <div>
             <label className="field-label">Email *</label>

@@ -1,7 +1,7 @@
 from datetime import datetime
 import enum
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum as SAEnum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Numeric, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -32,7 +32,7 @@ class Service(Base):
     name = Column(String(120), nullable=False)
     description = Column(String(500), nullable=True)
     duration_minutes = Column(Integer, nullable=False)
-    price = Column(Float, nullable=False)
+    price = Column(Numeric(12, 2), nullable=False)
     points_reward = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)
