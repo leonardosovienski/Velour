@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *.pyo
+*.log
 .venv/
 venv/
 *.egg-info/
@@ -28,6 +29,9 @@ frontend/.vite/
 # OS
 .DS_Store
 Thumbs.db
+
+# Runtime logs
+uvicorn.log
 
 # Visual Studio
 .vs/
