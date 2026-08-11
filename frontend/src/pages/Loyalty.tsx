@@ -46,7 +46,7 @@ export function Loyalty() {
       <PageHeader title="Fidelidade" subtitle="Visão geral do programa de pontos" />
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Card className="bg-gold/5 border-gold/20">
           <div className="flex items-center gap-2 text-gold text-xs font-semibold uppercase tracking-widest mb-3">
             <Star size={12} /> Total em circulação
@@ -70,7 +70,7 @@ export function Loyalty() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Tier Distribution */}
         <Card>
           <div className="flex items-center gap-2 text-muted text-xs font-semibold uppercase tracking-widest mb-4">

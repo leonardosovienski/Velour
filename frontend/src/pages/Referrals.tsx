@@ -37,13 +37,13 @@ export function Referrals() {
       <PageHeader title="Indicações" subtitle="Rastreamento do programa de indicações" />
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Card><Stat label="Total de Indicações" value={String(referrals.length)} /></Card>
         <Card className="bg-success/5 border-success/20"><Stat label="Convertidas" value={String(converted)} color="text-green-400" /></Card>
         <Card className="bg-yellow-900/10 border-yellow-800/20"><Stat label="Pendentes" value={String(pending)} color="text-yellow-400" /></Card>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Ranking */}
         <Card>
           <div className="flex items-center gap-2 text-gold text-xs font-semibold uppercase tracking-widest mb-4">
@@ -73,7 +73,7 @@ export function Referrals() {
         </Card>
 
         {/* Referral List */}
-        <div className="col-span-2">
+        <div className="md:col-span-2">
           <Card>
             <div className="flex items-center gap-2 text-muted text-xs font-semibold uppercase tracking-widest mb-4">
               <Share2 size={12} /> Histórico ({referrals.length})

@@ -61,14 +61,15 @@ export function Users() {
 
       {loading ? <PageSpinner /> : (
         <Card className="p-0 overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-muted text-xs uppercase tracking-wider">
-                <th className="text-left px-5 py-3">Usuário</th>
-                <th className="text-left px-5 py-3">Email</th>
-                <th className="text-left px-5 py-3">Perfil</th>
-                <th className="text-left px-5 py-3">Status</th>
-                <th className="px-5 py-3"></th>
+                <th className="text-left px-5 py-3" scope="col">Usuário</th>
+                <th className="text-left px-5 py-3" scope="col">Email</th>
+                <th className="text-left px-5 py-3" scope="col">Perfil</th>
+                <th className="text-left px-5 py-3" scope="col">Status</th>
+                <th className="px-5 py-3" scope="col"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -102,6 +103,7 @@ export function Users() {
                         <button
                           onClick={() => setEditing(u)}
                           title="Editar"
+                          aria-label={`Editar ${u.name}`}
                           className="text-muted hover:text-gold p-1.5 transition-colors"
                         >
                           <Pencil size={13} />
@@ -109,6 +111,7 @@ export function Users() {
                         <button
                           onClick={() => handleToggleActive(u)}
                           title={u.is_active ? 'Desativar' : 'Ativar'}
+                          aria-label={`${u.is_active ? 'Desativar' : 'Ativar'} ${u.name}`}
                           className={`p-1.5 transition-colors ${u.is_active ? 'text-success hover:text-red-400' : 'text-muted hover:text-success'}`}
                         >
                           {u.is_active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
@@ -125,6 +128,7 @@ export function Users() {
               )}
             </tbody>
           </table>
+          </div>
         </Card>
       )}
 
@@ -202,13 +206,13 @@ function UserModal({ open, user, onClose, onSuccess }: {
     <Modal title={user ? 'Editar Usuário' : 'Novo Usuário'} open={open} onClose={onClose} width="max-w-md">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="field-label">Nome completo *</label>
-          <input value={name} onChange={e => setName(e.target.value)} required />
+          <label htmlFor="users-nome-completo" className="field-label">Nome completo *</label>
+          <input id="users-nome-completo" value={name} onChange={e => setName(e.target.value)} required />
         </div>
         {role === 'professional' && (
           <div>
-            <label className="field-label">Cadastro profissional *</label>
-            <select
+            <label htmlFor="users-cadastro-profissional" className="field-label">Cadastro profissional *</label>
+            <select id="users-cadastro-profissional"
               value={professionalId}
               onChange={e => setProfessionalId(e.target.value ? Number(e.target.value) : '')}
               required
@@ -220,19 +224,19 @@ function UserModal({ open, user, onClose, onSuccess }: {
         )}
         {!user && (
           <div>
-            <label className="field-label">Email *</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+            <label htmlFor="users-email" className="field-label">Email *</label>
+            <input id="users-email" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
         )}
         {!user && (
           <div>
-            <label className="field-label">Senha * (mínimo 6 caracteres)</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} minLength={6} required />
+            <label htmlFor="users-senha-minimo-6-caracteres" className="field-label">Senha * (mínimo 6 caracteres)</label>
+            <input id="users-senha-minimo-6-caracteres" type="password" value={password} onChange={e => setPassword(e.target.value)} minLength={6} required />
           </div>
         )}
         <div>
-          <label className="field-label">Perfil *</label>
-          <select value={role} onChange={e => setRole(e.target.value as UserRole)}>
+          <label htmlFor="users-perfil" className="field-label">Perfil *</label>
+          <select id="users-perfil" value={role} onChange={e => setRole(e.target.value as UserRole)}>
             <option value="professional">Profissional</option>
             <option value="manager">Gerente</option>
             <option value="admin">Administrador</option>

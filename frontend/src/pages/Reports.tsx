@@ -193,14 +193,15 @@ function ReferralsTab({ data }: { data: ReferralMonthlyItem[] }) {
   return (
     <Card>
       <div className="text-muted text-xs uppercase tracking-widest mb-4">Indicações — últimos 6 meses</div>
+      <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border text-muted text-xs uppercase tracking-wider">
-            <th className="text-left pb-3 pr-4">Mês</th>
-            <th className="text-left pb-3 pr-4">Criadas</th>
-            <th className="text-left pb-3 pr-4">Convertidas</th>
-            <th className="text-left pb-3 pr-4">Taxa</th>
-            <th className="text-left pb-3">Pts investidos</th>
+            <th className="text-left pb-3 pr-4" scope="col">Mês</th>
+            <th className="text-left pb-3 pr-4" scope="col">Criadas</th>
+            <th className="text-left pb-3 pr-4" scope="col">Convertidas</th>
+            <th className="text-left pb-3 pr-4" scope="col">Taxa</th>
+            <th className="text-left pb-3" scope="col">Pts investidos</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
@@ -215,6 +216,7 @@ function ReferralsTab({ data }: { data: ReferralMonthlyItem[] }) {
           ))}
         </tbody>
       </table>
+      </div>
     </Card>
   )
 }

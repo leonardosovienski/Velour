@@ -58,6 +58,14 @@
     cursor: pointer;
   }
   select option { background-color: #111111; }
+
+  /* Estado de foco visível por teclado em qualquer elemento interativo —
+     o reset do Tailwind remove o outline padrão do navegador. */
+  a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid #C9A84C;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
 @layer components {

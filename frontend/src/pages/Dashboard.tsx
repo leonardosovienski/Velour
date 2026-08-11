@@ -223,12 +223,12 @@ export function Dashboard() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-muted text-xs uppercase tracking-wider">
-                  <th className="text-left pb-3 pr-4">Horário</th>
-                  <th className="text-left pb-3 pr-4">Cliente</th>
-                  <th className="text-left pb-3 pr-4">Profissional</th>
-                  <th className="text-left pb-3 pr-4">Serviço</th>
-                  <th className="text-left pb-3 pr-4">Status</th>
-                  <th className="text-left pb-3"></th>
+                  <th className="text-left pb-3 pr-4" scope="col">Horário</th>
+                  <th className="text-left pb-3 pr-4" scope="col">Cliente</th>
+                  <th className="text-left pb-3 pr-4" scope="col">Profissional</th>
+                  <th className="text-left pb-3 pr-4" scope="col">Serviço</th>
+                  <th className="text-left pb-3 pr-4" scope="col">Status</th>
+                  <th className="text-left pb-3" scope="col"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
