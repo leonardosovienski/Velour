@@ -337,7 +337,7 @@ const TIER_RATES: Record<LoyaltyTier, number> = { bronze: 0, silver: 0.05, gold:
 const TIER_LABEL: Record<LoyaltyTier, string> = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', platinum: 'Platinum' }
 
 function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail | null; onClose: () => void; onSuccess: () => void }) {
-  const [form, setForm] = useState<AppointmentComplete>(() => ({ price_charged: appt?.service?.price ?? 0, discount_points_used: 0 }))
+  const [form, setForm] = useState<AppointmentComplete>(() => ({ price_charged: appt?.service?.price ?? 0, discount_points_used: 0, paid: false, payment_method: undefined }))
   const [photoBefore, setPhotoBefore] = useState<File | null>(null)
   const [photoAfter, setPhotoAfter] = useState<File | null>(null)
   const [recipe, setRecipe] = useState<ServiceRecipeResponse[]>([])
@@ -356,7 +356,7 @@ function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail |
     return () => { mounted = false }
   }, [appt?.service_id])
 
-  function set(field: keyof AppointmentComplete, value: string | number) {
+  function set(field: keyof AppointmentComplete, value: string | number | boolean | undefined) {
     setForm(f => ({ ...f, [field]: value }))
   }
 
@@ -370,6 +370,11 @@ function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail |
       const recipe_overrides: RecipeOverride[] = recipe
         .filter(i => overrides[i.product_id] !== i.qty_consumed)
         .map(i => ({ product_id: i.product_id, actual_qty: overrides[i.product_id] ?? i.qty_consumed }))
+      if (form.paid && (!form.payment_method || form.amount_paid == null)) {
+        setError('Informe a forma de pagamento e o valor recebido.')
+        setLoading(false)
+        return
+      }
       await appointmentsApi.complete(appt.id, {
         ...form,
         recipe_overrides: recipe_overrides.length ? recipe_overrides : undefined,
@@ -457,6 +462,35 @@ function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail |
               <p className="text-muted text-xs mt-2">Ajuste a dosagem real usada; a baixa de estoque segue esses valores.</p>
             </div>
           )}
+
+          {/* Pagamento */}
+          <div className="bg-bg rounded-lg p-3 border border-border space-y-3">
+            <label className="flex items-center gap-2 text-sm text-cream cursor-pointer">
+              <input type="checkbox" checked={form.paid ?? false}
+                onChange={e => set('paid', e.target.checked)} />
+              Pagamento recebido
+            </label>
+            {form.paid && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="field-label">Forma de pagamento *</label>
+                  <select value={form.payment_method ?? ''} onChange={e => set('payment_method', e.target.value || undefined)} required>
+                    <option value="">Selecione</option>
+                    <option value="cash">Dinheiro</option>
+                    <option value="debit_card">Cartão de débito</option>
+                    <option value="credit_card">Cartão de crédito</option>
+                    <option value="pix">Pix</option>
+                    <option value="other">Outro</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="field-label">Valor recebido (R$) *</label>
+                  <input type="number" step="0.01" min="0" value={form.amount_paid ?? finalPrice}
+                    onChange={e => set('amount_paid', parseFloat(e.target.value) || 0)} required />
+                </div>
+              </div>
+            )}
+          </div>
 
           <div>
             <label className="field-label">Fórmula utilizada (coloração)</label>

@@ -31,6 +31,12 @@ class Settings:
     upload_dir: Path
     scheduler_enabled: bool
     auto_create_tables: bool
+    smtp_host: str
+    smtp_port: int
+    smtp_user: str
+    smtp_password: str
+    smtp_from: str
+    smtp_use_tls: bool
 
 
 @lru_cache
@@ -63,6 +69,12 @@ def get_settings() -> Settings:
         upload_dir=Path(os.getenv("UPLOAD_DIR", "./uploads")).resolve(),
         scheduler_enabled=_as_bool(os.getenv("SCHEDULER_ENABLED"), True),
         auto_create_tables=_as_bool(os.getenv("AUTO_CREATE_TABLES"), environment != "production"),
+        smtp_host=os.getenv("SMTP_HOST", ""),
+        smtp_port=int(os.getenv("SMTP_PORT", "587")),
+        smtp_user=os.getenv("SMTP_USER", ""),
+        smtp_password=os.getenv("SMTP_PASSWORD", ""),
+        smtp_from=os.getenv("SMTP_FROM", ""),
+        smtp_use_tls=_as_bool(os.getenv("SMTP_USE_TLS"), True),
     )
 
 

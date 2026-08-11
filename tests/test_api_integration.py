@@ -134,3 +134,81 @@ def test_conflito_de_agenda_retorna_409(db, api):
 
     segundo = api.post("/appointments", json=payload, headers=headers)
     assert segundo.status_code == 409
+
+
+def test_complete_appointment_com_pagamento(db, api):
+    make_user(db, email="admin4@teste.com", password="senha123", role=UserRole.admin)
+    login = api.post("/auth/login", data={"username": "admin4@teste.com", "password": "senha123"})
+    token = login.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    client = make_client(db, name="Cliente Pagto", referral_code="PAYREF01", code="VLR-PAY01")
+    prof = make_professional(db, name="Prof Pagto")
+    cat = make_category(db)
+    svc = make_service(db, cat.id, duration_minutes=30, price=100)
+    db.commit()
+
+    horario = datetime(2027, 4, 10, 10, 0).isoformat()
+    created = api.post("/appointments", json={
+        "client_id": client.id,
+        "professional_id": prof.id,
+        "service_id": svc.id,
+        "scheduled_at": horario,
+    }, headers=headers)
+    assert created.status_code == 201
+    appt_id = created.json()["id"]
+
+    sem_metodo = api.post(f"/appointments/{appt_id}/complete", json={
+        "price_charged": 100,
+        "paid": True,
+    }, headers=headers)
+    assert sem_metodo.status_code == 422
+
+    resp = api.post(f"/appointments/{appt_id}/complete", json={
+        "price_charged": 100,
+        "paid": True,
+        "amount_paid": 100,
+        "payment_method": "pix",
+    }, headers=headers)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["paid"] is True
+    assert body["payment_method"] == "pix"
+    assert float(body["amount_paid"]) == 100.0
+
+
+def test_create_appointment_rate_limit_apos_30_por_minuto(db, api):
+    from routers.appointments import _create_limiter
+    _create_limiter._hits.clear()
+
+    make_user(db, email="admin5@teste.com", password="senha123", role=UserRole.admin)
+    login = api.post("/auth/login", data={"username": "admin5@teste.com", "password": "senha123"})
+    token = login.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    prof = make_professional(db, name="Prof RateLimit")
+    cat = make_category(db)
+    svc = make_service(db, cat.id, duration_minutes=10)
+    db.commit()
+
+    for i in range(30):
+        client = make_client(db, name=f"Cliente RL {i}", referral_code=f"RLREF{i:03d}", code=f"VLR-RL{i:03d}")
+        db.commit()
+        horario = datetime(2027, 5, 1, 8, 0) + timedelta(minutes=10 * i)
+        resp = api.post("/appointments", json={
+            "client_id": client.id,
+            "professional_id": prof.id,
+            "service_id": svc.id,
+            "scheduled_at": horario.isoformat(),
+        }, headers=headers)
+        assert resp.status_code == 201
+
+    client_extra = make_client(db, name="Cliente Extra", referral_code="RLREFEXTRA", code="VLR-RLEXTRA")
+    db.commit()
+    bloqueado = api.post("/appointments", json={
+        "client_id": client_extra.id,
+        "professional_id": prof.id,
+        "service_id": svc.id,
+        "scheduled_at": (datetime(2027, 5, 1, 8, 0) + timedelta(minutes=10 * 30)).isoformat(),
+    }, headers=headers)
+    assert bloqueado.status_code == 429

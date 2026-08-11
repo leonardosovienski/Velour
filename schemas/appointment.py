@@ -4,7 +4,7 @@ from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
-from models.appointment import AppointmentStatus
+from models.appointment import AppointmentStatus, PaymentMethod
 from models.client import LoyaltyTier
 from schemas.client import ClientResponse
 from schemas.professional import ProfessionalResponse
@@ -38,6 +38,9 @@ class AppointmentComplete(BaseModel):
     formula_used: Optional[str] = None
     notes: Optional[str] = None
     recipe_overrides: Optional[List[RecipeOverride]] = None
+    paid: bool = False
+    amount_paid: Optional[Decimal] = Field(default=None, ge=0, decimal_places=2)
+    payment_method: Optional[PaymentMethod] = None
 
 
 class AppointmentResponse(BaseModel):
@@ -58,6 +61,9 @@ class AppointmentResponse(BaseModel):
     discount_points_used: int
     tier_at_service: Optional[LoyaltyTier]
     tier_discount_amount: Decimal
+    paid: bool
+    amount_paid: Optional[Decimal]
+    payment_method: Optional[PaymentMethod]
     created_at: datetime
 
     model_config = {"from_attributes": True}

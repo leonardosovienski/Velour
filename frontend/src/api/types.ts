@@ -222,8 +222,13 @@ export interface AppointmentResponse {
   discount_points_used: number
   tier_at_service?: LoyaltyTier
   tier_discount_amount: number
+  paid: boolean
+  amount_paid?: number
+  payment_method?: PaymentMethod
   created_at: string
 }
+
+export type PaymentMethod = 'cash' | 'debit_card' | 'credit_card' | 'pix' | 'other'
 
 export interface AppointmentDetail extends AppointmentResponse {
   client?: ClientResponse
@@ -253,6 +258,9 @@ export interface AppointmentComplete {
   formula_used?: string
   notes?: string
   recipe_overrides?: RecipeOverride[]
+  paid?: boolean
+  amount_paid?: number
+  payment_method?: PaymentMethod
 }
 
 // Loyalty

@@ -78,6 +78,9 @@ jobs:
       - name: Run frontend lint
         run: npm run lint
 
+      - name: Run frontend tests
+        run: npm run test
+
       - name: Build frontend
         env:
           VITE_API_URL: /api
