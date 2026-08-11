@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -19,7 +21,8 @@ from routers.referrals import router as referrals_router
 from routers.dashboard import router as dashboard_router
 from routers.reports import router as reports_router
 from routers.audit_logs import router as audit_logs_router
-from birthday_scheduler import start_scheduler
+from birthday_scheduler import start_scheduler as start_birthday_scheduler
+from reminder_scheduler import start_scheduler as start_reminder_scheduler
 from config import settings
 from audit import AuditMiddleware
 
@@ -78,7 +81,8 @@ def get_upload(filename: str, _=Depends(get_current_user)):
 @app.on_event("startup")
 async def startup():
     if settings.scheduler_enabled:
-        start_scheduler()
+        start_birthday_scheduler()
+        start_reminder_scheduler()
 
 
 @app.get("/health", tags=["health"])

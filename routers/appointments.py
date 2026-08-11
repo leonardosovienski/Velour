@@ -5,11 +5,13 @@ from pathlib import Path
 from typing import List, Optional
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 from sqlalchemy.orm import Session
 
 from auth import get_current_user, ensure_professional_scope
 from database import get_db
+from email_service import send_appointment_confirmation
+from rate_limit import RateLimiter, request_key
 from models.appointment import Appointment, AppointmentStatus
 from models.client import Client, LoyaltyTier, calculate_tier
 from models.loyalty import LoyaltyTransaction, TransactionType
@@ -36,6 +38,13 @@ _booking_lock = threading.Lock()
 # pela mesma pessoa leiam a indicação pendente como não-convertida ao
 # mesmo tempo e apliquem os pontos de indicação em duplicidade.
 _completion_lock = threading.Lock()
+
+# Protege contra criação em massa de agendamentos por token comprometido/script.
+_create_limiter = RateLimiter(
+    max_attempts=30,
+    window_seconds=60,
+    message="Muitos agendamentos criados em pouco tempo. Aguarde um instante.",
+)
 
 # Tipos de imagem aceitos em upload de fotos (before/after)
 ALLOWED_IMAGE_TYPES = {
@@ -299,7 +308,8 @@ def get_appointment(appt_id: int, db: Session = Depends(get_db), current_user: U
 
 
 @router.post("", response_model=AppointmentResponse, status_code=201)
-def create_appointment(body: AppointmentCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def create_appointment(body: AppointmentCreate, request: Request, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    _create_limiter.check_and_record(request_key(request, current_user))
     ensure_professional_scope(current_user, body.professional_id)
     client = db.query(Client).filter(Client.id == body.client_id, Client.is_active == True).first()
     if not client:
@@ -330,6 +340,8 @@ def create_appointment(body: AppointmentCreate, db: Session = Depends(get_db), c
         db.add(appt)
         db.commit()
         db.refresh(appt)
+
+    send_appointment_confirmation(appt)
     return appt
 
 
@@ -379,6 +391,12 @@ def complete_appointment(
             if body.discount_points_used > appt.client.loyalty_points:
                 raise HTTPException(status_code=422, detail="Pontos insuficientes")
 
+        if body.paid and (body.amount_paid is None or body.payment_method is None):
+            raise HTTPException(
+                status_code=422,
+                detail="Informe amount_paid e payment_method para marcar o atendimento como pago",
+            )
+
         appt.price_charged = body.price_charged
         appt.discount_points_used = body.discount_points_used
         appt.photo_before_url = body.photo_before_url
@@ -387,6 +405,9 @@ def complete_appointment(
         if body.notes:
             appt.notes = body.notes
         appt.status = AppointmentStatus.completed
+        appt.paid = body.paid
+        appt.amount_paid = body.amount_paid
+        appt.payment_method = body.payment_method
 
         # Mesma transação atômica: fidelidade + baixa de estoque.
         # Qualquer exceção aqui aborta o commit inteiro (Unit of Work).

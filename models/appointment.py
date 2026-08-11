@@ -17,6 +17,14 @@ class AppointmentStatus(str, enum.Enum):
     no_show = "no_show"
 
 
+class PaymentMethod(str, enum.Enum):
+    cash = "cash"
+    debit_card = "debit_card"
+    credit_card = "credit_card"
+    pix = "pix"
+    other = "other"
+
+
 class Appointment(Base):
     __tablename__ = "appointments"
 
@@ -38,6 +46,10 @@ class Appointment(Base):
     # Registro do benefício de tier aplicado no fechamento (para relatórios)
     tier_at_service = Column(SAEnum(LoyaltyTier), nullable=True)
     tier_discount_amount = Column(Numeric(12, 2), default=0)
+    paid = Column(Boolean, nullable=False, default=False)
+    amount_paid = Column(Numeric(12, 2), nullable=True)
+    payment_method = Column(SAEnum(PaymentMethod), nullable=True)
+    reminder_sent = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, default=datetime.now)
 
     client = relationship("Client", back_populates="appointments", foreign_keys=[client_id])

@@ -3,7 +3,7 @@ from datetime import date
 from decimal import Decimal
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 
 from auth import get_current_user, require_admin, require_manager
@@ -11,9 +11,18 @@ from database import get_db
 from models.client import Client, LoyaltyTier, calculate_tier, generate_referral_code
 from models.appointment import Appointment, AppointmentStatus
 from models.user import User
+from rate_limit import RateLimiter, request_key
 from schemas.client import ClientCreate, ClientUpdate, ClientResponse, ClientBriefing, LastAppointmentBrief
 
 router = APIRouter(prefix="/clients", tags=["clients"])
+
+# Protege contra criação em massa por token comprometido/script — limite
+# generoso para não atrapalhar o cadastro normal no balcão.
+_create_limiter = RateLimiter(
+    max_attempts=30,
+    window_seconds=60,
+    message="Muitas criações de cliente em pouco tempo. Aguarde um instante.",
+)
 
 
 def _ensure_client_access(db: Session, current_user: User, client_id: int) -> None:
@@ -142,7 +151,8 @@ def get_briefing(client_id: int, db: Session = Depends(get_db), current_user: Us
 
 
 @router.post("", response_model=ClientResponse, status_code=201)
-def create_client(body: ClientCreate, db: Session = Depends(get_db), _=Depends(require_manager)):
+def create_client(body: ClientCreate, request: Request, db: Session = Depends(get_db), current_user: User = Depends(require_manager)):
+    _create_limiter.check_and_record(request_key(request, current_user))
     referred_by_id = None
     if body.referral_code_used:
         referrer = db.query(Client).filter(Client.referral_code == body.referral_code_used).first()
