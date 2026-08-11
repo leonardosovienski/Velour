@@ -45,6 +45,10 @@ Browser ↔ React SPA (Vite, port 5173) ↔ FastAPI (Python, port 8000) ↔ SQLi
 - `schemas/` — Pydantic request/response schemas
 - `auth.py` — JWT HS256 + PBKDF2; `get_current_user`, `require_admin` dependencies; `SECRET_KEY` is required from the environment (no hardcoded fallback — the app fails to start without it)
 - `birthday_scheduler.py` — APScheduler job at 08h, awards 100 pts on client birthday
+- `reminder_scheduler.py` — APScheduler job (hourly), sends appointment reminder email ~24h ahead, idempotent via `Appointment.reminder_sent`
+- `email_service.py` — SMTP email (confirmation on create, reminder job); no-op + INFO log if SMTP env vars are unset
+- `rate_limit.py` — reusable `RateLimiter`; used by login, `POST /clients`, `POST /appointments`
+- `logging_config.py` / `request_logging.py` — structured JSON logging + per-request logging middleware
 - `seed.py` — populates velour.db with realistic dev data
 
 ## Key Domain Rules
@@ -54,6 +58,7 @@ Browser ↔ React SPA (Vite, port 5173) ↔ FastAPI (Python, port 8000) ↔ SQLi
 - `discount_points_used` must be a multiple of 100 (100 pts = R$10 discount, capped at 50% of price)
 - Referral conversion fires automatically on the first completed appointment of a referred client
 - Loyalty tier is recalculated on every completed appointment based on `client.total_spent`
+- `POST /appointments/{id}/complete` accepts optional `paid`/`amount_paid`/`payment_method`; if `paid=true`, both `amount_paid` and `payment_method` are required (422 otherwise)
 
 ## Enum Values (keep frontend and backend in sync)
 
@@ -64,17 +69,20 @@ Browser ↔ React SPA (Vite, port 5173) ↔ FastAPI (Python, port 8000) ↔ SQLi
 | AppointmentStatus | `scheduled`, `confirmed`, `in_progress`, `completed`, `cancelled`, `no_show` | same |
 | LoyaltyTxType | `earned_appointment`, `earned_referral`, `earned_birthday`, `redeemed` | same |
 | GenderTarget | `M`, `F`, `all` | `'M'`, `'F'`, `'all'` |
+| PaymentMethod | `cash`, `debit_card`, `credit_card`, `pix`, `other` | same |
 
 ## Security
 
 - `SECRET_KEY` and `DATABASE_URL` are read from environment variables (`.env`, `.env.example` checked in). The server refuses to start if `SECRET_KEY` is unset — no hardcoded fallback.
 - Photo uploads (`POST /appointments/{id}/photos`) are validated by magic bytes (JPEG/PNG/WebP), not by the client-supplied `Content-Type` header. Max 5MB.
 - `/uploads/{filename}` requires authentication and is sanitized against path traversal — it is not served as a public static directory.
-- `POST /auth/login` rate-limits to 5 failed attempts per (IP, email) in 5 minutes → HTTP 429. Successful logins don't consume the quota.
+- `POST /auth/login` rate-limits to 5 failed attempts per (IP, email) in 5 minutes → HTTP 429. Successful logins don't consume the quota. `POST /clients` and `POST /appointments` are also rate-limited (30 creations/min per user) via the same `rate_limit.py` module.
 - `POST /appointments` and `POST /appointments/{id}/complete` run under an in-process lock to prevent double-booking and duplicate referral-point crediting under concurrent requests.
+- Every HTTP request is logged as structured JSON (method, path, status, duration, user_id) via `request_logging.py` — no request body, query string, or auth headers are logged.
 
 ## Known Limitations
 
 - Frontend `baseURL` is hardcoded to `http://127.0.0.1:8000` in `api/client.ts`
-- Rate limiting and locks are per-process (`threading.Lock` / in-memory dict) — correct for how the project runs today (`uvicorn` without `--workers`), but wouldn't coordinate across processes in a multi-worker deployment; would need Redis for that.
+- Rate limiting, locks, and the scheduled jobs (`birthday_scheduler.py`, `reminder_scheduler.py`) are all per-process (`threading.Lock` / in-memory dict / in-process `AsyncIOScheduler`) — correct for how the project runs today (`uvicorn` without `--workers`), but wouldn't coordinate across processes in a multi-worker deployment; running multiple workers would duplicate scheduled-job execution (e.g. duplicate reminder emails or birthday points) in addition to breaking rate-limit coordination. Would need Redis (rate limit/locks) and a distributed-lock or dedicated worker (scheduled jobs) for that.
 - SQLite is single-writer; fine for this scope, would need PostgreSQL for real multi-user concurrency.
+- Email sending (`email_service.py`) is synchronous SMTP inside the request/job — acceptable at single-salon scale, but would block the event loop under higher volume; would need a background task queue for that.

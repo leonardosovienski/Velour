@@ -21,11 +21,20 @@ Swagger interativo: `http://127.0.0.1:8000/docs`
 
 Para executar a base de produção com PostgreSQL, migrações e containers, consulte [`PRODUCTION.md`](PRODUCTION.md). O arquivo `seed.py` é exclusivo para desenvolvimento e nunca deve ser executado com dados reais.
 
-**Credenciais de dev:**
+**Credenciais de dev (troque/desative antes de ir para produção):**
 ```
 Admin:   admin@velour.com / velour2026
 Gerente: gerente@velour.com / velour2026
 ```
+
+### Variáveis de ambiente extras (opcionais em dev)
+
+Além de `SECRET_KEY`/`DATABASE_URL`/`CORS_ORIGINS`, o `.env.example` inclui:
+
+| Variável | Para quê | Comportamento se vazia |
+|---|---|---|
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_USE_TLS` | E-mail de confirmação de agendamento e lembrete 24h antes | Envio é pulado silenciosamente (log de nível INFO) — a aplicação funciona normalmente sem SMTP configurado |
+| `LOG_LEVEL` | Nível de log estruturado (JSON, um objeto por linha no stdout) | Default `INFO` |
 
 ## Testes
 
@@ -45,6 +54,11 @@ Velour/
 ├── database.py              # SQLite engine, SessionLocal, get_db()
 ├── auth.py                  # JWT HS256 + PBKDF2 + get_current_user + require_admin (SECRET_KEY obrigatória via env)
 ├── birthday_scheduler.py    # APScheduler — 100 pts no aniversário, roda às 08h
+├── reminder_scheduler.py    # APScheduler — lembrete por e-mail 24h antes do agendamento
+├── email_service.py         # Envio de e-mail via SMTP (opcional — no-op se não configurado)
+├── rate_limit.py            # RateLimiter reutilizável (login, criação de clientes/agendamentos)
+├── logging_config.py        # Logging estruturado (JSON) + LOG_LEVEL
+├── request_logging.py       # Middleware que loga cada requisição HTTP
 ├── seed.py                  # Popula banco com dados de dev
 │                            # (velour.db é gerado aqui — não commitar)
 ├── uploads/                 # fotos antes/depois dos atendimentos (servidas via endpoint autenticado)
@@ -86,7 +100,7 @@ Velour/
 │   ├── dashboard.py         # /dashboard/today|kpis|weekly-revenue|alerts|upcoming
 │   └── reports.py           # /reports/revenue|clients|loyalty-monthly|referrals-monthly
 │
-└── tests/                   # pytest — SQLite em memória (58 testes)
+└── tests/                   # pytest — SQLite em memória (79+ testes)
     ├── conftest.py               # fixture db + helpers
     ├── test_tiers.py             # calculate_tier()
     ├── test_loyalty.py           # lógica de desconto e resgate de pontos
@@ -96,7 +110,11 @@ Velour/
     ├── test_stock.py             # baixa automática de estoque na conclusão
     ├── test_dashboard_alerts.py  # alertas de estoque baixo/validade
     ├── test_professional_dashboard.py  # meta do mês + cadência de retorno
-    └── test_api_integration.py   # HTTP fim-a-fim via TestClient: login, 401, 403, 409, rate limit
+    ├── test_email_service.py     # envio de e-mail (SMTP mockado) e no-op sem configuração
+    ├── test_logging_config.py    # formatter JSON de log
+    └── test_api_integration.py   # HTTP fim-a-fim via TestClient: login, 401, 403, 409, rate limit, pagamento
+
+Testes de frontend (React Testing Library + vitest) ficam em `frontend/src/**/*.test.tsx` — rode com `npm run test` dentro de `frontend/`.
 ```
 
 ---
@@ -168,6 +186,10 @@ Velour/
 | points_awarded | Integer | calculado ao concluir |
 | price_charged | Float | nullable (relatórios usam `service.price` se NULL) |
 | discount_points_used | Integer | default 0 |
+| paid | Boolean | default False — marcado no `/complete` |
+| amount_paid | Numeric(12,2) | nullable — obrigatório se `paid=true` |
+| payment_method | Enum | `cash` \| `debit_card` \| `credit_card` \| `pix` \| `other` — obrigatório se `paid=true` |
+| reminder_sent | Boolean | default False — controla idempotência do e-mail de lembrete |
 
 ### `loyalty_transactions`
 | Campo | Tipo | Detalhes |
@@ -266,10 +288,13 @@ GET    /appointments              query: date_from?, date_to?, status?, professi
 GET    /appointments/{id}
 POST   /appointments              body: { client_id, professional_id, service_id, scheduled_at, ... }
                                   → calcula ends_at; rejeita com 409 se houver conflito de horário
+                                  → envia e-mail de confirmação ao cliente (se SMTP configurado e cliente com e-mail)
+                                  → rate limited: 30 criações/min por usuário
 PATCH  /appointments/{id}/status  body: { status }  — não aceita "completed"
-POST   /appointments/{id}/complete body: { price_charged, discount_points_used, formula_used, ... }
+POST   /appointments/{id}/complete body: { price_charged, discount_points_used, formula_used, paid?, amount_paid?, payment_method?, ... }
                                   → processa pontos, tier e conversão de indicação em uma transação
                                   → discount_points_used deve ser múltiplo de 100
+                                  → se paid=true, amount_paid e payment_method são obrigatórios (422 se ausentes)
 POST   /appointments/{id}/photos  multipart: photo_before?, photo_after?
                                   → identifica o tipo pelos magic bytes do conteúdo (não pelo
                                     Content-Type enviado), salva em uploads/, retorna URLs
@@ -378,10 +403,11 @@ Roles:
 - `SECRET_KEY` e `DATABASE_URL` vêm de variáveis de ambiente (`.env`, com `.env.example` versionado). O servidor **recusa subir** se `SECRET_KEY` não estiver definida — sem fallback hardcoded.
 - Upload de fotos identifica o tipo da imagem pelos **magic bytes** do conteúdo (JPEG/PNG/WebP), não pelo header `Content-Type` enviado pelo cliente — evita que um arquivo com extensão/tipo falsificado seja aceito. Limite de 5MB por arquivo.
 - `/uploads/{filename}` exige autenticação e é sanitizado contra path traversal.
-- `POST /auth/login` tem rate limiting em memória: 5 tentativas com credenciais erradas em 5 minutos por (IP, e-mail) → HTTP 429. Logins bem-sucedidos não consomem a cota.
+- `POST /auth/login` tem rate limiting em memória: 5 tentativas com credenciais erradas em 5 minutos por (IP, e-mail) → HTTP 429. Logins bem-sucedidos não consomem a cota. O mesmo mecanismo (`rate_limit.py`) também protege `POST /clients` e `POST /appointments` (30 criações/min por usuário) contra abuso de token comprometido/script.
 - `POST /appointments` e `POST /appointments/{id}/complete` rodam sob lock (processo único): evita overbooking sob requisições concorrentes e evita que a conclusão simultânea de dois atendimentos credite pontos de indicação em duplicidade.
+- Toda requisição HTTP é logada em JSON estruturado (`request_logging.py`) com método, rota, status, duração e `user_id` — sem logar corpo, query string ou headers sensíveis.
 
-> **Pendência conhecida:** rate limiting e locks funcionam por processo único (`threading.Lock`, dict em memória) — suficiente para como o projeto roda (`uvicorn` sem `--workers`), mas não seria em um deploy multi-worker/multi-processo. Em produção, precisaria de Redis para coordenar entre processos.
+> **Pendência conhecida:** rate limiting, locks e os jobs agendados (`birthday_scheduler.py`, `reminder_scheduler.py`) funcionam por processo único (`threading.Lock`/`AsyncIOScheduler` em memória) — suficiente para como o projeto roda (`uvicorn` sem `--workers`), mas não coordenariam entre processos em um deploy multi-worker (rodar múltiplos workers arriscaria lembretes/pontos de aniversário duplicados). Em produção, precisaria de Redis (rate limit/locks) e de um scheduler externo com lock distribuído (jobs) para coordenar entre processos.
 
 ---
 

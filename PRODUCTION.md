@@ -10,8 +10,9 @@
 
 1. Copie `.env.example` para `.env`.
 2. Configure `POSTGRES_PASSWORD`, uma `SECRET_KEY` aleatória com ao menos 32 caracteres e `CORS_ORIGINS` com o domínio HTTPS real.
-3. Execute `docker compose up -d --build`.
-4. Crie o primeiro administrador sem usar o seed de demonstração:
+3. (Opcional) Configure `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASSWORD`/`SMTP_FROM` para habilitar e-mail de confirmação de agendamento e lembrete 24h antes. Sem SMTP configurado, a aplicação funciona normalmente e apenas pula o envio (logado como INFO).
+4. Execute `docker compose up -d --build`.
+5. Crie o primeiro administrador sem usar o seed de demonstração:
 
    ```bash
    docker compose exec api python bootstrap_admin.py
@@ -45,7 +46,18 @@ As fotos ficam no volume `uploads_data`. Banco e fotos devem ser copiados diaria
 - login do administrador funciona;
 - criação de cliente e agendamento funcionam;
 - upload e leitura autenticada de foto funcionam;
-- logs não contêm senha, token ou dados pessoais desnecessários.
+- fechamento de atendimento (`/complete`) registra pagamento corretamente (`paid`, `amount_paid`, `payment_method`);
+- se SMTP configurado, o e-mail de confirmação chega ao criar um agendamento de teste;
+- logs (stdout, JSON estruturado) não contêm senha, token ou dados pessoais desnecessários.
+
+## Jobs agendados
+
+Dois jobs rodam in-process via APScheduler dentro do próprio container da API — não são serviços separados:
+
+- `birthday_scheduler.py` — 08h00, concede pontos de aniversário.
+- `reminder_scheduler.py` — de hora em hora, envia lembrete por e-mail para agendamentos ~24h à frente (idempotente via `reminder_sent`).
+
+Ambos assumem uma única réplica da API. Rodar múltiplas réplicas/workers duplicaria a execução dos jobs (lembretes/pontos de aniversário em duplicidade) — não fazer isso sem introduzir um lock distribuído (Redis) ou mover os jobs para um worker dedicado.
 
 ## Permissões e auditoria
 
@@ -58,4 +70,4 @@ Valores monetários usam `NUMERIC` no banco e `Decimal` nas regras de negócio. 
 
 ## Limites desta base
 
-O Compose é adequado para desenvolvimento e primeiro piloto gerenciado. HTTPS, backups externos, monitoramento, armazenamento de objetos, alta disponibilidade e isolamento multi-tenant dependem da infraestrutura escolhida e ainda precisam ser configurados para a operação comercial.
+O Compose é adequado para desenvolvimento e primeiro piloto gerenciado. HTTPS, backups externos, armazenamento de objetos, alta disponibilidade e isolamento multi-tenant dependem da infraestrutura escolhida e ainda precisam ser configurados para a operação comercial. A aplicação já emite logs estruturados em JSON (stdout) prontos para qualquer coletor (CloudWatch, Loki, journald etc.), mas nenhum coletor/alerta está configurado nesta base — isso também depende da infraestrutura escolhida.
