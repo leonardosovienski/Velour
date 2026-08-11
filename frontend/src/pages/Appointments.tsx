@@ -336,7 +336,7 @@ function CreateModal({ open, onClose, onSuccess }: { open: boolean; onClose: () 
 const TIER_RATES: Record<LoyaltyTier, number> = { bronze: 0, silver: 0.05, gold: 0.10, platinum: 0.15 }
 const TIER_LABEL: Record<LoyaltyTier, string> = { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', platinum: 'Platinum' }
 
-function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail | null; onClose: () => void; onSuccess: () => void }) {
+export function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail | null; onClose: () => void; onSuccess: () => void }) {
   const [form, setForm] = useState<AppointmentComplete>(() => ({ price_charged: appt?.service?.price ?? 0, discount_points_used: 0, paid: false, payment_method: undefined }))
   const [photoBefore, setPhotoBefore] = useState<File | null>(null)
   const [photoAfter, setPhotoAfter] = useState<File | null>(null)
