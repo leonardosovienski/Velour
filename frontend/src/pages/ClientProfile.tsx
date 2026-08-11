@@ -68,7 +68,7 @@ export function ClientProfile() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left column */}
         <div className="space-y-5">
           {/* Loyalty */}
@@ -76,7 +76,7 @@ export function ClientProfile() {
             <div className="flex items-center gap-2 text-gold text-xs font-semibold uppercase tracking-widest mb-4">
               <Star size={12} /> Fidelidade
             </div>
-            <div className="grid grid-cols-3 gap-3 text-center mb-4">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center mb-4">
               <div>
                 <div className="font-mono text-xl text-cream">{client.loyalty_points.toLocaleString('pt-BR')}</div>
                 <div className="text-muted text-xs">Pontos</div>
@@ -144,7 +144,7 @@ export function ClientProfile() {
         </div>
 
         {/* Right: 2 columns */}
-        <div className="col-span-2 space-y-6">
+        <div className="md:col-span-2 space-y-6">
           {/* Appointments */}
           <Card>
             <div className="flex items-center gap-2 text-muted text-xs font-semibold uppercase tracking-widest mb-4">

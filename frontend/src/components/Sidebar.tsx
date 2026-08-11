@@ -39,14 +39,14 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
           <div className="text-muted text-xs mt-0.5 tracking-widest uppercase">Gestão Premium</div>
         </div>
         {onClose && (
-          <button onClick={onClose} className="md:hidden text-muted hover:text-cream p-1 mt-1">
+          <button onClick={onClose} aria-label="Fechar menu" className="md:hidden text-muted hover:text-cream p-1 mt-1">
             <X size={16} />
           </button>
         )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 overflow-y-auto">
+      <nav aria-label="Navegação principal" className="flex-1 py-4 overflow-y-auto">
         <ul className="space-y-0.5 px-3">
           {navItems.map(({ to, icon: Icon, label }) => (
             <li key={to}>

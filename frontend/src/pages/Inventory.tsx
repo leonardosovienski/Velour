@@ -77,12 +77,12 @@ export function Inventory() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-muted text-xs uppercase tracking-wider">
-                <th className="text-left pb-3 pr-4">Insumo</th>
-                <th className="text-right pb-3 pr-4">Saldo</th>
-                <th className="text-right pb-3 pr-4">Mínimo</th>
-                <th className="text-left pb-3 pr-4">Validade</th>
-                <th className="text-right pb-3 pr-4">Custo/un</th>
-                <th className="pb-3"></th>
+                <th className="text-left pb-3 pr-4" scope="col">Insumo</th>
+                <th className="text-right pb-3 pr-4" scope="col">Saldo</th>
+                <th className="text-right pb-3 pr-4" scope="col">Mínimo</th>
+                <th className="text-left pb-3 pr-4" scope="col">Validade</th>
+                <th className="text-right pb-3 pr-4" scope="col">Custo/un</th>
+                <th className="pb-3" scope="col"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -116,16 +116,16 @@ export function Inventory() {
                     </td>
                     <td className="py-3">
                       <div className="flex items-center justify-end gap-1.5">
-                        <button onClick={() => setStockFor(p)} title="Movimentar estoque" className="text-muted hover:text-success p-1.5 transition-colors">
+                        <button onClick={() => setStockFor(p)} title="Movimentar estoque" aria-label={`Movimentar estoque de ${p.name}`} className="text-muted hover:text-success p-1.5 transition-colors">
                           <PlusCircle size={14} />
                         </button>
-                        <button onClick={() => setMovementsFor(p)} title="Histórico" className="text-muted hover:text-gold p-1.5 transition-colors">
+                        <button onClick={() => setMovementsFor(p)} title="Histórico" aria-label={`Ver histórico de ${p.name}`} className="text-muted hover:text-gold p-1.5 transition-colors">
                           <History size={14} />
                         </button>
-                        <button onClick={() => setEditing(p)} title="Editar" className="text-muted hover:text-gold p-1.5 transition-colors">
+                        <button onClick={() => setEditing(p)} title="Editar" aria-label={`Editar ${p.name}`} className="text-muted hover:text-gold p-1.5 transition-colors">
                           <Pencil size={13} />
                         </button>
-                        <button onClick={() => toggleActive(p)} title={p.is_active ? 'Desativar' : 'Ativar'}
+                        <button onClick={() => toggleActive(p)} title={p.is_active ? 'Desativar' : 'Ativar'} aria-label={`${p.is_active ? 'Desativar' : 'Ativar'} ${p.name}`}
                           className={`p-1 transition-colors ${p.is_active ? 'text-success hover:text-danger' : 'text-muted hover:text-success'}`}>
                           {p.is_active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
                         </button>
@@ -203,38 +203,38 @@ function ProductModal({ open, product, onClose, onSuccess }: {
     <Modal title={product ? 'Editar Insumo' : 'Novo Insumo'} open={open} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="field-label">Nome *</label>
-          <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="ex: Oxidante 20 vol" required />
+          <label htmlFor="inventory-nome" className="field-label">Nome *</label>
+          <input id="inventory-nome" value={form.name} onChange={e => set('name', e.target.value)} placeholder="ex: Oxidante 20 vol" required />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="field-label">Unidade *</label>
-            <select value={form.unit} onChange={e => set('unit', e.target.value as ProductUnit)}>
+            <label htmlFor="inventory-unidade" className="field-label">Unidade *</label>
+            <select id="inventory-unidade" value={form.unit} onChange={e => set('unit', e.target.value as ProductUnit)}>
               <option value="ml">Mililitros (ml)</option>
               <option value="g">Gramas (g)</option>
               <option value="unit">Unidades</option>
             </select>
           </div>
           <div>
-            <label className="field-label">Custo por unidade (R$)</label>
-            <input type="number" step="0.01" min="0" value={form.cost_per_unit ?? 0}
+            <label htmlFor="inventory-custo-por-unidade-r" className="field-label">Custo por unidade (R$)</label>
+            <input id="inventory-custo-por-unidade-r" type="number" step="0.01" min="0" value={form.cost_per_unit ?? 0}
               onChange={e => set('cost_per_unit', parseFloat(e.target.value) || 0)} />
           </div>
           {!product && (
             <div>
-              <label className="field-label">Saldo inicial</label>
-              <input type="number" step="0.01" min="0" value={form.stock_qty ?? 0}
+              <label htmlFor="inventory-saldo-inicial" className="field-label">Saldo inicial</label>
+              <input id="inventory-saldo-inicial" type="number" step="0.01" min="0" value={form.stock_qty ?? 0}
                 onChange={e => set('stock_qty', parseFloat(e.target.value) || 0)} />
             </div>
           )}
           <div>
-            <label className="field-label">Estoque mínimo</label>
-            <input type="number" step="0.01" min="0" value={form.min_stock ?? 0}
+            <label htmlFor="inventory-estoque-minimo" className="field-label">Estoque mínimo</label>
+            <input id="inventory-estoque-minimo" type="number" step="0.01" min="0" value={form.min_stock ?? 0}
               onChange={e => set('min_stock', parseFloat(e.target.value) || 0)} />
           </div>
           <div className={product ? 'col-span-2' : ''}>
-            <label className="field-label">Validade</label>
-            <input type="date" value={form.expiry_date ?? ''} onChange={e => set('expiry_date', e.target.value)} />
+            <label htmlFor="inventory-validade" className="field-label">Validade</label>
+            <input id="inventory-validade" type="date" value={form.expiry_date ?? ''} onChange={e => set('expiry_date', e.target.value)} />
           </div>
         </div>
 
@@ -289,22 +289,22 @@ function StockModal({ product, onClose, onSuccess }: {
             <div className="text-muted text-xs">Saldo atual: {product.stock_qty.toLocaleString('pt-BR')} {UNIT_LABEL[product.unit]}</div>
           </div>
           <div>
-            <label className="field-label">Tipo *</label>
-            <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as StockMovementType }))}>
+            <label htmlFor="inventory-tipo" className="field-label">Tipo *</label>
+            <select id="inventory-tipo" value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value as StockMovementType }))}>
               <option value="purchase">Entrada (compra)</option>
               <option value="adjustment">Ajuste (+)</option>
               <option value="loss">Perda / descarte (−)</option>
             </select>
           </div>
           <div>
-            <label className="field-label">Quantidade ({UNIT_LABEL[product.unit]}) *</label>
-            <input type="number" step="0.01" min="0.01" value={form.qty || ''}
+            <label htmlFor="inventory-quantidade-unit-label-product-unit" className="field-label">Quantidade ({UNIT_LABEL[product.unit]}) *</label>
+            <input id="inventory-quantidade-unit-label-product-unit" type="number" step="0.01" min="0.01" value={form.qty || ''}
               onChange={e => setForm(f => ({ ...f, qty: parseFloat(e.target.value) || 0 }))} required />
             <p className="text-muted text-xs mt-1">Novo saldo: <span className="font-mono text-cream">{preview.toLocaleString('pt-BR')} {UNIT_LABEL[product.unit]}</span></p>
           </div>
           <div>
-            <label className="field-label">Descrição</label>
-            <input value={form.description ?? ''} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="opcional" />
+            <label htmlFor="inventory-descricao" className="field-label">Descrição</label>
+            <input id="inventory-descricao" value={form.description ?? ''} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="opcional" />
           </div>
 
           {error && <div className="text-red-400 text-sm bg-danger/10 border border-danger/30 rounded-lg px-4 py-3">{error}</div>}

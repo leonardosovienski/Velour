@@ -169,60 +169,60 @@ function CreateClientModal({ open, onClose, onSuccess }: { open: boolean; onClos
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <label className="field-label">Nome completo *</label>
-            <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Maria da Silva" required />
+            <label htmlFor="clients-nome-completo" className="field-label">Nome completo *</label>
+            <input id="clients-nome-completo" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Maria da Silva" required />
           </div>
           <div>
-            <label className="field-label">Telefone *</label>
-            <input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="(11) 99999-9999" required />
+            <label htmlFor="clients-telefone" className="field-label">Telefone *</label>
+            <input id="clients-telefone" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="(11) 99999-9999" required />
           </div>
           <div>
-            <label className="field-label">Email</label>
-            <input type="email" value={form.email ?? ''} onChange={e => set('email', e.target.value)} placeholder="opcional" />
+            <label htmlFor="clients-email" className="field-label">Email</label>
+            <input id="clients-email" type="email" value={form.email ?? ''} onChange={e => set('email', e.target.value)} placeholder="opcional" />
           </div>
           <div>
-            <label className="field-label">Gênero *</label>
-            <select value={form.gender} onChange={e => set('gender', e.target.value as Gender)}>
+            <label htmlFor="clients-genero" className="field-label">Gênero *</label>
+            <select id="clients-genero" value={form.gender} onChange={e => set('gender', e.target.value as Gender)}>
               <option value="F">Feminino</option>
               <option value="M">Masculino</option>
               <option value="other">Outro</option>
             </select>
           </div>
           <div>
-            <label className="field-label">Data de nascimento</label>
-            <input type="date" value={form.birthdate ?? ''} onChange={e => set('birthdate', e.target.value)} />
+            <label htmlFor="clients-data-de-nascimento" className="field-label">Data de nascimento</label>
+            <input id="clients-data-de-nascimento" type="date" value={form.birthdate ?? ''} onChange={e => set('birthdate', e.target.value)} />
           </div>
           <div>
-            <label className="field-label">Bebida preferida</label>
-            <input value={form.preferred_drink ?? ''} onChange={e => set('preferred_drink', e.target.value)} placeholder="ex: Café sem açúcar" />
+            <label htmlFor="clients-bebida-preferida" className="field-label">Bebida preferida</label>
+            <input id="clients-bebida-preferida" value={form.preferred_drink ?? ''} onChange={e => set('preferred_drink', e.target.value)} placeholder="ex: Café sem açúcar" />
           </div>
           <div>
-            <label className="field-label">Preferência musical</label>
-            <input value={form.music_preference ?? ''} onChange={e => set('music_preference', e.target.value)} placeholder="ex: MPB, Lo-fi" />
+            <label htmlFor="clients-preferencia-musical" className="field-label">Preferência musical</label>
+            <input id="clients-preferencia-musical" value={form.music_preference ?? ''} onChange={e => set('music_preference', e.target.value)} placeholder="ex: MPB, Lo-fi" />
           </div>
           <div>
-            <label className="field-label">Temperatura</label>
-            <input value={form.temperature_preference ?? ''} onChange={e => set('temperature_preference', e.target.value)} placeholder="ex: Ambiente frio" />
+            <label htmlFor="clients-temperatura" className="field-label">Temperatura</label>
+            <input id="clients-temperatura" value={form.temperature_preference ?? ''} onChange={e => set('temperature_preference', e.target.value)} placeholder="ex: Ambiente frio" />
           </div>
           <div>
-            <label className="field-label">Perfil de conversa</label>
-            <select value={form.chat_preference} onChange={e => set('chat_preference', e.target.value as ChatPreference)}>
+            <label htmlFor="clients-perfil-de-conversa" className="field-label">Perfil de conversa</label>
+            <select id="clients-perfil-de-conversa" value={form.chat_preference} onChange={e => set('chat_preference', e.target.value as ChatPreference)}>
               <option value="quiet">Discreto</option>
               <option value="neutral">Neutro</option>
               <option value="chatty">Conversador</option>
             </select>
           </div>
           <div className="col-span-2">
-            <label className="field-label">Alergias / Restrições</label>
-            <input value={form.allergies ?? ''} onChange={e => set('allergies', e.target.value)} placeholder="ex: Alergia a amônia" />
+            <label htmlFor="clients-alergias-restricoes" className="field-label">Alergias / Restrições</label>
+            <input id="clients-alergias-restricoes" value={form.allergies ?? ''} onChange={e => set('allergies', e.target.value)} placeholder="ex: Alergia a amônia" />
           </div>
           <div className="col-span-2">
-            <label className="field-label">Observações</label>
-            <textarea value={form.notes ?? ''} onChange={e => set('notes', e.target.value)} rows={2} placeholder="Notas internas sobre a cliente…" />
+            <label htmlFor="clients-observacoes" className="field-label">Observações</label>
+            <textarea id="clients-observacoes" value={form.notes ?? ''} onChange={e => set('notes', e.target.value)} rows={2} placeholder="Notas internas sobre a cliente…" />
           </div>
           <div className="col-span-2">
-            <label className="field-label">Código de indicação usado</label>
-            <input value={form.referral_code_used ?? ''} onChange={e => set('referral_code_used', e.target.value)} placeholder="Código de quem indicou (opcional)" />
+            <label htmlFor="clients-codigo-de-indicacao-usado" className="field-label">Código de indicação usado</label>
+            <input id="clients-codigo-de-indicacao-usado" value={form.referral_code_used ?? ''} onChange={e => set('referral_code_used', e.target.value)} placeholder="Código de quem indicou (opcional)" />
           </div>
         </div>
 

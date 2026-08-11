@@ -25,6 +25,10 @@ from birthday_scheduler import start_scheduler as start_birthday_scheduler
 from reminder_scheduler import start_scheduler as start_reminder_scheduler
 from config import settings
 from audit import AuditMiddleware
+from logging_config import setup_logging
+from request_logging import RequestLoggingMiddleware
+
+setup_logging()
 
 if settings.auto_create_tables:
     Base.metadata.create_all(bind=engine)
@@ -45,6 +49,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(AuditMiddleware)
+app.add_middleware(RequestLoggingMiddleware)
 
 app.include_router(auth_router)
 app.include_router(users_router)

@@ -97,13 +97,13 @@ export function Services() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border text-muted text-xs uppercase tracking-wider">
-                    <th className="text-left pb-3 pr-4">Serviço</th>
-                    <th className="text-left pb-3 pr-4">Categoria</th>
-                    <th className="text-left pb-3 pr-4"><Clock size={12} className="inline" /> Duração</th>
-                    <th className="text-left pb-3 pr-4"><DollarSign size={12} className="inline" /> Preço</th>
-                    <th className="text-left pb-3 pr-4"><Star size={12} className="inline" /> Pontos</th>
-                    <th className="text-left pb-3">Status</th>
-                    <th className="pb-3"></th>
+                    <th className="text-left pb-3 pr-4" scope="col">Serviço</th>
+                    <th className="text-left pb-3 pr-4" scope="col">Categoria</th>
+                    <th className="text-left pb-3 pr-4" scope="col"><Clock size={12} className="inline" /> Duração</th>
+                    <th className="text-left pb-3 pr-4" scope="col"><DollarSign size={12} className="inline" /> Preço</th>
+                    <th className="text-left pb-3 pr-4" scope="col"><Star size={12} className="inline" /> Pontos</th>
+                    <th className="text-left pb-3" scope="col">Status</th>
+                    <th className="pb-3" scope="col"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -128,10 +128,10 @@ export function Services() {
                       </td>
                       <td className="py-3">
                         <div className="flex items-center justify-end gap-1.5">
-                          <button onClick={() => setRecipeFor(svc)} title="Ficha técnica" className="text-muted hover:text-gold p-1.5 transition-colors">
+                          <button onClick={() => setRecipeFor(svc)} title="Ficha técnica" aria-label={`Ver ficha técnica de ${svc.name}`} className="text-muted hover:text-gold p-1.5 transition-colors">
                             <FlaskConical size={14} />
                           </button>
-                          <button onClick={() => setEditingService(svc)} title="Editar" className="text-muted hover:text-gold p-1.5 transition-colors">
+                          <button onClick={() => setEditingService(svc)} title="Editar" aria-label={`Editar ${svc.name}`} className="text-muted hover:text-gold p-1.5 transition-colors">
                             <Pencil size={13} />
                           </button>
                         </div>
@@ -257,7 +257,7 @@ function RecipeModal({ service, onClose }: { service: ServiceResponse | null; on
                       onChange={e => updateItem(idx, { qty_consumed: parseFloat(e.target.value) || 0 })}
                       className="w-24 text-right" />
                     <span className="text-muted text-xs w-6">{prod?.unit ?? ''}</span>
-                    <button onClick={() => removeItem(idx)} className="text-muted hover:text-danger p-1.5 transition-colors">
+                    <button onClick={() => removeItem(idx)} aria-label="Remover insumo da ficha técnica" className="text-muted hover:text-danger p-1.5 transition-colors">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -331,32 +331,32 @@ function ServiceModal({ open, service, categories, onClose, onSuccess }: {
     <Modal title={service ? 'Editar Serviço' : 'Novo Serviço'} open={open} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="field-label">Nome *</label>
-          <input value={form.name} onChange={e => set('name', e.target.value)} required />
+          <label htmlFor="services-nome" className="field-label">Nome *</label>
+          <input id="services-nome" value={form.name} onChange={e => set('name', e.target.value)} required />
         </div>
         <div>
-          <label className="field-label">Categoria *</label>
-          <select value={form.category_id} onChange={e => set('category_id', Number(e.target.value))} required>
+          <label htmlFor="services-categoria" className="field-label">Categoria *</label>
+          <select id="services-categoria" value={form.category_id} onChange={e => set('category_id', Number(e.target.value))} required>
             <option value={0}>Selecione</option>
             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
         <div>
-          <label className="field-label">Descrição</label>
-          <input value={form.description ?? ''} onChange={e => set('description', e.target.value)} />
+          <label htmlFor="services-descricao" className="field-label">Descrição</label>
+          <input id="services-descricao" value={form.description ?? ''} onChange={e => set('description', e.target.value)} />
         </div>
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="field-label">Duração (min) *</label>
-            <input type="number" min="1" value={form.duration_minutes} onChange={e => set('duration_minutes', parseInt(e.target.value) || 0)} required />
+            <label htmlFor="services-duracao-min" className="field-label">Duração (min) *</label>
+            <input id="services-duracao-min" type="number" min="1" value={form.duration_minutes} onChange={e => set('duration_minutes', parseInt(e.target.value) || 0)} required />
           </div>
           <div>
-            <label className="field-label">Preço (R$) *</label>
-            <input type="number" step="0.01" min="0" value={form.price} onChange={e => set('price', parseFloat(e.target.value) || 0)} required />
+            <label htmlFor="services-preco-r" className="field-label">Preço (R$) *</label>
+            <input id="services-preco-r" type="number" step="0.01" min="0" value={form.price} onChange={e => set('price', parseFloat(e.target.value) || 0)} required />
           </div>
           <div>
-            <label className="field-label">Pontos</label>
-            <input type="number" min="0" value={form.points_reward ?? 0} onChange={e => set('points_reward', parseInt(e.target.value) || 0)} />
+            <label htmlFor="services-pontos" className="field-label">Pontos</label>
+            <input id="services-pontos" type="number" min="0" value={form.points_reward ?? 0} onChange={e => set('points_reward', parseInt(e.target.value) || 0)} />
           </div>
         </div>
 
@@ -391,8 +391,8 @@ function CategoryModal({ open, onClose, onSuccess }: { open: boolean; onClose: (
       <form onSubmit={handleSubmit} className="space-y-4">
         <div><label className="field-label">Nome *</label><input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required /></div>
         <div>
-          <label className="field-label">Público</label>
-          <select value={form.gender_target} onChange={e => setForm(f => ({ ...f, gender_target: e.target.value }))}>
+          <label htmlFor="services-publico" className="field-label">Público</label>
+          <select id="services-publico" value={form.gender_target} onChange={e => setForm(f => ({ ...f, gender_target: e.target.value }))}>
             <option value="all">Todos</option>
             <option value="F">Feminino</option>
             <option value="M">Masculino</option>

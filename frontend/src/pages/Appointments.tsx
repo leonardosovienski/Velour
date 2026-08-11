@@ -195,7 +195,7 @@ function AppointmentRow({ appt, onComplete, onCancel, onBriefing, onStatusChange
 
         {/* Actions */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          <button onClick={onBriefing} title="Briefing" className="text-muted hover:text-gold p-1.5 rounded hover:bg-gold/10 transition-colors">
+          <button onClick={onBriefing} title="Briefing" aria-label="Ver briefing do cliente" className="text-muted hover:text-gold p-1.5 rounded hover:bg-gold/10 transition-colors">
             <BookOpen size={14} />
           </button>
 
@@ -219,12 +219,12 @@ function AppointmentRow({ appt, onComplete, onCancel, onBriefing, onStatusChange
           </div>
 
           {canComplete && (
-            <button onClick={onComplete} title="Concluir" className="text-green-500 hover:text-green-400 p-1.5 rounded hover:bg-success/10 transition-colors">
+            <button onClick={onComplete} title="Concluir" aria-label="Concluir atendimento" className="text-green-500 hover:text-green-400 p-1.5 rounded hover:bg-success/10 transition-colors">
               <CheckCircle size={14} />
             </button>
           )}
           {canCancel && (
-            <button onClick={onCancel} title="Cancelar" className="text-danger/70 hover:text-red-400 p-1.5 rounded hover:bg-danger/10 transition-colors">
+            <button onClick={onCancel} title="Cancelar" aria-label="Cancelar agendamento" className="text-danger/70 hover:text-red-400 p-1.5 rounded hover:bg-danger/10 transition-colors">
               <XCircle size={14} />
             </button>
           )}
@@ -282,22 +282,22 @@ function CreateModal({ open, onClose, onSuccess }: { open: boolean; onClose: () 
     <Modal title="Novo Agendamento" open={open} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="field-label">Cliente *</label>
-          <select value={form.client_id} onChange={e => set('client_id', Number(e.target.value))} required>
+          <label htmlFor="appointments-cliente" className="field-label">Cliente *</label>
+          <select id="appointments-cliente" value={form.client_id} onChange={e => set('client_id', Number(e.target.value))} required>
             <option value={0}>Selecione um cliente</option>
             {clients.map(c => <option key={c.id} value={c.id}>{c.name} ({c.code})</option>)}
           </select>
         </div>
         <div>
-          <label className="field-label">Profissional *</label>
-          <select value={form.professional_id} onChange={e => set('professional_id', Number(e.target.value))} required>
+          <label htmlFor="appointments-profissional" className="field-label">Profissional *</label>
+          <select id="appointments-profissional" value={form.professional_id} onChange={e => set('professional_id', Number(e.target.value))} required>
             <option value={0}>Selecione um profissional</option>
             {professionals.map(p => <option key={p.id} value={p.id}>{p.name} — {p.specialty}</option>)}
           </select>
         </div>
         <div>
-          <label className="field-label">Serviço *</label>
-          <select value={form.service_id} onChange={e => set('service_id', Number(e.target.value))} required>
+          <label htmlFor="appointments-servico" className="field-label">Serviço *</label>
+          <select id="appointments-servico" value={form.service_id} onChange={e => set('service_id', Number(e.target.value))} required>
             <option value={0}>Selecione um serviço</option>
             {services.map(s => <option key={s.id} value={s.id}>{s.name} — {s.duration_minutes}min — R${s.price.toFixed(2)}</option>)}
           </select>
@@ -308,16 +308,16 @@ function CreateModal({ open, onClose, onSuccess }: { open: boolean; onClose: () 
           </div>
         )}
         <div>
-          <label className="field-label">Data e Horário *</label>
-          <input type="datetime-local" value={form.scheduled_at} onChange={e => set('scheduled_at', e.target.value)} required />
+          <label htmlFor="appointments-data-e-horario" className="field-label">Data e Horário *</label>
+          <input id="appointments-data-e-horario" type="datetime-local" value={form.scheduled_at} onChange={e => set('scheduled_at', e.target.value)} required />
         </div>
         <div>
-          <label className="field-label">Ocasião</label>
-          <input value={form.occasion ?? ''} onChange={e => set('occasion', e.target.value)} placeholder="ex: Casamento, Formatura" />
+          <label htmlFor="appointments-ocasiao" className="field-label">Ocasião</label>
+          <input id="appointments-ocasiao" value={form.occasion ?? ''} onChange={e => set('occasion', e.target.value)} placeholder="ex: Casamento, Formatura" />
         </div>
         <div>
-          <label className="field-label">Observações</label>
-          <textarea value={form.notes ?? ''} onChange={e => set('notes', e.target.value)} rows={2} placeholder="Observações sobre o agendamento…" />
+          <label htmlFor="appointments-observacoes" className="field-label">Observações</label>
+          <textarea id="appointments-observacoes" value={form.notes ?? ''} onChange={e => set('notes', e.target.value)} rows={2} placeholder="Observações sobre o agendamento…" />
         </div>
 
         {error && <div className="text-red-400 text-sm bg-danger/10 border border-danger/30 rounded-lg px-4 py-3">{error}</div>}
@@ -410,14 +410,14 @@ function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail |
           </div>
 
           <div>
-            <label className="field-label">Valor cobrado (R$) *</label>
-            <input type="number" step="0.01" min="0" value={form.price_charged}
+            <label htmlFor="appointments-valor-cobrado-r" className="field-label">Valor cobrado (R$) *</label>
+            <input id="appointments-valor-cobrado-r" type="number" step="0.01" min="0" value={form.price_charged}
               onChange={e => set('price_charged', parseFloat(e.target.value) || 0)} required />
           </div>
 
           <div>
-            <label className="field-label">Pontos a resgatar (múltiplos de 100)</label>
-            <input type="number" step="100" min="0" value={form.discount_points_used ?? 0}
+            <label htmlFor="appointments-pontos-a-resgatar-multiplos-de-100" className="field-label">Pontos a resgatar (múltiplos de 100)</label>
+            <input id="appointments-pontos-a-resgatar-multiplos-de-100" type="number" step="100" min="0" value={form.discount_points_used ?? 0}
               onChange={e => set('discount_points_used', parseInt(e.target.value) || 0)} />
           </div>
 
@@ -473,8 +473,8 @@ function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail |
             {form.paid && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="field-label">Forma de pagamento *</label>
-                  <select value={form.payment_method ?? ''} onChange={e => set('payment_method', e.target.value || undefined)} required>
+                  <label htmlFor="appointments-forma-de-pagamento" className="field-label">Forma de pagamento *</label>
+                  <select id="appointments-forma-de-pagamento" value={form.payment_method ?? ''} onChange={e => set('payment_method', e.target.value || undefined)} required>
                     <option value="">Selecione</option>
                     <option value="cash">Dinheiro</option>
                     <option value="debit_card">Cartão de débito</option>
@@ -484,8 +484,8 @@ function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail |
                   </select>
                 </div>
                 <div>
-                  <label className="field-label">Valor recebido (R$) *</label>
-                  <input type="number" step="0.01" min="0" value={form.amount_paid ?? finalPrice}
+                  <label htmlFor="appointments-valor-recebido-r" className="field-label">Valor recebido (R$) *</label>
+                  <input id="appointments-valor-recebido-r" type="number" step="0.01" min="0" value={form.amount_paid ?? finalPrice}
                     onChange={e => set('amount_paid', parseFloat(e.target.value) || 0)} required />
                 </div>
               </div>
@@ -493,25 +493,25 @@ function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentDetail |
           </div>
 
           <div>
-            <label className="field-label">Fórmula utilizada (coloração)</label>
-            <input value={form.formula_used ?? ''} onChange={e => set('formula_used', e.target.value)} placeholder="ex: Wella 6/7 + ox 20vol" />
+            <label htmlFor="appointments-formula-utilizada-coloracao" className="field-label">Fórmula utilizada (coloração)</label>
+            <input id="appointments-formula-utilizada-coloracao" value={form.formula_used ?? ''} onChange={e => set('formula_used', e.target.value)} placeholder="ex: Wella 6/7 + ox 20vol" />
           </div>
 
           <div>
-            <label className="field-label">Observações do atendimento</label>
-            <textarea value={form.notes ?? ''} onChange={e => set('notes', e.target.value)} rows={2} />
+            <label htmlFor="appointments-observacoes-do-atendimento" className="field-label">Observações do atendimento</label>
+            <textarea id="appointments-observacoes-do-atendimento" value={form.notes ?? ''} onChange={e => set('notes', e.target.value)} rows={2} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="field-label">Foto antes</label>
-              <input type="file" accept="image/*" onChange={e => setPhotoBefore(e.target.files?.[0] ?? null)}
+              <label htmlFor="appointments-foto-antes" className="field-label">Foto antes</label>
+              <input id="appointments-foto-antes" type="file" accept="image/*" onChange={e => setPhotoBefore(e.target.files?.[0] ?? null)}
                 className="text-xs text-muted file:mr-2 file:text-xs file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-gold/10 file:text-gold hover:file:bg-gold/20" />
               {photoBefore && <p className="text-muted text-xs mt-1 truncate">{photoBefore.name}</p>}
             </div>
             <div>
-              <label className="field-label">Foto depois</label>
-              <input type="file" accept="image/*" onChange={e => setPhotoAfter(e.target.files?.[0] ?? null)}
+              <label htmlFor="appointments-foto-depois" className="field-label">Foto depois</label>
+              <input id="appointments-foto-depois" type="file" accept="image/*" onChange={e => setPhotoAfter(e.target.files?.[0] ?? null)}
                 className="text-xs text-muted file:mr-2 file:text-xs file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-gold/10 file:text-gold hover:file:bg-gold/20" />
               {photoAfter && <p className="text-muted text-xs mt-1 truncate">{photoAfter.name}</p>}
             </div>

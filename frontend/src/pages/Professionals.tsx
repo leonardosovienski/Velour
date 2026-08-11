@@ -67,6 +67,7 @@ export function Professionals() {
                         <button
                           onClick={() => setPanelFor(prof)}
                           title="Painel do profissional"
+                          aria-label={`Abrir painel de ${prof.name}`}
                           className="text-muted hover:text-gold p-1 transition-colors"
                         >
                           <Gauge size={14} />
@@ -74,6 +75,7 @@ export function Professionals() {
                         <button
                           onClick={() => setEditing(prof)}
                           title="Editar"
+                          aria-label={`Editar ${prof.name}`}
                           className="text-muted hover:text-gold p-1 transition-colors"
                         >
                           <Pencil size={13} />
@@ -81,6 +83,7 @@ export function Professionals() {
                         <button
                           onClick={() => handleToggleActive(prof)}
                           title={prof.is_active ? 'Desativar' : 'Ativar'}
+                          aria-label={`${prof.is_active ? 'Desativar' : 'Ativar'} ${prof.name}`}
                           className={`p-1 transition-colors ${prof.is_active ? 'text-success hover:text-red-400' : 'text-muted hover:text-success'}`}
                         >
                           {prof.is_active ? <ToggleRight size={16} /> : <ToggleLeft size={16} />}
@@ -273,28 +276,28 @@ function ProfessionalModal({ open, professional, onClose, onSuccess }: {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
-            <label className="field-label">Nome completo *</label>
-            <input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ana Luiza Ferreira" required />
+            <label htmlFor="professionals-nome-completo" className="field-label">Nome completo *</label>
+            <input id="professionals-nome-completo" value={form.name} onChange={e => set('name', e.target.value)} placeholder="Ana Luiza Ferreira" required />
           </div>
           <div>
-            <label className="field-label">Telefone *</label>
-            <input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="(11) 99999-9999" required />
+            <label htmlFor="professionals-telefone" className="field-label">Telefone *</label>
+            <input id="professionals-telefone" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="(11) 99999-9999" required />
           </div>
           <div>
-            <label className="field-label">Email</label>
-            <input type="email" value={form.email ?? ''} onChange={e => set('email', e.target.value)} placeholder="opcional" />
+            <label htmlFor="professionals-email" className="field-label">Email</label>
+            <input id="professionals-email" type="email" value={form.email ?? ''} onChange={e => set('email', e.target.value)} placeholder="opcional" />
           </div>
           <div>
-            <label className="field-label">Gênero *</label>
-            <select value={form.gender} onChange={e => set('gender', e.target.value as Gender)}>
+            <label htmlFor="professionals-genero" className="field-label">Gênero *</label>
+            <select id="professionals-genero" value={form.gender} onChange={e => set('gender', e.target.value as Gender)}>
               <option value="F">Feminino</option>
               <option value="M">Masculino</option>
               <option value="other">Outro</option>
             </select>
           </div>
           <div>
-            <label className="field-label">Comissão (%) *</label>
-            <input
+            <label htmlFor="professionals-comissao" className="field-label">Comissão (%) *</label>
+            <input id="professionals-comissao"
               type="number" min="0" max="100" step="1"
               value={Math.round(form.commission_rate * 100)}
               onChange={e => set('commission_rate', Number(e.target.value) / 100)}
@@ -302,20 +305,20 @@ function ProfessionalModal({ open, professional, onClose, onSuccess }: {
             />
           </div>
           <div className="col-span-2">
-            <label className="field-label">Meta financeira do mês (R$)</label>
-            <input
+            <label htmlFor="professionals-meta-financeira-do-mes-r" className="field-label">Meta financeira do mês (R$)</label>
+            <input id="professionals-meta-financeira-do-mes-r"
               type="number" min="0" step="100"
               value={form.monthly_goal ?? 0}
               onChange={e => set('monthly_goal', Number(e.target.value) || 0)}
             />
           </div>
           <div className="col-span-2">
-            <label className="field-label">Especialidade *</label>
-            <input value={form.specialty} onChange={e => set('specialty', e.target.value)} placeholder="ex: Coloração, Corte Feminino, Mechas" required />
+            <label htmlFor="professionals-especialidade" className="field-label">Especialidade *</label>
+            <input id="professionals-especialidade" value={form.specialty} onChange={e => set('specialty', e.target.value)} placeholder="ex: Coloração, Corte Feminino, Mechas" required />
           </div>
           <div className="col-span-2">
-            <label className="field-label">Bio</label>
-            <textarea value={form.bio ?? ''} onChange={e => set('bio', e.target.value)} rows={2} placeholder="Breve descrição do profissional…" />
+            <label htmlFor="professionals-bio" className="field-label">Bio</label>
+            <textarea id="professionals-bio" value={form.bio ?? ''} onChange={e => set('bio', e.target.value)} rows={2} placeholder="Breve descrição do profissional…" />
           </div>
         </div>
 

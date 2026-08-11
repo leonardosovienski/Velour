@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -5,8 +6,10 @@ from sqlalchemy.orm import Session
 
 from database import SessionLocal
 from email_service import send_appointment_reminder
+from logging_config import log_with_fields
 from models.appointment import Appointment, AppointmentStatus
 
+logger = logging.getLogger("velour.reminder_scheduler")
 scheduler = AsyncIOScheduler()
 
 # Lembrete enviado uma vez por atendimento, para agendamentos que ocorrem
@@ -30,10 +33,16 @@ def _run_reminder_job():
             )
             .all()
         )
+        sent = 0
         for appt in appointments:
             if send_appointment_reminder(appt):
                 appt.reminder_sent = True
+                sent += 1
         db.commit()
+        log_with_fields(
+            logger, logging.INFO, "reminder_job_completed",
+            candidates=len(appointments), sent=sent,
+        )
     finally:
         db.close()
 
