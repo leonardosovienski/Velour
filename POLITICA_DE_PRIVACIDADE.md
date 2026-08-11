@@ -1,108 +1,139 @@
-# Política de Privacidade — Velour
+# Política de Privacidade — Velour (SaaS)
 
-> **Rascunho genérico.** Este documento foi gerado como ponto de partida a partir dos
-> dados efetivamente tratados pelo sistema Velour. Antes de publicá-lo ou usá-lo
-> como termo vinculante com clientes reais, ele deve ser revisado por um
-> advogado, com atenção especial à Lei Geral de Proteção de Dados (Lei
-> 13.709/2018 — LGPD) e às particularidades do estabelecimento que o utiliza.
+> **Rascunho genérico**, estruturado para o modelo SaaS: a Velour é uma empresa
+> fornecedora de software usada por vários salões clientes, cada um com sua
+> própria base de clientes finais. Ainda tem placeholders da empresa
+> fornecedora (`[EMPRESA]`, CNPJ, endereço, contato/DPO) e deve ser revisado
+> por um advogado antes de valer como termo vinculante, com atenção à Lei
+> Geral de Proteção de Dados (Lei 13.709/2018 — LGPD).
+>
+> Este documento tem duas partes com papéis diferentes perante a LGPD:
+> **Parte 1** trata dos dados que a própria Velour controla (contas de Salão,
+> usuários da equipe, faturamento). **Parte 2** (Anexo de Tratamento de
+> Dados) trata dos dados dos **clientes finais dos Salões**, onde a Velour
+> atua apenas como operadora, seguindo as instruções de cada Salão.
 
 Última atualização: 11 de agosto de 2026.
 
-## 1. Quem somos
+---
 
-Esta Política de Privacidade descreve como o [NOME DO SALÃO], operando o sistema
-de gestão Velour, coleta, usa, armazena e protege dados pessoais de clientes,
-profissionais e usuários do sistema.
+## Parte 1 — Dados que a Velour controla
 
-**Controlador dos dados:** [RAZÃO SOCIAL DO SALÃO], CNPJ [XX.XXX.XXX/0001-XX],
-com endereço em [ENDEREÇO]. Contato para assuntos de privacidade: [E-MAIL].
+### 1.1 Quem somos
 
-## 2. Quais dados coletamos
+A **[RAZÃO SOCIAL DA EMPRESA]**, CNPJ **[XX.XXX.XXX/0001-XX]**, com sede em
+**[ENDEREÇO]** ("Velour"), é a controladora dos dados descritos nesta Parte 1.
+Contato para assuntos de privacidade: **[E-MAIL DE CONTATO DO ENCARREGADO/DPO]**.
 
-O sistema Velour armazena, no mínimo, os seguintes dados pessoais:
+### 1.2 Quais dados coletamos diretamente
 
-- **Dados de identificação do cliente:** nome, telefone, e-mail, gênero, data de
-  nascimento.
-- **Dados de preferência e atendimento:** bebida preferida, preferência musical,
-  preferência de temperatura, preferência de conversa, alergias, observações
-  registradas pela equipe.
-- **Histórico de atendimento:** serviços realizados, datas, valores cobrados,
-  forma de pagamento, fotos de antes/depois (quando enviadas pela equipe),
-  fórmulas de coloração utilizadas.
-- **Dados de fidelidade:** pontos acumulados, resgates, indicações feitas e
-  recebidas.
-- **Dados de acesso ao sistema (equipe):** nome, e-mail, senha (armazenada de
-  forma criptografada), papel de acesso (admin/gerente/profissional).
+- **Dados da conta do Salão:** razão social, CNPJ/CPF, endereço, dados de
+  cobrança.
+- **Dados dos usuários da equipe do Salão:** nome, e-mail, senha (armazenada
+  com hash), papel de acesso (admin/gerente/profissional).
+- **Dados de uso da Plataforma:** logs de acesso e de requisições (para
+  segurança e suporte técnico).
 
-Não coletamos dados de pagamento (número de cartão, CVV) — o sistema apenas
-registra que um pagamento ocorreu e por qual meio (dinheiro, cartão, Pix).
-
-## 3. Por que coletamos esses dados (finalidade e base legal)
+### 1.3 Finalidade e base legal
 
 | Finalidade | Base legal (LGPD) |
 |---|---|
-| Agendar e prestar o serviço contratado | Execução de contrato (art. 7º, V) |
-| Enviar confirmação e lembrete de horário por e-mail | Execução de contrato / legítimo interesse (art. 7º, IX) |
-| Programa de fidelidade e indicação | Execução de contrato |
-| Personalizar o atendimento (preferências, alergias) | Consentimento / legítimo interesse |
-| Cumprir obrigações fiscais e contábeis | Obrigação legal (art. 7º, II) |
-| Segurança do sistema (logs de auditoria) | Legítimo interesse / obrigação legal |
+| Provisionar e operar a conta do Salão | Execução de contrato (art. 7º, V) |
+| Cobrança da assinatura | Execução de contrato |
+| Suporte técnico e segurança (logs) | Legítimo interesse / obrigação legal |
+| Comunicação sobre o serviço (avisos, atualizações) | Execução de contrato |
 
-## 4. Com quem compartilhamos os dados
+### 1.4 Compartilhamento
 
-Os dados **não são vendidos** a terceiros. Podem ser compartilhados apenas com:
+Não vendemos esses dados. Podem ser compartilhados com processadores de
+pagamento (cobrança da assinatura), provedor de hospedagem/infraestrutura, e
+autoridades públicas quando exigido por lei.
 
-- Provedor de e-mail (SMTP) usado para envio de confirmações e lembretes.
-- Provedor de hospedagem/infraestrutura onde o sistema roda.
-- Autoridades públicas, quando exigido por lei ou ordem judicial.
+### 1.5 Direitos do titular
 
-## 5. Por quanto tempo guardamos os dados
+Usuários da equipe do Salão podem solicitar acesso, correção ou exclusão dos
+seus próprios dados de conta enviando um pedido para
+**[E-MAIL DE CONTATO DO ENCARREGADO/DPO]**, nos termos do art. 18 da LGPD.
 
-Os dados são mantidos enquanto o cliente mantiver relacionamento ativo com o
-salão. Registros com finalidade fiscal são mantidos pelo prazo exigido pela
-legislação tributária aplicável. Um cliente pode solicitar a exclusão de seus
-dados a qualquer momento (ver seção 7), respeitadas as obrigações legais de
-retenção.
+---
 
-## 6. Como protegemos os dados
+## Parte 2 — Anexo de Tratamento de Dados (dados dos clientes finais do Salão)
 
-- Senhas de acesso ao sistema são armazenadas com hash (nunca em texto puro).
-- Comunicação e autenticação usam tokens com expiração.
-- Uploads de fotos são validados e servidos apenas para usuários autenticados.
+### 2.1 Papéis
+
+Cada Salão que usa a Plataforma é o **controlador** dos dados pessoais dos
+seus próprios clientes finais (as pessoas que agendam e recebem serviços no
+Salão). A Velour atua como **operadora**, tratando esses dados **apenas**
+conforme as instruções do Salão, através das funcionalidades da Plataforma —
+nunca para finalidade própria.
+
+### 2.2 Quais dados o Salão pode registrar sobre seus clientes finais
+
+- **Identificação:** nome, telefone, e-mail, gênero, data de nascimento.
+- **Preferências de atendimento:** bebida preferida, preferência musical, de
+  temperatura, de conversa, alergias, observações registradas pela equipe.
+- **Histórico de atendimento:** serviços realizados, datas, valores cobrados,
+  forma de pagamento, fotos de antes/depois (se enviadas pela equipe do
+  Salão), fórmulas de coloração.
+- **Dados de fidelidade:** pontos acumulados, resgates, indicações.
+
+A Velour não coleta dados de cartão de pagamento (número, CVV) — a Plataforma
+apenas registra que um pagamento ocorreu e por qual meio.
+
+### 2.3 Como a Velour trata esses dados
+
+- Processamento estritamente para viabilizar as funcionalidades contratadas
+  pelo Salão (agendamento, fidelidade, comunicação com o cliente final,
+  relatórios).
+- Envio de e-mail de confirmação/lembrete de agendamento em nome do Salão,
+  quando essa função está habilitada.
+- Nenhum uso para publicidade, treinamento de modelos, ou qualquer finalidade
+  fora da prestação do serviço ao Salão.
+- Retenção pelo tempo que o Salão mantiver a conta ativa e os dados
+  cadastrados; a exclusão de um cliente final pelo Salão remove seus dados da
+  Plataforma, ressalvadas cópias de segurança temporárias e obrigações legais
+  de retenção do próprio Salão (ex.: fiscais).
+
+### 2.4 Subcontratados da Velour
+
+- Provedor de e-mail (SMTP), quando o Salão habilita notificações.
+- Provedor de hospedagem/infraestrutura onde a Plataforma roda.
+
+### 2.5 Segurança
+
+- Senhas de acesso são armazenadas com hash (nunca em texto puro).
+- Autenticação e comunicação usam tokens com expiração.
+- Uploads de fotos são validados e servidos apenas para usuários autenticados
+  do respectivo Salão.
 - Ações sensíveis ficam registradas em log de auditoria.
-- Acesso ao banco de dados é restrito à equipe técnica responsável.
+- Em caso de incidente de segurança com risco relevante aos titulares, a
+  Velour notificará o Salão afetado sem demora indevida, para que o Salão
+  cumpra suas obrigações de comunicação à ANPD e aos titulares, conforme a
+  LGPD.
 
-Nenhum sistema é 100% livre de risco; em caso de incidente de segurança que
-possa gerar risco relevante aos titulares, comunicaremos a Autoridade Nacional
-de Proteção de Dados (ANPD) e os titulares afetados, conforme exigido pela
-LGPD.
+### 2.6 Direitos dos clientes finais
 
-## 7. Direitos do titular dos dados
+Como a Velour é operadora, pedidos de acesso, correção, portabilidade ou
+exclusão de dados feitos por um cliente final devem ser direcionados ao
+**Salão onde ele é atendido** (controlador dos seus dados). A Velour apoia o
+Salão a atender esses pedidos através da Plataforma (ex.: exclusão de
+cadastro do cliente).
 
-Nos termos da LGPD, o cliente pode solicitar a qualquer momento, mediante
-contato com [E-MAIL DE CONTATO]:
+### 2.7 Menores de idade
 
-- Confirmação de que tratamos seus dados;
-- Acesso aos dados armazenados;
-- Correção de dados incompletos, inexatos ou desatualizados;
-- Anonimização, bloqueio ou eliminação de dados desnecessários;
-- Portabilidade dos dados;
-- Eliminação dos dados tratados com consentimento;
-- Informação sobre com quem os dados foram compartilhados;
-- Revogação do consentimento, quando aplicável.
+Caso um Salão atenda menores de idade, o cadastro e o consentimento para
+tratamento de dados devem ser realizados por um responsável legal — isso é de
+responsabilidade do Salão como controlador.
 
-## 8. Menores de idade
+---
 
-Caso o salão atenda menores de idade, o cadastro e o consentimento para
-tratamento de dados devem ser realizados por um responsável legal.
-
-## 9. Alterações desta política
+## Alterações desta política
 
 Esta política pode ser atualizada. A data da última atualização está indicada
-no topo do documento. Alterações relevantes serão comunicadas aos clientes por
-e-mail ou aviso no estabelecimento.
+no topo do documento. Alterações relevantes serão comunicadas aos Salões
+clientes com antecedência razoável.
 
-## 10. Contato
+## Contato
 
-Dúvidas sobre esta política ou sobre o tratamento de dados pessoais podem ser
-enviadas para [E-MAIL DE CONTATO DO ENCARREGADO/DPO].
+Dúvidas sobre esta política podem ser enviadas para
+**[E-MAIL DE CONTATO DO ENCARREGADO/DPO]**.
