@@ -1,141 +1,90 @@
-# Política de Privacidade — Velour (SaaS)
+# Política de Privacidade — Velour SaaS
 
-> **Rascunho genérico**, estruturado para o modelo SaaS: a Velour é uma empresa
-> fornecedora de software usada por vários salões clientes, cada um com sua
-> própria base de clientes finais. Ainda tem placeholders da empresa
-> fornecedora (`[EMPRESA]`, CNPJ, endereço, contato/DPO) e deve ser revisado
-> por um advogado antes de valer como termo vinculante, com atenção à Lei
-> Geral de Proteção de Dados (Lei 13.709/2018 — LGPD).
->
-> Este documento tem duas partes com papéis diferentes perante a LGPD:
-> **Parte 1** trata dos dados que a própria Velour controla (contas de Salão,
-> usuários da equipe, faturamento). **Parte 2** (Anexo de Tratamento de
-> Dados) trata dos dados dos **clientes finais dos Salões**, onde a Velour
-> atua apenas como operadora, seguindo as instruções de cada Salão.
+**Minuta para preenchimento e revisão antes da publicação.** Revisão técnica: 8 de setembro de 2026. Esta descrição corresponde ao código do repositório; provedores, retenção, canais e procedimentos da operação comercial ainda precisam ser preenchidos e verificados.
 
-Última atualização: 11 de agosto de 2026.
+## 1. Responsável e canais
 
----
+Fornecedor: **[RAZÃO SOCIAL]**, CNPJ **[CNPJ]**, endereço **[ENDEREÇO]**. Canal para assuntos de privacidade e identificação do encarregado, quando aplicável: **[PREENCHER]**.
 
-## Parte 1 — Dados que a Velour controla
+O fornecedor trata dados para operar contas, autenticação, cobrança, segurança e suporte. Quanto aos registros que o salão insere para atender seus próprios clientes, os papéis e instruções devem ser definidos no Anexo de Tratamento de Dados abaixo. A qualificação de controlador ou operador depende das decisões e atividades efetivas de cada parte, conforme a [LGPD, art. 5º](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm).
 
-### 1.1 Quem somos
+## 2. Dados da conta e do funcionamento
 
-A **[RAZÃO SOCIAL DA EMPRESA]**, CNPJ **[XX.XXX.XXX/0001-XX]**, com sede em
-**[ENDEREÇO]** ("Velour"), é a controladora dos dados descritos nesta Parte 1.
-Contato para assuntos de privacidade: **[E-MAIL DE CONTATO DO ENCARREGADO/DPO]**.
+| Categoria | Dados tratados pela implementação |
+| --- | --- |
+| Salão | Nome, identificador, slug, situação da conta, datas de criação/teste/assinatura e versão/data do aceite inicial |
+| Usuários | Nome, e-mail, papel, vínculo profissional quando houver, situação ativa, hash de senha e versão de sessão |
+| Cobrança | Identificadores de cliente, assinatura, Checkout e eventos Stripe; situação e datas da assinatura |
+| Recuperação de senha | E-mail destinatário, resumo criptográfico do token, expiração e utilização |
+| Operação e segurança | Registros técnicos e de auditoria, horários, ações, identificadores e endereços IP conforme o componente |
 
-### 1.2 Quais dados coletamos diretamente
+O formulário inicial do Velour não solicita CNPJ/CPF, endereço ou razão social como campos próprios. O Checkout pode solicitar dados de faturamento conforme a configuração do Stripe. Não são armazenados número completo de cartão ou CVV no banco da aplicação.
 
-- **Dados da conta do Salão:** razão social, CNPJ/CPF, endereço, dados de
-  cobrança.
-- **Dados dos usuários da equipe do Salão:** nome, e-mail, senha (armazenada
-  com hash), papel de acesso (admin/gerente/profissional).
-- **Dados de uso da Plataforma:** logs de acesso e de requisições (para
-  segurança e suporte técnico).
+As finalidades são fornecer acesso ao serviço, administrar a assinatura, recuperar contas, prestar suporte e investigar falhas ou uso indevido. O fornecedor deve documentar **[BASE LEGAL POR FINALIDADE E JUSTIFICATIVA, CONFORME SUA OPERAÇÃO]**. O aceite dos termos não deve ser tratado como autorização genérica para qualquer uso de dados.
 
-### 1.3 Finalidade e base legal
+## 3. Navegador e serviços externos
 
-| Finalidade | Base legal (LGPD) |
-|---|---|
-| Provisionar e operar a conta do Salão | Execução de contrato (art. 7º, V) |
-| Cobrança da assinatura | Execução de contrato |
-| Suporte técnico e segurança (logs) | Legítimo interesse / obrigação legal |
-| Comunicação sobre o serviço (avisos, atualizações) | Execução de contrato |
+A sessão utiliza um token no `sessionStorage` do navegador, enviado nas requisições autenticadas. Ele não substitui a verificação de autorização no servidor. O link de recuperação contém um token temporário; não deve ser compartilhado. O proxy fornecido evita registrar consultas de URL e cabeçalhos sensíveis nos formatos de log configurados.
 
-### 1.4 Compartilhamento
+O código atual não inclui ferramenta de publicidade ou analytics. A página carrega fontes do Google Fonts, o que gera requisições externas com informações técnicas da conexão. Stripe Checkout e Customer Portal são páginas hospedadas pelo Stripe e podem utilizar seus próprios mecanismos de armazenamento e tratamento. O fornecedor deve conferir a política aplicável a esses serviços e a qualquer ferramenta que venha a adicionar.
 
-Não vendemos esses dados. Podem ser compartilhados com processadores de
-pagamento (cobrança da assinatura), provedor de hospedagem/infraestrutura, e
-autoridades públicas quando exigido por lei.
+Antes da publicação, completar o inventário real:
 
-### 1.5 Direitos do titular
+| Serviço | Uso | Informação pendente |
+| --- | --- | --- |
+| Stripe | Assinatura e portal de cobrança do salão | [ENTIDADE CONTRATADA, POLÍTICA E REGIÕES APLICÁVEIS] |
+| Hospedagem e banco | Aplicação, registros e fotos | [PROVEDOR, REGIÃO E ACESSOS] |
+| SMTP | Recuperação de senha e notificações habilitadas | [PROVEDOR, POLÍTICA E REGIÃO] |
+| Armazenamento externo | Cópias de segurança | [PROVEDOR, REGIÃO, PROTEÇÃO E RETENÇÃO] |
+| Google Fonts | Carregamento das fontes da interface | [VALIDAR POLÍTICA E USO NA IMPLANTAÇÃO] |
 
-Usuários da equipe do Salão podem solicitar acesso, correção ou exclusão dos
-seus próprios dados de conta enviando um pedido para
-**[E-MAIL DE CONTATO DO ENCARREGADO/DPO]**, nos termos do art. 18 da LGPD.
+Se houver tratamento fora do Brasil, o fornecedor e o salão devem avaliar as condições e mecanismos aplicáveis. Nenhuma região de armazenamento ou transferência internacional foi presumida nesta minuta.
 
----
+## 4. Retenção e segurança
 
-## Parte 2 — Anexo de Tratamento de Dados (dados dos clientes finais do Salão)
+Períodos e critérios de retenção precisam ser publicados para **[CONTAS]**, **[REGISTROS DE CLIENTES]**, **[FOTOS]**, **[LOGS]**, **[DOCUMENTOS DE COBRANÇA]** e **[BACKUPS]**, com responsáveis por execução e verificação.
 
-### 2.1 Papéis
+Cancelar uma assinatura não elimina dados. As funções de desativação preservam histórico; excluir um registro pela interface não equivale a um processo completo de eliminação de dados pessoais. Pedidos de anonimização ou eliminação exigem procedimento assistido que considere vínculos, cópias de segurança e retenções aplicáveis. Não existe prazo automático de eliminação implementado.
 
-Cada Salão que usa a Plataforma é o **controlador** dos dados pessoais dos
-seus próprios clientes finais (as pessoas que agendam e recebem serviços no
-Salão). A Velour atua como **operadora**, tratando esses dados **apenas**
-conforme as instruções do Salão, através das funcionalidades da Plataforma —
-nunca para finalidade própria.
+O código oferece hash de senhas, tokens com expiração, isolamento por salão, permissões por papel, validação e acesso autenticado às fotos, revogação de sessões e auditoria de ações específicas. O guia de implantação prevê HTTPS. Criptografia de volumes e backups, armazenamento externo, gestão de acesso do operador e alertas dependem da infraestrutura configurada. Não se presume certificação, alta disponibilidade ou auditoria independente.
 
-### 2.2 Quais dados o Salão pode registrar sobre seus clientes finais
+## 5. Solicitações dos titulares
 
-- **Identificação:** nome, telefone, e-mail, gênero, data de nascimento.
-- **Preferências de atendimento:** bebida preferida, preferência musical, de
-  temperatura, de conversa, alergias, observações registradas pela equipe.
-- **Histórico de atendimento:** serviços realizados, datas, valores cobrados,
-  forma de pagamento, fotos de antes/depois (se enviadas pela equipe do
-  Salão), fórmulas de coloração.
-- **Dados de fidelidade:** pontos acumulados, resgates, indicações.
+Os titulares podem exercer os direitos aplicáveis, incluindo confirmação, acesso e correção, e solicitar anonimização, bloqueio ou eliminação nas hipóteses legais. Veja a [LGPD, art. 18](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm). O atendimento deve verificar a identidade e os limites legais sem coletar informações excessivas.
 
-A Velour não coleta dados de cartão de pagamento (número, CVV) — a Plataforma
-apenas registra que um pagamento ocorreu e por qual meio.
+Pedidos sobre conta e cobrança: **[CANAL DO FORNECEDOR]**. Pedidos de clientes finais sobre seus atendimentos: o salão responsável, com apoio do fornecedor quando necessário. Procedimento, responsável e prazos de atendimento: **[DEFINIR CONFORME AS OBRIGAÇÕES APLICÁVEIS]**.
 
-### 2.3 Como a Velour trata esses dados
+A exportação do administrador é um arquivo JSON dos registros do salão, sem hashes de senha, segredos ou tokens de recuperação. Fotos são referências autenticadas para download separado. Ela auxilia o atendimento, mas não realiza automaticamente a seleção de dados de um titular nem a anonimização dos demais.
 
-- Processamento estritamente para viabilizar as funcionalidades contratadas
-  pelo Salão (agendamento, fidelidade, comunicação com o cliente final,
-  relatórios).
-- Envio de e-mail de confirmação/lembrete de agendamento em nome do Salão,
-  quando essa função está habilitada.
-- Nenhum uso para publicidade, treinamento de modelos, ou qualquer finalidade
-  fora da prestação do serviço ao Salão.
-- A ação de excluir um cadastro na interface o desativa, preservando seu
-  histórico. Ela não apaga definitivamente os dados. Pedidos de eliminação
-  ou anonimização devem ser encaminhados ao canal da empresa e processados
-  pelo operador conforme uma política de retenção ainda a definir, incluindo
-  cópias de segurança e eventuais obrigações de retenção. Esta política deve
-  ser preenchida antes da publicação comercial deste rascunho.
+## 6. Anexo de Tratamento de Dados — registros do salão
 
-### 2.4 Subcontratados da Velour
+### 6.1 Escopo e instruções
 
-- Provedor de e-mail (SMTP), quando o Salão habilita notificações.
-- Provedor de hospedagem/infraestrutura onde a Plataforma roda.
+O salão determina os registros necessários ao atendimento e gestão do seu negócio. O fornecedor executa o armazenamento e processamento previstos no serviço, de acordo com as instruções contratadas. Detalhar **[INSTRUÇÕES, PESSOAS AUTORIZADAS, CONFIDENCIALIDADE, SUBCONTRATAÇÃO E ASSISTÊNCIA]** no acordo entre as partes.
 
-### 2.5 Segurança
+Os registros podem incluir:
 
-- Senhas de acesso são armazenadas com hash (nunca em texto puro).
-- Autenticação e comunicação usam tokens com expiração.
-- Uploads de fotos são validados e servidos apenas para usuários autenticados
-  do respectivo Salão.
-- Ações sensíveis ficam registradas em log de auditoria.
-- Em caso de incidente de segurança com risco relevante aos titulares, a
-  Velour notificará o Salão afetado sem demora indevida, para que o Salão
-  cumpra suas obrigações de comunicação à ANPD e aos titulares, conforme a
-  LGPD.
+- Nome, telefone, e-mail, gênero e nascimento dos clientes.
+- Preferências de atendimento, alergias e observações da equipe.
+- Agendamentos, profissionais, serviços, valores e forma de pagamento registrada.
+- Fotos de antes/depois e fórmulas de coloração.
+- Pontos, benefícios e indicações de fidelidade.
+- Contatos e informações profissionais da equipe, incluindo comissão e metas.
 
-### 2.6 Direitos dos clientes finais
+Os dados servem à operação das funcionalidades contratadas. Notificações por e-mail de agendamento dependem da configuração do SMTP e das opções do cadastro. O envio envolve o destinatário e o conteúdo necessário ao aviso.
 
-Como a Velour é operadora, pedidos de acesso, correção, portabilidade ou
-exclusão de dados feitos por um cliente final devem ser direcionados ao
-**Salão onde ele é atendido** (controlador dos seus dados). A Velour apoia o
-Salão a atender esses pedidos através da Plataforma (ex.: exclusão de
-cadastro do cliente).
+### 6.2 Dados sensíveis, fotos e menores
 
-### 2.7 Menores de idade
+Informações de saúde, como alergias, podem ser dados pessoais sensíveis e exigem avaliação das hipóteses do art. 11. Registros de crianças e adolescentes exigem consideração de seu melhor interesse e das condições do art. 14. Consulte a [LGPD](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm).
 
-Caso um Salão atenda menores de idade, o cadastro e o consentimento para
-tratamento de dados devem ser realizados por um responsável legal — isso é de
-responsabilidade do Salão como controlador.
+O salão deve definir necessidade, base legal e acesso apropriado antes de registrar essas informações. A aplicação não coleta nem administra automaticamente autorizações específicas para fotos, dados de saúde ou atendimento de menores. O aceite do administrador no cadastro do salão não substitui esses procedimentos.
 
----
+### 6.3 Incidentes, solicitações e encerramento
 
-## Alterações desta política
+As partes devem definir **[CANAL DE INCIDENTES, RESPONSÁVEIS, PROCEDIMENTO E PRAZOS]**, incluindo informações para avaliação e cumprimento das obrigações de comunicação aplicáveis. Não há comunicação automática a titulares ou à ANPD no software.
 
-Esta política pode ser atualizada. A data da última atualização está indicada
-no topo do documento. Alterações relevantes serão comunicadas aos Salões
-clientes com antecedência razoável.
+Também devem definir o processo para exportação, correção, restrição, anonimização e eliminação ao final do contrato, abrangendo banco, fotos e backups. Uma conta suspensa perde o acesso à aplicação; seu atendimento dependerá do canal do fornecedor.
 
-## Contato
+## 7. Publicação e mudanças
 
-Dúvidas sobre esta política podem ser enviadas para
-**[E-MAIL DE CONTATO DO ENCARREGADO/DPO]**.
+Preencher todos os campos pendentes e confirmar que os processos descritos existem antes de publicar. Definir **[COMO E QUANDO MUDANÇAS SERÃO COMUNICADAS]**, conservar versões anteriores e manter o canal de privacidade acessível. Configure o endereço HTTPS final em `PRIVACY_URL`, conforme o [guia de produção](PRODUCTION.md).

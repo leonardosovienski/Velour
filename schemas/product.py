@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from models.product import ProductUnit
 from models.stock_movement import StockMovementType
+from schemas.numbers import JsonDecimal
 
 
 # ── Produto / insumo ─────────────────────────────────────────────────────────
@@ -36,7 +37,7 @@ class ProductResponse(BaseModel):
     stock_qty: float
     min_stock: float
     expiry_date: Optional[date]
-    cost_per_unit: Decimal
+    cost_per_unit: JsonDecimal
     is_active: bool
     created_at: datetime
 

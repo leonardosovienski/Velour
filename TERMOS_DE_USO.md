@@ -1,96 +1,69 @@
-# Termos de Uso — Velour (SaaS)
+# Termos de Uso — Velour SaaS
 
-> **Rascunho genérico**, estruturado para o modelo SaaS (uma empresa fornecedora,
-> muitos salões clientes usando a mesma plataforma). Ainda tem placeholders da
-> empresa fornecedora (`[EMPRESA]`, CNPJ, endereço, contato) e deve ser revisado
-> por um advogado antes de valer como termo vinculante — em especial as
-> cláusulas de disponibilidade (SLA), cobrança/cancelamento e limitação de
-> responsabilidade, que variam conforme o modelo comercial definido.
+**Minuta para preenchimento e revisão antes da publicação.** Revisão técnica: 8 de setembro de 2026. Os campos entre colchetes dependem da empresa que comercializará o serviço; este arquivo não é um contrato já aprovado ou publicado.
 
-Última atualização: 11 de agosto de 2026.
+## 1. Fornecedor e contratação
 
-## 1. Partes
+A plataforma Velour é fornecida por **[RAZÃO SOCIAL]**, inscrita no CNPJ sob **[CNPJ]**, com sede em **[ENDEREÇO]**. Contato contratual e de suporte: **[E-MAIL OU CANAL DE SUPORTE]**. Contato de privacidade: **[CANAL DE PRIVACIDADE]**.
 
-Estes Termos de Uso regem o uso da plataforma Velour ("Plataforma", "Serviço"),
-disponibilizada por **[RAZÃO SOCIAL DA EMPRESA]**, CNPJ **[XX.XXX.XXX/0001-XX]**,
-com sede em **[ENDEREÇO]** ("Velour", "nós", "Fornecedor"), por um
-estabelecimento de beleza ("Cliente", "Salão") que se cadastra na Plataforma
-para gerenciar seu próprio negócio.
+O contratante é o estabelecimento que cria uma conta para gerir seu salão. O responsável pelo cadastro deve estar autorizado a contratar em nome do estabelecimento. No cadastro, ele informa o nome do salão, seu nome, e-mail, senha e aceite dos documentos apresentados. A plataforma registra a data do aceite e a versão dos termos configurada naquele momento.
 
-Ao criar uma conta ou usar a Plataforma, o Cliente concorda com estes Termos e
-com a [Política de Privacidade](./POLITICA_DE_PRIVACIDADE.md), incluindo o
-Anexo de Tratamento de Dados (seção 3 daquele documento).
+A [Política de Privacidade](POLITICA_DE_PRIVACIDADE.md), incluindo seu Anexo de Tratamento de Dados, acompanha estes termos. Na publicação, substitua os links relativos deste repositório pelas páginas públicas correspondentes.
 
-## 2. Sobre o serviço
+## 2. Serviço e contas
 
-A Velour é um software como serviço (SaaS) de gestão para salões de beleza:
-agendamentos, cadastro de clientes finais, fidelidade, indicações, estoque e
-relatórios. Cada Salão que se cadastra opera sua própria conta, com seus
-próprios usuários, clientes finais e dados — isolados dos demais Salões que
-usam a Plataforma.
+O serviço oferece agenda, clientes, profissionais, serviços, estoque, fidelidade, indicações e relatórios. Cada salão possui seus próprios registros. Seus usuários têm papel de administrador, gerente ou profissional, com as permissões descritas no [manual funcional](DOCUMENTACAO.md).
 
-## 3. Cadastro e conta
+O administrador gerencia a equipe, a assinatura e a exportação. Um e-mail identifica uma única conta na plataforma; a mesma conta não pertence a vários salões. O estabelecimento deve manter os dados de contato corretos, conceder acesso somente à equipe autorizada e comunicar suspeitas de uso indevido pelo canal de suporte.
 
-- O Salão é responsável por manter suas credenciais de acesso seguras e por
-  toda atividade realizada com sua conta.
-- O Salão deve designar ao menos um usuário com papel de administrador,
-  responsável por gerenciar os demais usuários (gerentes, profissionais) da
-  sua conta.
-- A Velour pode recusar ou suspender cadastros que violem estes Termos ou a
-  legislação aplicável.
+O registro da forma de pagamento de um atendimento é uma anotação de gestão. O Velour não processa o pagamento do cliente final ao salão nem emite automaticamente documentos fiscais. O Stripe processa a assinatura do software contratada pelo salão.
 
-## 4. Papéis e responsabilidades quanto aos dados
+## 3. Teste, preço e cobrança
 
-- **O Salão é o controlador** dos dados pessoais dos seus próprios clientes
-  finais (nome, contato, preferências, histórico de atendimento etc.) — é o
-  Salão quem decide coletar esses dados e para quê.
-- **A Velour atua como operadora** (processa esses dados só para prestar o
-  serviço contratado, conforme instruções do Salão), nos termos detalhados no
-  Anexo de Tratamento de Dados da [Política de Privacidade](./POLITICA_DE_PRIVACIDADE.md).
-- O Salão é responsável por ter base legal (LGPD) para coletar e tratar os
-  dados dos seus clientes finais na Plataforma, incluindo eventuais avisos ou
-  consentimentos que precise obter deles.
+Novos cadastros recebem 14 dias de teste sem cartão. A continuidade das operações de negócio após o teste depende da assinatura. A configuração atual oferece uma assinatura mensal por salão, com quantidade 1, pelo preço mostrado no Stripe Checkout antes da confirmação.
 
-## 5. Assinatura e cobrança
+Quando a contratação ocorre durante o teste, o Checkout informa a data da primeira cobrança. Próximo do vencimento, a integração pode estender o período até 49 horas a partir da abertura do Checkout. O pagamento e o acesso são confirmados pelo processamento dos eventos do Stripe; a página de retorno, isoladamente, não ativa a assinatura.
 
-[MODELO COMERCIAL A DEFINIR — ex.: plano mensal por Salão, cobrança recorrente
-via gateway de pagamento, período de teste gratuito, política de reajuste.
-Preencher com o modelo real antes de comercializar.]
+Preencher e apresentar ao cliente antes da contratação:
 
-## 6. Cancelamento e exportação de dados
+| Condição comercial | Informação a publicar |
+| --- | --- |
+| Preço e moeda | [VALOR MENSAL E MOEDA, COERENTES COM O PRICE DO STRIPE] |
+| Tributos e documento fiscal | [RESPONSÁVEL, INCLUSÃO NO PREÇO E PROCESSO DE EMISSÃO] |
+| Reajustes e alterações de plano | [CRITÉRIO E FORMA/PRAZO DE COMUNICAÇÃO] |
+| Cancelamento | [EFEITO IMEDIATO OU AO FIM DO CICLO, CONFORME O PORTAL CONFIGURADO] |
+| Reembolso e direitos aplicáveis | [POLÍTICA REVISADA PARA O MERCADO E CONTRATANTE ATENDIDOS] |
 
-- O Salão pode cancelar sua assinatura a qualquer momento, conforme o processo
-  descrito em [PROCESSO DE CANCELAMENTO A DEFINIR].
-- Após o cancelamento, os dados do Salão ficam disponíveis para exportação por
-  [PRAZO A DEFINIR — ex.: 30 dias], após o qual podem ser excluídos
-  permanentemente, ressalvadas obrigações legais de retenção.
+A integração permite carência de até 7 dias para assinatura em atraso, calculada a partir da fatura não paga. Sem direito de acesso, o sistema bloqueia as operações de negócio e direciona a regularização à tela Assinatura. O estabelecimento deve conferir os valores, datas e condições exibidos no Checkout antes de confirmar.
 
-## 7. Disponibilidade do serviço
+## 4. Cancelamento, suspensão e dados
 
-A Velour se esforça para manter a Plataforma disponível, mas não garante
-operação ininterrupta. [SLA / JANELA DE MANUTENÇÃO A DEFINIR, se aplicável.]
-Funcionalidades que dependem de terceiros (ex.: envio de e-mail via SMTP)
-podem falhar por motivos fora do controle da Velour.
+O administrador acessa o portal de cobrança pela tela Assinatura para gerenciar pagamento e cancelamento, de acordo com as opções habilitadas pelo fornecedor no Stripe. A data de encerramento deve ser a informada pelo portal. Cancelar a assinatura não apaga a conta nem os dados.
 
-## 8. Limitação de responsabilidade
+Enquanto a conta permanecer ativa na plataforma, o vencimento do teste ou da assinatura preserva login, cobrança, exportação do administrador e leitura autorizada de fotos. A exportação contém registros em JSON; fotos são referências que exigem autenticação para download separado. Uma conta suspensa pelo operador perde acesso, inclusive a essas funções, e deve recorrer ao suporte.
 
-[CLÁUSULA DE LIMITAÇÃO DE RESPONSABILIDADE A DEFINIR COM ADVOGADO — cobrindo,
-por exemplo, indisponibilidade do serviço, perda de dados, e uso indevido da
-Plataforma pelo Salão ou por seus clientes finais.]
+O fornecedor precisa definir e publicar **[MOTIVOS E PROCEDIMENTO DE SUSPENSÃO, COMUNICAÇÃO E CONTESTAÇÃO]**, **[PRAZO DE DISPONIBILIDADE DOS DADOS APÓS ENCERRAMENTO]** e **[RETENÇÃO E ELIMINAÇÃO, INCLUINDO BACKUPS]**. A plataforma não executa eliminação automática ao cancelar. Desativar clientes, profissionais ou usuários preserva seu histórico; outras exclusões dependem do tipo de registro e de seus vínculos.
 
-## 9. Propriedade intelectual
+## 5. Responsabilidades sobre dados pessoais
 
-A Plataforma, sua marca e seu código-fonte pertencem à Velour. O uso pelo
-Salão se limita a uma licença de uso não exclusiva, intransferível, pelo
-período da assinatura ativa.
+O estabelecimento decide quais dados de seus clientes e equipe registrar e deve limitar o uso às finalidades informadas. Alergias, informações de saúde, fotos e registros de menores exigem avaliação específica das condições de tratamento. Os papéis e o procedimento de atendimento de solicitações estão descritos no anexo da política.
 
-## 10. Alterações destes termos
+O fornecedor deve operar o serviço conforme as instruções contratadas e os compromissos de proteção de dados efetivamente implementados. O estabelecimento deve orientar sua equipe a não inserir credenciais, dados de cartão ou informações desnecessárias em campos de observação.
 
-Estes termos podem ser atualizados. A data da última atualização está
-indicada no topo do documento. Alterações relevantes serão comunicadas ao
-Salão com antecedência razoável (ex.: e-mail ou aviso na Plataforma).
+## 6. Suporte e disponibilidade
 
-## 11. Contato
+Canal, dias e horários de atendimento: **[DEFINIR]**. Prazo de resposta e eventual compromisso de disponibilidade: **[DEFINIR]**. Janelas de manutenção e comunicação de indisponibilidade: **[DEFINIR]**.
 
-Dúvidas sobre estes Termos podem ser enviadas para **[E-MAIL DE CONTATO DA
-EMPRESA]**.
+A versão atual utiliza uma única API e admite interrupções de manutenção, inclusive no backup consistente. E-mails dependem do provedor SMTP e cobranças dependem do Stripe. O contrato deve refletir a infraestrutura contratada, o monitoramento e a recuperação efetivamente testados. O software não estabelece um SLA numérico.
+
+## 7. Direitos de uso e responsabilidades contratuais
+
+Definir, após conferir a titularidade do código, marca e licenças de dependências: **[DIREITOS CONCEDIDOS AO CONTRATANTE E RESTRIÇÕES DE USO]**. Este documento não transfere o código-fonte nem comprova titularidade de marca.
+
+Preencher com revisão jurídica: **[RESPONSABILIDADES DAS PARTES, EVENTUAIS LIMITAÇÕES ADMISSÍVEIS E SOLUÇÃO DE CONTROVÉRSIAS]**, preservando os direitos obrigatórios aplicáveis ao contratante. Não há cláusula de isenção geral presumida por esta minuta.
+
+## 8. Atualizações e contato
+
+Forma de comunicação de mudanças contratuais, antecedência e novo aceite quando necessário: **[DEFINIR]**. A plataforma registra o aceite inicial; não implementa um fluxo geral de novo aceite para todas as contas existentes. O fornecedor deve organizar a comunicação e conservar as versões publicadas.
+
+Antes de habilitar cadastros, finalize os campos pendentes, publique estes termos e a política em HTTPS e configure `TERMS_URL`, `PRIVACY_URL` e `TERMS_VERSION`, conforme o [guia de produção](PRODUCTION.md).

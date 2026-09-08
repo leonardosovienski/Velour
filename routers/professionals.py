@@ -23,7 +23,12 @@ def list_professionals(
     db: Session = Depends(get_db),
     _=Depends(get_current_user),
 ):
-    return db.query(Professional).filter(Professional.is_active == is_active).all()
+    query = db.query(Professional).filter(Professional.is_active == is_active)
+    if _.role == "professional":
+        if _.professional_id is None:
+            return []
+        query = query.filter(Professional.id == _.professional_id)
+    return query.all()
 
 
 @router.get("/{prof_id}", response_model=ProfessionalResponse)
@@ -57,7 +62,7 @@ def professional_stats(prof_id: int, db: Session = Depends(get_db), _=Depends(ge
         .all()
     )
 
-    receita_mes = sum(a.price_charged or a.service.price for a in appts_mes)
+    receita_mes = sum(a.price_charged if a.price_charged is not None else a.service.price for a in appts_mes)
     ticket_medio = receita_mes / len(appts_mes) if appts_mes else 0
     comissao_mes = receita_mes * prof.commission_rate
 
@@ -102,7 +107,7 @@ def professional_dashboard(prof_id: int, db: Session = Depends(get_db), _=Depend
         )
         .all()
     )
-    receita_mes = sum(a.price_charged or a.service.price for a in appts_mes)
+    receita_mes = sum(a.price_charged if a.price_charged is not None else a.service.price for a in appts_mes)
     meta = prof.monthly_goal or Decimal("0")
     progresso = round(receita_mes / meta, 4) if meta > 0 else None
 

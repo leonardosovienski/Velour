@@ -2,20 +2,21 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Optional, List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, NaiveDatetime
 
 from models.appointment import AppointmentStatus, PaymentMethod
 from models.client import LoyaltyTier
 from schemas.client import ClientResponse
 from schemas.professional import ProfessionalResponse
 from schemas.service import ServiceResponse
+from schemas.numbers import JsonDecimal
 
 
 class AppointmentCreate(BaseModel):
     client_id: int
     professional_id: int
     service_id: int
-    scheduled_at: datetime
+    scheduled_at: NaiveDatetime = Field(description="Horário local do salão, sem Z ou offset de fuso horário")
     occasion: Optional[str] = None
     notes: Optional[str] = None
 
@@ -57,12 +58,12 @@ class AppointmentResponse(BaseModel):
     photo_after_url: Optional[str]
     formula_used: Optional[str]
     points_awarded: int
-    price_charged: Optional[Decimal]
+    price_charged: Optional[JsonDecimal]
     discount_points_used: int
     tier_at_service: Optional[LoyaltyTier]
-    tier_discount_amount: Decimal
+    tier_discount_amount: JsonDecimal
     paid: bool
-    amount_paid: Optional[Decimal]
+    amount_paid: Optional[JsonDecimal]
     payment_method: Optional[PaymentMethod]
     created_at: datetime
 

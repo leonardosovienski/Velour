@@ -234,7 +234,7 @@ function AppointmentRow({ appt, onComplete, onCancel, onBriefing, onStatusChange
   )
 }
 
-function CreateModal({ open, onClose, onSuccess }: { open: boolean; onClose: () => void; onSuccess: () => void }) {
+export function CreateModal({ open, onClose, onSuccess }: { open: boolean; onClose: () => void; onSuccess: () => void }) {
   const [form, setForm] = useState<AppointmentCreate>({
     client_id: 0, professional_id: 0, service_id: 0, scheduled_at: '',
   })
@@ -264,7 +264,7 @@ function CreateModal({ open, onClose, onSuccess }: { open: boolean; onClose: () 
     try {
       await appointmentsApi.create({
         ...form,
-        scheduled_at: new Date(form.scheduled_at).toISOString(),
+        scheduled_at: form.scheduled_at,
       })
       onSuccess()
       setForm({ client_id: 0, professional_id: 0, service_id: 0, scheduled_at: '' })
@@ -308,7 +308,7 @@ function CreateModal({ open, onClose, onSuccess }: { open: boolean; onClose: () 
           </div>
         )}
         <div>
-          <label htmlFor="appointments-data-e-horario" className="field-label">Data e Horário *</label>
+          <label htmlFor="appointments-data-e-horario" className="field-label">Data e horário do salão *</label>
           <input id="appointments-data-e-horario" type="datetime-local" value={form.scheduled_at} onChange={e => set('scheduled_at', e.target.value)} required />
         </div>
         <div>

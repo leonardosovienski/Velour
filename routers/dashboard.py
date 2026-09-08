@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, date
 from typing import List
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func
+from sqlalchemy import extract, func
 from sqlalchemy.orm import Session
 
 from auth import get_current_user
@@ -43,7 +43,7 @@ def today_summary(db: Session = Depends(get_db), _=Depends(get_current_user)):
         status_breakdown[key] = status_breakdown.get(key, 0) + 1
 
     receita_hoje = sum(
-        (a.price_charged or a.service.price)
+        (a.price_charged if a.price_charged is not None else a.service.price)
         for a in appts_hoje if a.status == AppointmentStatus.completed
     )
 
@@ -87,12 +87,12 @@ def kpis(period: str = Query("month", pattern="^(day|week|month)$"), db: Session
         .all()
     )
 
-    receita = sum(a.price_charged or a.service.price for a in appts)
+    receita = sum(a.price_charged if a.price_charged is not None else a.service.price for a in appts)
 
     clients_query = db.query(Client).filter(Client.is_active == True)
     if _ is not None and _.role == "professional":
-        clients_query = clients_query.join(Appointment, Appointment.client_id == Client.id).filter(
-            Appointment.professional_id == current_user.professional_id
+        clients_query = _scope_appointments(
+            clients_query.join(Appointment, Appointment.client_id == Client.id), _
         ).distinct()
     total_clientes_ativos = clients_query.count()
 
@@ -129,7 +129,7 @@ def weekly_revenue(db: Session = Depends(get_db), _=Depends(get_current_user)):
             )
             .all()
         )
-        receita = sum(a.price_charged or a.service.price for a in appts)
+        receita = sum(a.price_charged if a.price_charged is not None else a.service.price for a in appts)
         resultado.append({
             "date": dia.strftime("%d/%m"),
             "revenue": round(receita, 2),
@@ -153,7 +153,8 @@ def alerts(db: Session = Depends(get_db), _=Depends(get_current_user)):
         birthday_query
         .filter(
             Client.is_active == True,
-            func.strftime("%m-%d", Client.birthdate) == dia.strftime("%m-%d"),
+            extract("month", Client.birthdate) == dia.month,
+            extract("day", Client.birthdate) == dia.day,
         )
         .all()
     )

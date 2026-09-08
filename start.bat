@@ -14,6 +14,7 @@ echo Ambos os servicos iniciados.
 echo   Backend:  http://127.0.0.1:8000/docs
 echo   Frontend: http://localhost:5173
 echo.
-echo Login: admin@velour.com / velour2026
+echo Use a conta criada no cadastro ou com python bootstrap_admin.py.
+echo Este atalho e exclusivo para desenvolvimento, apos instalar e migrar o banco.
 echo.
 echo Feche as janelas dos terminais para encerrar.

@@ -6,30 +6,33 @@ labels: ["enhancement", "triage"]
 assignees: []
 ---
 
-## Resumo da funcionalidade
-Descreva claramente a funcionalidade desejada.
+## Problema a resolver
 
-## Problema/oportunidade
-Qual dor atual essa melhoria resolve?
+Descreva uma situação concreta e quem é afetado: administrador, gerente, profissional ou operador da plataforma. Use exemplos fictícios, sem dados de clientes.
 
 ## Solução proposta
-Descreva a proposta de forma objetiva.
+
+Explique o comportamento desejado e como ele muda o trabalho do usuário.
 
 ## Alternativas consideradas
-Liste outras abordagens avaliadas.
+
+Informe outras formas de resolver o problema e suas limitações.
 
 ## Critérios de aceitação
-- [ ] 
-- [ ] 
-- [ ] 
 
-## Ambiente e escopo
-- Áreas afetadas (backend/frontend):
-- Dependências ou migrações necessárias:
+Substitua os exemplos por resultados verificáveis.
 
-## Impacto esperado
-Explique o impacto para usuário/time (baixo, médio, alto).
+- [ ] Ao executar a ação descrita, o usuário autorizado obtém o resultado esperado.
+- [ ] O comportamento respeita as permissões e o isolamento entre salões.
+- [ ] Estados vazios e falhas relevantes têm tratamento definido.
+
+## Escopo e dependências
+
+- Telas e papéis afetados:
+- Alterações de dados ou migrações necessárias:
+- Integrações externas e configurações exigidas:
+- Impacto em cobrança, privacidade ou operação, se aplicável:
 
 ## Evidências e referências
-- Link de run do GitHub Actions: `https://github.com/leonardosovienski/Velour/actions/runs/<id>`
-- Links adicionais (issues/PRs/documentação):
+
+Inclua exemplos, links para issues/PRs ou documentação relacionada. Não publique segredos, dados pessoais ou informações comerciais confidenciais.

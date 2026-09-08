@@ -1,29 +1,42 @@
 # Velour — gestão de salões como SaaS
 
-React + TypeScript e FastAPI, com PostgreSQL em produção e SQLite para desenvolvimento. Agenda, clientes, profissionais, serviços, estoque, fidelidade, indicações e relatórios.
+Agenda, clientes, profissionais, serviços, estoque, fidelidade, indicações e relatórios. React + TypeScript no frontend, FastAPI no backend, PostgreSQL 17 em produção e SQLite no desenvolvimento.
 
-## Preparação comercial
+O SaaS inclui isolamento por salão, cadastro com 14 dias de teste, assinatura mensal via Stripe Checkout/Portal, webhooks assinados, recuperação de senha por e-mail e exportação dos dados do salão. Para abrir vendas, configure e homologue domínio/HTTPS, Stripe, SMTP, documentos da empresa, backups externos e monitoramento conforme o [guia de produção](PRODUCTION.md).
 
-O núcleo SaaS está implementado: isolamento de registros por salão, cadastro de administrador e trial de 14 dias, Stripe Checkout/Portal, webhook assinado e idempotente, controle de acesso por assinatura, recuperação de senha com tokens de uso único, exportação e operação assistida de contas.
+## Executar localmente
 
-**Para liberar vendas:** configure domínio/HTTPS, Stripe e preço mensal, SMTP, documentos reais da empresa, backups externos e alertas; complete os testes de homologação do [guia de produção](PRODUCTION.md). A implementação não constitui garantia de segurança absoluta, auditoria externa ou conformidade jurídica. Os documentos de termos/privacidade do repositório são rascunhos.
-
-A topologia suportada é uma API com **um worker** e PostgreSQL. Um lock do banco recusa instâncias adicionais; não há alta disponibilidade nesta versão. O e-mail de usuário é único na plataforma. Cada implantação usa um único fuso operacional, configurável por `SALON_TIMEZONE` no Compose (padrão America/Sao_Paulo).
-
-## Desenvolvimento
-
-Python 3.12/3.13 e Node.js 24:
+Requisitos: Python 3.12 ou 3.13 e Node.js 24 com npm. Execute na raiz do repositório:
 
 ```sh
 python -m venv .venv
-# Ative .venv conforme seu sistema operacional.
+```
+
+Ative o ambiente e copie a configuração de exemplo. No PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+Copy-Item .env.example .env
+```
+
+No Linux/macOS:
+
+```sh
+. .venv/bin/activate
+cp .env.example .env
+```
+
+Em uma instalação nova, edite `.env`: gere `SECRET_KEY` com o comando abaixo; mantenha `APP_ENV=development`, `DATABASE_URL=sqlite:///./velour.db`, `AUTO_CREATE_TABLES=false`, `APP_URL=http://localhost:5173` e `CORS_ORIGINS=http://localhost:5173`. Não substitua um `.env` existente sem preservar sua configuração.
+
+```sh
+python -c "import secrets; print(secrets.token_hex(32))"
 python -m pip install -r requirements-dev.txt
-# Copie .env.example para .env e gere uma SECRET_KEY própria.
 alembic upgrade head
+python bootstrap_admin.py
 uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Em outro terminal:
+O bootstrap solicita nome, e-mail e senha do administrador e cria ou reutiliza o salão configurado por `BOOTSTRAP_TENANT_SLUG` (padrão `legacy`). Não há senha padrão. Em outro terminal:
 
 ```sh
 cd frontend
@@ -31,46 +44,63 @@ npm ci
 npm run dev
 ```
 
-Abra `http://localhost:5173`. Vite encaminha `/api` para a API local. Para cadastro pela interface, habilite `SIGNUP_ENABLED=true` e informe URLs HTTPS de termos/privacidade do seu ambiente de teste. Para operação assistida, use `python bootstrap_admin.py`. `seed.py` é exclusivo para desenvolvimento e cria usuários de demonstração com credenciais públicas; nunca execute em produção.
+Abra `http://localhost:5173`; Vite encaminha `/api` para `http://127.0.0.1:8000`. A documentação interativa da API local fica em `http://127.0.0.1:8000/docs`.
 
-## Testes e validação
+Para testar o cadastro público, defina `SIGNUP_ENABLED=true` e URLs HTTPS em `TERMS_URL` e `PRIVACY_URL`: a tela exige esses links mesmo no desenvolvimento. Para desenvolver com cadastro fechado, use o bootstrap. `seed.py` cria dados de demonstração com credenciais públicas e só pode ser usado em um banco descartável de desenvolvimento. `start.bat` é apenas um atalho local, depois da instalação e das migrações.
+
+## Testar
+
+Use um ambiente e bancos de teste, sem dados comerciais. No PowerShell, antes do backend:
+
+```powershell
+$env:APP_ENV = 'test'
+$env:SECRET_KEY = 'test-only-secret-key-do-not-use-in-production'
+$env:SCHEDULER_ENABLED = 'false'
+$env:AUTO_CREATE_TABLES = 'false'
+$env:DATABASE_URL = 'sqlite:///./validation.db'
+python -m pytest tests/ -q
+alembic upgrade head
+alembic check
+```
+
+No Linux/macOS, use `export APP_ENV=test`, `export SECRET_KEY='test-only-secret-key-do-not-use-in-production'`, `export SCHEDULER_ENABLED=false`, `export AUTO_CREATE_TABLES=false` e `export DATABASE_URL=sqlite:///./validation.db` antes dos mesmos comandos Python/Alembic. Abra outro terminal sem essas variáveis para retomar o desenvolvimento.
+
+No diretório `frontend`:
 
 ```sh
-python -m pytest tests/ -q
-alembic check
-cd frontend
 npm run lint
 npm run test
 npm run build
 npm audit --audit-level=high
 ```
 
-Defina `SECRET_KEY` de teste antes de rodar pytest. Os testes unitários/API usam bancos temporários. `tests/test_postgres_tenancy.py` só roda quando `TEST_POSTGRES_URL` aponta para um banco PostgreSQL **de testes**, migrado com Alembic. A CI executa isolamento sobre PostgreSQL 17, restauração em um segundo banco, build/boot dos containers e backup consistente. Não use banco comercial em testes.
+As fixtures comuns usam SQLite temporário. Os testes PostgreSQL exigem `TEST_POSTGRES_URL` apontando para um banco **descartável**, previamente migrado. A [CI](.github/workflows/ci.yml) executa backend, frontend, auditoria de dependências, migrações, PostgreSQL real, restauração em outro banco e inicialização/backup dos containers. Um teste que foi ignorado localmente não equivale a aprovação em PostgreSQL.
 
-## Fluxos SaaS
+## Operação do SaaS
 
-| Endpoint | Uso |
+| Capacidade | Comportamento |
 | --- | --- |
-| `GET /tenants/signup-config` | Configuração pública de cadastro/documentos |
-| `POST /tenants/signup` | Salão e administrador em transação única |
-| `POST /auth/login`, `GET /auth/me` | Sessão validada por usuário e salão |
-| `POST /auth/forgot-password`, `/auth/reset-password` | Recuperação por e-mail e revogação de sessões |
-| `GET /billing/status` | Trial, assinatura e acesso efetivo |
-| `POST /billing/checkout-session` | Assinatura no Checkout hospedado |
-| `POST /billing/portal-session` | Pagamento/cancelamento no portal do Stripe |
-| `POST /billing/webhook` | Sincronização autenticada pela assinatura Stripe |
-| `GET /tenants/export` | Exportação de registros, somente administrador |
-| `GET /uploads/{filename}` | Foto vinculada a atendimento autorizado |
-| `GET /health` | Disponibilidade da API/banco |
+| Conta | Um salão por usuário; e-mail único na plataforma |
+| Acesso | Administrador, gerente e profissional com permissões de servidor |
+| Teste | 14 dias sem cartão no cadastro |
+| Assinatura | Um Price mensal do Stripe por implantação, quantidade 1 |
+| Vencimento | Bloqueia operações de negócio; preserva login, cobrança, exportação do administrador e fotos autorizadas enquanto a conta estiver ativa |
+| Sessão | Token em `sessionStorage`, validado contra usuário e salão no servidor |
+| Exportação | JSON por salão, sem hashes de senha ou tokens; fotos como referências autenticadas |
+| Infraestrutura | Uma API com um worker, PostgreSQL e volumes de dados/fotos |
+| Horários | Um fuso operacional por implantação; `SALON_TIMEZONE` no Compose, padrão `America/Sao_Paulo` |
 
-As rotas de negócio exigem assinatura ativa ou trial válido. Após expiração, o titular conserva login, cobrança, exportação e acesso autorizado às fotos enquanto a conta não estiver suspensa. Os preços e datas de cobrança são apresentados pelo Stripe antes da confirmação. Senhas e chaves nunca são enviadas à SPA como dados de conta; o token de acesso fica no sessionStorage e é validado no servidor.
+O lock exclusivo no PostgreSQL recusa uma segunda API. Esta versão não oferece alta disponibilidade, várias contas por usuário, eliminação automática de dados nem emissão fiscal. Suspensão de conta, solicitações de privacidade e retenção de backups exigem operação assistida. Termos e política abaixo são minutas com campos empresariais pendentes.
 
 ## Documentação
 
-- [Implantação, Stripe, backup e homologação](PRODUCTION.md)
-- [Histórico da arquitetura multi-tenant](MULTI_TENANCY_PLAN.md)
-- [Histórico do plano de onboarding/billing](ONBOARDING_BILLING_PLAN.md)
-- [Documentação funcional anterior](DOCUMENTACAO.md)
-- [Política de segurança](SECURITY.md)
+- [Manual funcional e referência da API](DOCUMENTACAO.md)
+- [Implantação, cobrança, backup e homologação](PRODUCTION.md)
+- [Arquitetura e isolamento por salão](MULTI_TENANCY_PLAN.md)
+- [Cadastro, assinatura e estados de acesso](ONBOARDING_BILLING_PLAN.md)
+- [Desenvolvimento e convenções do repositório](CLAUDE.md)
+- [Segurança e relato de vulnerabilidades](SECURITY.md)
+- [Minuta dos Termos de Uso](TERMOS_DE_USO.md)
+- [Minuta da Política de Privacidade](POLITICA_DE_PRIVACIDADE.md)
 
-Os planos históricos descrevem decisões anteriores; detalhes atuais de operação e limitações estão em `PRODUCTION.md` e nos testes executáveis.
+Os nomes dos dois arquivos terminados em `_PLAN.md` foram preservados para manter links existentes; seu conteúdo descreve a implementação atual e seus limites.

@@ -5,6 +5,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 
 from models.service import GenderTarget
+from schemas.numbers import JsonDecimal
 
 
 class ServiceCategoryCreate(BaseModel):
@@ -48,7 +49,7 @@ class ServiceResponse(BaseModel):
     name: str
     description: Optional[str]
     duration_minutes: int
-    price: Decimal
+    price: JsonDecimal
     points_reward: int
     is_active: bool
     created_at: datetime

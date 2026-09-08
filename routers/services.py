@@ -2,9 +2,11 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from auth import get_current_user, require_admin
 from database import get_db
+from domain_locks import serialized_mutation
 from models.service import Service, ServiceCategory
 from schemas.service import (
     ServiceCategoryCreate, ServiceCategoryResponse,
@@ -46,12 +48,19 @@ def update_category(cat_id: int, body: ServiceCategoryCreate, db: Session = Depe
 
 
 @cat_router.delete("/{cat_id}", status_code=204)
+@serialized_mutation
 def delete_category(cat_id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
     cat = db.query(ServiceCategory).filter(ServiceCategory.id == cat_id).first()
     if not cat:
         raise HTTPException(status_code=404, detail="Categoria não encontrada")
+    if db.query(Service.id).filter(Service.category_id == cat_id).first():
+        raise HTTPException(status_code=409, detail="Categoria possui serviços vinculados. Mova os serviços para outra categoria antes de excluir")
     db.delete(cat)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="Categoria possui serviços vinculados e não pode ser excluída") from exc
 
 
 # ── Serviços ───────────────────────────────────────────────────────────────
@@ -81,6 +90,7 @@ def get_service(service_id: int, db: Session = Depends(get_db), _=Depends(get_cu
 
 
 @svc_router.post("", response_model=ServiceResponse, status_code=201)
+@serialized_mutation
 def create_service(body: ServiceCreate, db: Session = Depends(get_db), _=Depends(require_admin)):
     if not db.query(ServiceCategory).filter(ServiceCategory.id == body.category_id).first():
         raise HTTPException(status_code=404, detail="Categoria não encontrada")
@@ -92,10 +102,13 @@ def create_service(body: ServiceCreate, db: Session = Depends(get_db), _=Depends
 
 
 @svc_router.patch("/{service_id}", response_model=ServiceResponse)
+@serialized_mutation
 def update_service(service_id: int, body: ServiceUpdate, db: Session = Depends(get_db), _=Depends(require_admin)):
     svc = db.query(Service).filter(Service.id == service_id).first()
     if not svc:
         raise HTTPException(status_code=404, detail="Serviço não encontrado")
+    if body.category_id is not None and not db.query(ServiceCategory.id).filter(ServiceCategory.id == body.category_id).first():
+        raise HTTPException(status_code=404, detail="Categoria não encontrada")
     for field, value in body.model_dump(exclude_none=True).items():
         setattr(svc, field, value)
     db.commit()
