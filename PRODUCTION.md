@@ -14,6 +14,14 @@ Esta versão implementa isolamento por salão, cadastro de administrador com 14 
 
 ## Configuração inicial
 
+### Separar os testes da operação comercial
+
+Em 8 de setembro de 2026, o responsável pelo projeto confirmou que todos os agendamentos cadastrados até essa data são dados de teste. Esse histórico não precisa de correção de horário para a abertura comercial.
+
+Inicie a operação comercial em uma instalação com banco e volume de fotos novos, separados da homologação. Execute as migrações e crie as contas comerciais; não importe o banco de testes nem execute `seed.py`. Assim, atendimentos fictícios e seus efeitos em estoque, fidelidade e relatórios não entram na operação real. Os dados de teste podem permanecer no ambiente de homologação. A partir da entrada em produção, aplique os procedimentos de backup e atualização deste guia aos dados reais.
+
+### Preparar o ambiente
+
 1. Em uma VM com os requisitos acima, clone a versão revisada. Na raiz do repositório, copie `.env.example` para `.env` somente na instalação inicial e restrinja sua leitura ao operador (`chmod 600 .env` no Linux). Não salve segredos no Git.
 2. Configure `APP_ENV=production`, `AUTO_CREATE_TABLES=false`, `APP_URL=https://seu-dominio`, `CORS_ORIGINS` igual a essa origem, `DOMAIN` sem protocolo e `ACME_EMAIL`.
 3. Gere **dois segredos diferentes** com `python -c "import secrets; print(secrets.token_hex(32))"`: um para `SECRET_KEY`, outro para `POSTGRES_PASSWORD`. O Compose constrói a URL do banco; use senha hexadecimal para evitar caracteres reservados de URL.
@@ -94,7 +102,7 @@ Nunca teste restauração sobre o banco comercial. A CI restaura um dump em um s
 
 A migração atribui os dados anteriores ao salão legado (id 1), sem misturar cadastros novos. Sessões antigas não contêm tenant/token_version e exigem novo login. Verifique e-mails duplicados por maiúsculas/minúsculas antes de migrar. O e-mail de usuário permanece único na plataforma; uma conta não participa de vários salões.
 
-A agenda recebe horários locais sem `Z` ou offset; a interface conserva o horário digitado. Versões anteriores convertiam esse campo para UTC antes de enviá-lo ao banco sem fuso. Confira os agendamentos existentes durante a atualização: eles não foram deslocados automaticamente, pois a origem e o fuso usados em cada cadastro antigo não estão registrados.
+A agenda recebe horários locais sem `Z` ou offset; a interface conserva o horário digitado. Versões anteriores convertiam esse campo para UTC antes de enviá-lo ao banco sem fuso. Se uma instalação dessas versões contiver agendamentos reais, confira seus horários antes de migrá-los: a origem e o fuso usados em cada cadastro antigo não estão registrados. Essa conferência não é necessária para os agendamentos de teste do projeto que ficarão no ambiente de homologação.
 
 ## Suporte e privacidade
 
