@@ -74,7 +74,7 @@ Para ensaiar restauração, use uma VM/Compose separado, um banco vazio e volume
 2. Pare a API antes de migrar: `docker compose stop api`.
 3. Atualize o código/imagens e rode `docker compose run --rm migrate`.
 4. Suba os serviços e execute preflight + smoke tests.
-5. Se necessário, restaure o snapshot em ambiente separado e retorne a versão compatível. Não execute downgrade de multi-tenancy com vários salões: ele removeria o isolamento. O downgrade é recusado nesse caso.
+5. Se necessário, restaure o snapshot em ambiente separado e retorne a versão compatível. O downgrade da migração de multi-tenancy é intencionalmente recusado para preservar o isolamento e os dados. Use a restauração do snapshot verificado para rollback.
 
 A migração atribui os dados anteriores ao salão legado (id 1), sem misturar cadastros novos. Sessões antigas não contêm tenant/token_version e exigem novo login. Verifique e-mails duplicados por maiúsculas/minúsculas antes de migrar. O e-mail de usuário permanece único na plataforma; uma conta não participa de vários salões.
 

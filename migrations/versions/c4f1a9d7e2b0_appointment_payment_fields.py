@@ -15,14 +15,20 @@ down_revision: Union[str, Sequence[str], None] = 'b8d3db34366b'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
+payment_method_enum = sa.Enum('cash', 'debit_card', 'credit_card', 'pix', 'other', name='paymentmethod')
+
 
 def upgrade() -> None:
+    # ADD COLUMN does not emit CREATE TYPE for PostgreSQL native enums.
+    # Explicit creation is harmless on databases where the type already exists.
+    if op.get_bind().dialect.name == 'postgresql':
+        payment_method_enum.create(op.get_bind(), checkfirst=True)
     with op.batch_alter_table('appointments') as batch_op:
         batch_op.add_column(sa.Column('paid', sa.Boolean(), nullable=False, server_default=sa.false()))
         batch_op.add_column(sa.Column('amount_paid', sa.Numeric(precision=12, scale=2), nullable=True))
         batch_op.add_column(sa.Column(
             'payment_method',
-            sa.Enum('cash', 'debit_card', 'credit_card', 'pix', 'other', name='paymentmethod'),
+            payment_method_enum,
             nullable=True,
         ))
         batch_op.add_column(sa.Column('reminder_sent', sa.Boolean(), nullable=False, server_default=sa.false()))
@@ -37,3 +43,5 @@ def downgrade() -> None:
         batch_op.drop_column('payment_method')
         batch_op.drop_column('amount_paid')
         batch_op.drop_column('paid')
+    if op.get_bind().dialect.name == 'postgresql':
+        payment_method_enum.drop(op.get_bind(), checkfirst=True)

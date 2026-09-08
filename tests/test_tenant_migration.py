@@ -28,3 +28,10 @@ def test_legacy_email_normalization_preserves_access_or_stops_before_schema_chan
             assert "tenants" not in inspect(connection).get_table_names()
             assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "c4f1a9d7e2b0"
     engine.dispose()
+    if succeeds:
+        downgrade = subprocess.run([sys.executable, "-m", "alembic", "downgrade", "c4f1a9d7e2b0"],
+                                   cwd=root, env=env, capture_output=True)
+        assert downgrade.returncode != 0
+        assert b"Irreversible tenant migration" in downgrade.stderr
+        with create_engine(env["DATABASE_URL"]).connect() as connection:
+            assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "d9e64a3b2f10"
