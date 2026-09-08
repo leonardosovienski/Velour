@@ -59,8 +59,8 @@ const appt: AppointmentDetail = {
 
 describe('CompleteModal — fluxo de pagamento', () => {
   beforeEach(() => {
-    completeMock.mockClear()
-    uploadPhotosMock.mockClear()
+    completeMock.mockReset().mockResolvedValue({})
+    uploadPhotosMock.mockReset().mockResolvedValue({})
   })
 
   it('envia paid=false por padrão quando o checkbox de pagamento não é marcado', async () => {
@@ -104,5 +104,20 @@ describe('CompleteModal — fluxo de pagamento', () => {
     expect(body.paid).toBe(true)
     expect(body.payment_method).toBe('pix')
     expect(onSuccess).toHaveBeenCalled()
+  })
+
+  it('falha de upload não conclui nem cobra o atendimento; permite nova tentativa', async () => {
+    const user = userEvent.setup()
+    uploadPhotosMock.mockRejectedValueOnce(new Error('upload failed'))
+    const onSuccess = vi.fn()
+    render(<CompleteModal appt={appt} onClose={() => {}} onSuccess={onSuccess} />)
+    await user.upload(screen.getByLabelText('Foto antes'), new File(['image'], 'antes.jpg', { type: 'image/jpeg' }))
+    await user.click(screen.getByRole('button', { name: 'Concluir Atendimento' }))
+    await screen.findByText('Erro ao concluir atendimento.')
+    expect(completeMock).not.toHaveBeenCalled()
+    expect(onSuccess).not.toHaveBeenCalled()
+    await user.click(screen.getByRole('button', { name: 'Concluir Atendimento' }))
+    await waitFor(() => expect(onSuccess).toHaveBeenCalledOnce())
+    expect(completeMock).toHaveBeenCalledOnce()
   })
 })

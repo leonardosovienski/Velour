@@ -4,7 +4,7 @@ import enum
 from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
-from database import Base
+from database import Base, TenantScoped
 
 
 class StockMovementType(str, enum.Enum):
@@ -14,7 +14,7 @@ class StockMovementType(str, enum.Enum):
     adjustment = "adjustment"    # ajuste manual de inventário
 
 
-class StockMovement(Base):
+class StockMovement(TenantScoped, Base):
     """
     Ledger append-only de movimentações de estoque.
     Nunca sofre UPDATE/DELETE — cada linha registra uma mudança de saldo.
@@ -32,5 +32,5 @@ class StockMovement(Base):
     description = Column(String(500), nullable=False)
     created_at = Column(DateTime, default=datetime.now)
 
-    product = relationship("Product", back_populates="movements")
-    appointment = relationship("Appointment", back_populates="stock_movements")
+    product = relationship("Product", back_populates="movements", foreign_keys=[product_id])
+    appointment = relationship("Appointment", back_populates="stock_movements", foreign_keys=[appointment_id])

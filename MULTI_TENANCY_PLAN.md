@@ -1,3 +1,5 @@
+> Nota de 08/09/2026: documento histórico. O núcleo SaaS agora está implementado; consulte [PRODUCTION.md](PRODUCTION.md) para comportamento atual, configuração e limitações verificadas.
+
 # Plano de Multi-tenancy — Velour SaaS
 
 > Documento de planejamento, não implementado ainda. Mapeia o que precisa

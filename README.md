@@ -1,425 +1,76 @@
-# Velour — Backend (FastAPI + SQLite)
+# Velour — gestão de salões como SaaS
 
-API REST do sistema de gestão para salão de beleza premium. Documentação completa (incluindo o frontend) em [`DOCUMENTACAO.md`](DOCUMENTACAO.md).
+React + TypeScript e FastAPI, com PostgreSQL em produção e SQLite para desenvolvimento. Agenda, clientes, profissionais, serviços, estoque, fidelidade, indicações e relatórios.
 
----
+## Preparação comercial
 
-## Como rodar
+O núcleo SaaS está implementado: isolamento de registros por salão, cadastro de administrador e trial de 14 dias, Stripe Checkout/Portal, webhook assinado e idempotente, controle de acesso por assinatura, recuperação de senha com tokens de uso único, exportação e operação assistida de contas.
 
-```bash
-# Ativar venv (Windows)
-.venv\Scripts\activate
+**Para liberar vendas:** configure domínio/HTTPS, Stripe e preço mensal, SMTP, documentos reais da empresa, backups externos e alertas; complete os testes de homologação do [guia de produção](PRODUCTION.md). A implementação não constitui garantia de segurança absoluta, auditoria externa ou conformidade jurídica. Os documentos de termos/privacidade do repositório são rascunhos.
 
-# Primeira execução — popula o banco com dados de desenvolvimento
-python seed.py
+A topologia suportada é uma API com **um worker** e PostgreSQL. Um lock do banco recusa instâncias adicionais; não há alta disponibilidade nesta versão. O e-mail de usuário é único na plataforma. Cada implantação usa um único fuso operacional, configurável por `SALON_TIMEZONE` no Compose (padrão America/Sao_Paulo).
 
-# Subir o servidor
+## Desenvolvimento
+
+Python 3.12/3.13 e Node.js 24:
+
+```sh
+python -m venv .venv
+# Ative .venv conforme seu sistema operacional.
+python -m pip install -r requirements-dev.txt
+# Copie .env.example para .env e gere uma SECRET_KEY própria.
+alembic upgrade head
 uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Swagger interativo: `http://127.0.0.1:8000/docs`
+Em outro terminal:
 
-Para executar a base de produção com PostgreSQL, migrações e containers, consulte [`PRODUCTION.md`](PRODUCTION.md). O arquivo `seed.py` é exclusivo para desenvolvimento e nunca deve ser executado com dados reais.
-
-**Credenciais de dev (troque/desative antes de ir para produção):**
-```
-Admin:   admin@velour.com / velour2026
-Gerente: gerente@velour.com / velour2026
+```sh
+cd frontend
+npm ci
+npm run dev
 ```
 
-### Variáveis de ambiente extras (opcionais em dev)
+Abra `http://localhost:5173`. Vite encaminha `/api` para a API local. Para cadastro pela interface, habilite `SIGNUP_ENABLED=true` e informe URLs HTTPS de termos/privacidade do seu ambiente de teste. Para operação assistida, use `python bootstrap_admin.py`. `seed.py` é exclusivo para desenvolvimento e cria usuários de demonstração com credenciais públicas; nunca execute em produção.
 
-Além de `SECRET_KEY`/`DATABASE_URL`/`CORS_ORIGINS`, o `.env.example` inclui:
+## Testes e validação
 
-| Variável | Para quê | Comportamento se vazia |
-|---|---|---|
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, `SMTP_USE_TLS` | E-mail de confirmação de agendamento e lembrete 24h antes | Envio é pulado silenciosamente (log de nível INFO) — a aplicação funciona normalmente sem SMTP configurado |
-| `LOG_LEVEL` | Nível de log estruturado (JSON, um objeto por linha no stdout) | Default `INFO` |
-
-## Testes
-
-```bash
-pytest tests/ -v
+```sh
+python -m pytest tests/ -q
+alembic check
+cd frontend
+npm run lint
+npm run test
+npm run build
+npm audit --audit-level=high
 ```
 
-Os testes usam SQLite em memória — não afetam o `velour.db` de desenvolvimento.
+Defina `SECRET_KEY` de teste antes de rodar pytest. Os testes unitários/API usam bancos temporários. `tests/test_postgres_tenancy.py` só roda quando `TEST_POSTGRES_URL` aponta para um banco PostgreSQL **de testes**, migrado com Alembic. A CI executa isolamento sobre PostgreSQL 17, restauração em um segundo banco, build/boot dos containers e backup consistente. Não use banco comercial em testes.
 
----
+## Fluxos SaaS
 
-## Estrutura de arquivos
+| Endpoint | Uso |
+| --- | --- |
+| `GET /tenants/signup-config` | Configuração pública de cadastro/documentos |
+| `POST /tenants/signup` | Salão e administrador em transação única |
+| `POST /auth/login`, `GET /auth/me` | Sessão validada por usuário e salão |
+| `POST /auth/forgot-password`, `/auth/reset-password` | Recuperação por e-mail e revogação de sessões |
+| `GET /billing/status` | Trial, assinatura e acesso efetivo |
+| `POST /billing/checkout-session` | Assinatura no Checkout hospedado |
+| `POST /billing/portal-session` | Pagamento/cancelamento no portal do Stripe |
+| `POST /billing/webhook` | Sincronização autenticada pela assinatura Stripe |
+| `GET /tenants/export` | Exportação de registros, somente administrador |
+| `GET /uploads/{filename}` | Foto vinculada a atendimento autorizado |
+| `GET /health` | Disponibilidade da API/banco |
 
-```
-Velour/
-├── main.py                  # FastAPI app: CORS, routers, GET /uploads/{filename} (autenticado), /health
-├── database.py              # SQLite engine, SessionLocal, get_db()
-├── auth.py                  # JWT HS256 + PBKDF2 + get_current_user + require_admin (SECRET_KEY obrigatória via env)
-├── birthday_scheduler.py    # APScheduler — 100 pts no aniversário, roda às 08h
-├── reminder_scheduler.py    # APScheduler — lembrete por e-mail 24h antes do agendamento
-├── email_service.py         # Envio de e-mail via SMTP (opcional — no-op se não configurado)
-├── rate_limit.py            # RateLimiter reutilizável (login, criação de clientes/agendamentos)
-├── logging_config.py        # Logging estruturado (JSON) + LOG_LEVEL
-├── request_logging.py       # Middleware que loga cada requisição HTTP
-├── seed.py                  # Popula banco com dados de dev
-│                            # (velour.db é gerado aqui — não commitar)
-├── uploads/                 # fotos antes/depois dos atendimentos (servidas via endpoint autenticado)
-│
-├── models/                  # SQLAlchemy ORM
-│   ├── __init__.py          # re-exporta todos os modelos
-│   ├── user.py              # User, UserRole
-│   ├── client.py            # Client + calculate_tier(), generate_referral_code()
-│   ├── professional.py      # Professional, ProfGender
-│   ├── service.py           # ServiceCategory, Service, GenderTarget
-│   ├── appointment.py       # Appointment, AppointmentStatus
-│   ├── loyalty.py           # LoyaltyTransaction, TransactionType
-│   ├── referral.py          # Referral, ReferralStatus
-│   ├── product.py           # Product, ProductUnit — insumos de estoque
-│   ├── service_recipe.py    # ServiceRecipe — ficha técnica (insumo × qtd por serviço)
-│   └── stock_movement.py    # StockMovement — ledger append-only de estoque
-│
-├── schemas/                 # Pydantic — request/response
-│   ├── __init__.py
-│   ├── user.py
-│   ├── client.py
-│   ├── professional.py
-│   ├── service.py
-│   ├── appointment.py
-│   ├── loyalty.py
-│   ├── referral.py
-│   └── product.py           # Product/StockEntry/RecipeItem/RecipeOverride
-│
-├── routers/                 # Um router por domínio
-│   ├── auth.py              # POST /auth/login (rate limited) · GET /auth/me
-│   ├── users.py             # /users
-│   ├── clients.py           # /clients + /{id}/briefing
-│   ├── professionals.py     # /professionals + /{id}/stats
-│   ├── services.py          # /service-categories + /services
-│   ├── products.py          # /products (estoque) + /services/{id}/recipe (ficha técnica)
-│   ├── appointments.py      # /appointments + /{id}/complete + /{id}/photos
-│   ├── loyalty.py           # /loyalty/transactions + /loyalty/overview
-│   ├── referrals.py         # /referrals + /referrals/ranking
-│   ├── dashboard.py         # /dashboard/today|kpis|weekly-revenue|alerts|upcoming
-│   └── reports.py           # /reports/revenue|clients|loyalty-monthly|referrals-monthly
-│
-└── tests/                   # pytest — SQLite em memória (79+ testes)
-    ├── conftest.py               # fixture db + helpers
-    ├── test_tiers.py             # calculate_tier()
-    ├── test_loyalty.py           # lógica de desconto e resgate de pontos
-    ├── test_tier_discount.py     # desconto automático por tier
-    ├── test_appointments.py      # _check_conflict — sobreposição de horário
-    ├── test_referrals.py         # conversão de indicação
-    ├── test_stock.py             # baixa automática de estoque na conclusão
-    ├── test_dashboard_alerts.py  # alertas de estoque baixo/validade
-    ├── test_professional_dashboard.py  # meta do mês + cadência de retorno
-    ├── test_email_service.py     # envio de e-mail (SMTP mockado) e no-op sem configuração
-    ├── test_logging_config.py    # formatter JSON de log
-    └── test_api_integration.py   # HTTP fim-a-fim via TestClient: login, 401, 403, 409, rate limit, pagamento
+As rotas de negócio exigem assinatura ativa ou trial válido. Após expiração, o titular conserva login, cobrança, exportação e acesso autorizado às fotos enquanto a conta não estiver suspensa. Os preços e datas de cobrança são apresentados pelo Stripe antes da confirmação. Senhas e chaves nunca são enviadas à SPA como dados de conta; o token de acesso fica no sessionStorage e é validado no servidor.
 
-Testes de frontend (React Testing Library + vitest) ficam em `frontend/src/**/*.test.tsx` — rode com `npm run test` dentro de `frontend/`.
-```
+## Documentação
 
----
+- [Implantação, Stripe, backup e homologação](PRODUCTION.md)
+- [Histórico da arquitetura multi-tenant](MULTI_TENANCY_PLAN.md)
+- [Histórico do plano de onboarding/billing](ONBOARDING_BILLING_PLAN.md)
+- [Documentação funcional anterior](DOCUMENTACAO.md)
+- [Política de segurança](SECURITY.md)
 
-## Modelos de dados
-
-### `users`
-| Campo | Tipo | Detalhes |
-|---|---|---|
-| id | Integer PK | autoincrement |
-| name | String(120) | NOT NULL |
-| email | String(120) | UNIQUE, indexed |
-| hashed_password | String(255) | PBKDF2-HMAC-SHA256, 200k iterações + salt |
-| role | Enum | `admin` \| `manager` \| `professional` |
-| is_active | Boolean | default True |
-
-### `clients`
-| Campo | Tipo | Detalhes |
-|---|---|---|
-| code | String(20) | `VLR-00001`, gerado automaticamente, UNIQUE |
-| name, phone, email | String | email opcional |
-| gender | Enum | `M` \| `F` \| `other` |
-| birthdate | Date | nullable |
-| preferred_drink, music_preference, temperature_preference | String | perfil sensorial |
-| chat_preference | Enum | `chatty` \| `quiet` \| `neutral` |
-| allergies | String(500) | exibido em destaque no briefing |
-| loyalty_points | Integer | default 0 |
-| loyalty_tier | Enum | `bronze` \| `silver` \| `gold` \| `platinum` |
-| total_spent | Float | acumulado de `price_charged` |
-| total_visits | Integer | atendimentos concluídos |
-| referral_code | String(20) | 8 chars `[A-Z0-9]`, UNIQUE |
-| referred_by_id | FK → clients | nullable |
-| is_active | Boolean | soft-delete |
-
-### `professionals`
-| Campo | Tipo | Detalhes |
-|---|---|---|
-| name, phone, email | String | |
-| gender | Enum | `M` \| `F` \| `other` |
-| specialty | String(300) | ex: "Coloração, Corte Feminino" |
-| commission_rate | Float | 0.0–1.0, default 0.40 |
-| is_active | Boolean | soft-delete |
-
-### `service_categories`
-| Campo | Tipo | Detalhes |
-|---|---|---|
-| name | String(120) | |
-| gender_target | Enum | `M` \| `F` \| `all` |
-| icon | String(50) | nome do ícone Lucide (ex: `scissors`) — nullable |
-
-### `services`
-| Campo | Tipo | Detalhes |
-|---|---|---|
-| category_id | FK | NOT NULL |
-| duration_minutes | Integer | usado para calcular `ends_at` |
-| price | Float | preço-base |
-| points_reward | Integer | se > 0, substitui o cálculo de 1pt/R$1 |
-| is_active | Boolean | soft-delete |
-
-### `appointments`
-| Campo | Tipo | Detalhes |
-|---|---|---|
-| client_id, professional_id, service_id | FK | |
-| scheduled_at | DateTime | horário de início |
-| ends_at | DateTime | **calculado no servidor**: `scheduled_at + duration_minutes` |
-| status | Enum | `scheduled` → `confirmed` → `in_progress` → `completed` / `cancelled` / `no_show` |
-| photo_before_url, photo_after_url | String(500) | upload via `POST /appointments/{id}/photos` |
-| formula_used | String(500) | ex: "Wella 6/7 + ox 20vol" |
-| points_awarded | Integer | calculado ao concluir |
-| price_charged | Float | nullable (relatórios usam `service.price` se NULL) |
-| discount_points_used | Integer | default 0 |
-| paid | Boolean | default False — marcado no `/complete` |
-| amount_paid | Numeric(12,2) | nullable — obrigatório se `paid=true` |
-| payment_method | Enum | `cash` \| `debit_card` \| `credit_card` \| `pix` \| `other` — obrigatório se `paid=true` |
-| reminder_sent | Boolean | default False — controla idempotência do e-mail de lembrete |
-
-### `loyalty_transactions`
-| Campo | Tipo | Detalhes |
-|---|---|---|
-| client_id | FK | |
-| appointment_id, referral_id | FK | nullable |
-| type | Enum | `earned_appointment` \| `earned_referral` \| `earned_birthday` \| `redeemed` |
-| points | Integer | positivo = ganho, negativo = resgate |
-
-### `referrals`
-| Campo | Tipo | Detalhes |
-|---|---|---|
-| referrer_id, referred_id | FK → clients | |
-| status | Enum | `pending` → `converted` |
-| points_awarded_referrer | Integer | 150 ao converter |
-| points_awarded_referred | Integer | 75 ao converter |
-| converted_at | DateTime | nullable |
-| created_at | DateTime | preenchido automaticamente |
-
----
-
-## Endpoints
-
-### Autenticação
-```
-POST /auth/login      body: x-www-form-urlencoded { username, password }
-                      response: { access_token, token_type, role, name }
-                      token válido por 8 horas
-
-GET  /auth/me         header: Authorization: Bearer <token>
-                      response: UserResponse (dados do usuário autenticado)
-
-GET  /health          response: { status: "ok", system: "Velour" }
-```
-
-### Usuários — requer admin ou manager
-```
-GET    /users
-POST   /users         body: { name, email, password, role }
-PATCH  /users/{id}    body: { name?, role?, is_active? }
-```
-
-### Clientes
-```
-GET    /clients                   query: tier?, gender?, inactive_days?, limit, offset
-GET    /clients/{id}
-GET    /clients/{id}/briefing     perfil completo + último atendimento + quanto falta pro próximo tier
-POST   /clients                   body: ClientCreate
-PATCH  /clients/{id}
-DELETE /clients/{id}              soft-delete, requer admin
-```
-
-### Profissionais
-```
-GET    /professionals
-GET    /professionals/{id}/stats  atendimentos, receita, comissão e ticket médio do mês
-POST   /professionals             requer admin
-PATCH  /professionals/{id}        requer admin
-DELETE /professionals/{id}        soft-delete, requer admin
-```
-
-### Serviços
-```
-GET    /service-categories
-POST   /service-categories        body: { name, gender_target, icon? }
-PATCH  /service-categories/{id}
-DELETE /service-categories/{id}
-
-GET    /services                  query: category_id?, is_active?
-POST   /services                  requer admin
-PATCH  /services/{id}             requer admin
-DELETE /services/{id}             soft-delete, requer admin
-```
-
-### Estoque / insumos
-```
-GET    /products                    query: is_active?, low_stock?
-GET    /products/{id}
-POST   /products                    requer admin
-PATCH  /products/{id}               requer admin — saldo NÃO é editável aqui
-DELETE /products/{id}               soft-delete, requer admin
-POST   /products/{id}/stock         requer admin — entrada/perda/ajuste, gera movimentação
-                                    → rejeita com 422 se a perda deixar o saldo negativo
-GET    /products/{id}/movements     histórico do ledger de estoque
-```
-
-### Ficha técnica (receita do serviço)
-```
-GET    /services/{id}/recipe        insumos consumidos pelo serviço
-PUT    /services/{id}/recipe        requer admin — substitui a ficha técnica inteira
-```
-
-### Agendamentos
-```
-GET    /appointments              query: date_from?, date_to?, status?, professional_id?, client_id?
-GET    /appointments/{id}
-POST   /appointments              body: { client_id, professional_id, service_id, scheduled_at, ... }
-                                  → calcula ends_at; rejeita com 409 se houver conflito de horário
-                                  → envia e-mail de confirmação ao cliente (se SMTP configurado e cliente com e-mail)
-                                  → rate limited: 30 criações/min por usuário
-PATCH  /appointments/{id}/status  body: { status }  — não aceita "completed"
-POST   /appointments/{id}/complete body: { price_charged, discount_points_used, formula_used, paid?, amount_paid?, payment_method?, ... }
-                                  → processa pontos, tier e conversão de indicação em uma transação
-                                  → discount_points_used deve ser múltiplo de 100
-                                  → se paid=true, amount_paid e payment_method são obrigatórios (422 se ausentes)
-POST   /appointments/{id}/photos  multipart: photo_before?, photo_after?
-                                  → identifica o tipo pelos magic bytes do conteúdo (não pelo
-                                    Content-Type enviado), salva em uploads/, retorna URLs
-DELETE /appointments/{id}         muda status para "cancelled"
-```
-
-### Arquivos enviados
-```
-GET    /uploads/{filename}        requer autenticação (qualquer usuário logado);
-                                  sanitizado contra path traversal
-```
-
-### Fidelidade
-```
-GET    /loyalty/transactions      query: client_id?, type?, date_from?, date_to?
-GET    /loyalty/overview          total em circulação, emitidos/resgatados no mês, tier dist., top 10
-```
-
-### Indicações
-```
-GET    /referrals                 query: status?, referrer_id?
-GET    /referrals/ranking         top 10 indicadores por conversões (todos os tempos)
-```
-
-### Dashboard
-```
-GET    /dashboard/today           agendamentos do dia, receita, breakdown por status
-GET    /dashboard/kpis            query: period=day|week|month
-GET    /dashboard/weekly-revenue  últimos 7 dias
-GET    /dashboard/alerts          aniversariantes do dia + clientes Platinum agendados hoje
-GET    /dashboard/upcoming        query: days=2 (1–7)
-```
-
-### Relatórios
-```
-GET    /reports/revenue           query: period_start?, period_end?, professional_id?, category_id?
-GET    /reports/clients           query: period_start?, period_end?
-GET    /reports/loyalty-monthly   query: months=6
-GET    /reports/referrals-monthly query: months=6
-```
-
----
-
-## Regras de negócio
-
-### Pontos de fidelidade
-
-- **Ganho:** `service.points_reward` se > 0; caso contrário `int(price_final) × 1 pt/R$`
-- **Resgate:** 100 pts = R$10; múltiplos de 100; teto de 50% do valor do atendimento
-
-```python
-# routers/appointments.py
-POINTS_PER_BRL = 1
-POINTS_REDEMPTION_RATE = 0.10
-MAX_DISCOUNT_RATIO = 0.5
-REFERRAL_POINTS_REFERRER = 150
-REFERRAL_POINTS_REFERRED = 75
-```
-
-### Tiers (`models/client.py: calculate_tier`)
-
-| Tier | `total_spent` |
-|---|---|
-| Bronze | < R$500 |
-| Silver | R$500 – R$1.499 |
-| Gold | R$1.500 – R$2.999 |
-| Platinum | ≥ R$3.000 |
-
-Recalculado em toda conclusão de atendimento. Sem downgrade automático.
-
-### Conflito de horário
-
-Rejeita com HTTP 409 se para o mesmo profissional:
-```
-existing.scheduled_at < new.ends_at
-AND existing.ends_at > new.scheduled_at
-AND existing.status NOT IN ('cancelled', 'no_show')
-```
-
-### Conversão de indicação
-
-Disparada no primeiro atendimento concluído de um cliente indicado:
-1. Localiza `Referral(referred_id=cliente, status=pending)`
-2. `status → converted`, `converted_at = now()`
-3. +150 pts ao referrer, +75 pts ao referred
-4. Cria 2 `LoyaltyTransaction(type=earned_referral)`
-
-### Bônus de aniversário
-
-`birthday_scheduler.py` roda às 08h00 via APScheduler:
-- Busca clientes ativos com `birthdate` no dia de hoje
-- Adiciona 100 pts + `LoyaltyTransaction(type=earned_birthday)`
-- Idempotente: não concede se já existe `earned_birthday` no mês atual
-
-### Segurança
-
-```
-JWT: HS256, 480 min de expiração
-Senha: PBKDF2-HMAC-SHA256, 200.000 iterações, salt de 16 bytes
-
-Roles:
-  get_current_user()  → qualquer usuário autenticado
-  require_admin()     → admin ou manager
-```
-
-- `SECRET_KEY` e `DATABASE_URL` vêm de variáveis de ambiente (`.env`, com `.env.example` versionado). O servidor **recusa subir** se `SECRET_KEY` não estiver definida — sem fallback hardcoded.
-- Upload de fotos identifica o tipo da imagem pelos **magic bytes** do conteúdo (JPEG/PNG/WebP), não pelo header `Content-Type` enviado pelo cliente — evita que um arquivo com extensão/tipo falsificado seja aceito. Limite de 5MB por arquivo.
-- `/uploads/{filename}` exige autenticação e é sanitizado contra path traversal.
-- `POST /auth/login` tem rate limiting em memória: 5 tentativas com credenciais erradas em 5 minutos por (IP, e-mail) → HTTP 429. Logins bem-sucedidos não consomem a cota. O mesmo mecanismo (`rate_limit.py`) também protege `POST /clients` e `POST /appointments` (30 criações/min por usuário) contra abuso de token comprometido/script.
-- `POST /appointments` e `POST /appointments/{id}/complete` rodam sob lock (processo único): evita overbooking sob requisições concorrentes e evita que a conclusão simultânea de dois atendimentos credite pontos de indicação em duplicidade.
-- Toda requisição HTTP é logada em JSON estruturado (`request_logging.py`) com método, rota, status, duração e `user_id` — sem logar corpo, query string ou headers sensíveis.
-
-> **Pendência conhecida:** rate limiting, locks e os jobs agendados (`birthday_scheduler.py`, `reminder_scheduler.py`) funcionam por processo único (`threading.Lock`/`AsyncIOScheduler` em memória) — suficiente para como o projeto roda (`uvicorn` sem `--workers`), mas não coordenariam entre processos em um deploy multi-worker (rodar múltiplos workers arriscaria lembretes/pontos de aniversário duplicados). Em produção, precisaria de Redis (rate limit/locks) e de um scheduler externo com lock distribuído (jobs) para coordenar entre processos.
-
----
-
-## Dados de dev (`seed.py`)
-
-| Entidade | Qt. | Detalhes |
-|---|---|---|
-| Users | 2 | admin + gerente |
-| Professionals | 4 | Ana Luiza (coloração/cabelo F), Beatriz (unhas), Carlos (barbearia), Diego (barbearia + coloração M) |
-| Service Categories | 5 | Cabelo F, Coloração, Barbearia, Manicure & Pedicure, Cabelo M |
-| Services | 15 | R$80–R$550, 30–180 min |
-| Clients | 20 | 10F + 10M, tiers variados, perfil sensorial preenchido |
-| Appointments | 30 | mix passados/futuros, status realistas, sem conflitos, serviços compatíveis com especialidade |
-| Referrals | 8 | 5 convertidas (created_at retroativo) + 3 pendentes |
-| Loyalty Transactions | ~20 | 1 por atendimento concluído + bônus de aniversário |
+Os planos históricos descrevem decisões anteriores; detalhes atuais de operação e limitações estão em `PRODUCTION.md` e nos testes executáveis.

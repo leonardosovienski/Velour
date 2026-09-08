@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router'
 import {
   LayoutDashboard, Users, Calendar, Scissors,
-  Star, Share2, BarChart2, LogOut, UserCog, ChevronRight, X, Package,
+  Star, Share2, BarChart2, LogOut, UserCog, ChevronRight, X, Package, CreditCard,
 } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 
@@ -15,6 +15,7 @@ const navItems = [
   { to: '/loyalty',       icon: Star,            label: 'Fidelidade' },
   { to: '/referrals',     icon: Share2,          label: 'Indicações' },
   { to: '/reports',       icon: BarChart2,       label: 'Relatórios' },
+  { to: '/billing',       icon: CreditCard,      label: 'Conta e assinatura' },
 ]
 
 const adminItems = [

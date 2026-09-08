@@ -9,7 +9,7 @@ from models.user import UserRole
 class UserCreate(BaseModel):
     name: str = Field(min_length=2, max_length=120)
     email: EmailStr
-    password: str = Field(min_length=6)
+    password: str = Field(min_length=12, max_length=128)
     role: UserRole = UserRole.professional
     professional_id: Optional[int] = None
 
@@ -31,6 +31,7 @@ class UserUpdate(BaseModel):
 
 class UserResponse(BaseModel):
     id: int
+    tenant_id: int
     name: str
     email: str
     role: UserRole

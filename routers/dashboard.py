@@ -91,7 +91,7 @@ def kpis(period: str = Query("month", pattern="^(day|week|month)$"), db: Session
 
     clients_query = db.query(Client).filter(Client.is_active == True)
     if _ is not None and _.role == "professional":
-        clients_query = clients_query.join(Appointment).filter(
+        clients_query = clients_query.join(Appointment, Appointment.client_id == Client.id).filter(
             Appointment.professional_id == current_user.professional_id
         ).distinct()
     total_clientes_ativos = clients_query.count()
@@ -146,7 +146,7 @@ def alerts(db: Session = Depends(get_db), _=Depends(get_current_user)):
     # Aniversários do dia
     birthday_query = db.query(Client)
     if _ is not None and _.role == "professional":
-        birthday_query = birthday_query.join(Appointment).filter(
+        birthday_query = birthday_query.join(Appointment, Appointment.client_id == Client.id).filter(
             Appointment.professional_id == _.professional_id
         ).distinct()
     aniversariantes = (
@@ -164,7 +164,7 @@ def alerts(db: Session = Depends(get_db), _=Depends(get_current_user)):
     from models.client import LoyaltyTier
     platinum_hoje = (
         _scope_appointments(db.query(Appointment), _)
-        .join(Client)
+        .join(Client, Client.id == Appointment.client_id)
         .filter(
             Appointment.scheduled_at >= inicio_dia,
             Appointment.scheduled_at <= fim_dia,

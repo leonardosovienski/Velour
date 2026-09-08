@@ -9,6 +9,7 @@ import { Layout, Card } from '../components/Layout'
 import { TierBadge } from '../components/TierBadge'
 import { StatusBadge } from '../components/StatusBadge'
 import { PageSpinner } from '../components/Spinner'
+import { PrivatePhoto } from '../components/PrivatePhoto'
 
 const tierMax: Record<string, number> = {
   bronze: 500, silver: 1500, gold: 3000, platinum: Infinity,
@@ -60,7 +61,7 @@ export function ClientProfile() {
             <TierBadge tier={client.loyalty_tier} />
           </div>
           <div className="text-muted font-mono text-sm">{client.code}</div>
-          <div className="flex items-center gap-4 mt-2 text-sm text-muted">
+          <div className="flex items-center flex-wrap gap-4 mt-2 text-sm text-muted break-all">
             {client.phone && <span className="flex items-center gap-1"><Phone size={12} /> {client.phone}</span>}
             {client.email && <span className="flex items-center gap-1"><Mail size={12} /> {client.email}</span>}
             <span>Desde {format(new Date(client.first_visit), "MMM yyyy", { locale: ptBR })}</span>
@@ -166,6 +167,10 @@ export function ClientProfile() {
                           {appt.formula_used}
                         </div>
                       )}
+                      {(appt.photo_before_url || appt.photo_after_url) && <div className="flex flex-wrap gap-3 mt-3">
+                        {appt.photo_before_url && <PrivatePhoto path={appt.photo_before_url} label="Antes do atendimento" />}
+                        {appt.photo_after_url && <PrivatePhoto path={appt.photo_after_url} label="Depois do atendimento" />}
+                      </div>}
                     </div>
                     <div className="text-right">
                       <StatusBadge status={appt.status} />

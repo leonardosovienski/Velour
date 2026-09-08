@@ -11,7 +11,13 @@ build/
 
 # SQLite — gerado pelo seed.py, não commitar
 velour.db
+*.db
 migration_*.db
+*.sqlite*
+backups/
+work/
+*.dump
+*.tar.gz
 
 # Uploads gerados em runtime
 uploads/

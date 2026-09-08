@@ -1,14 +1,16 @@
 """Cria o primeiro administrador sem incluir credenciais no código ou histórico."""
 import getpass
 import os
+from datetime import datetime, timedelta
 
-from database import SessionLocal
+from database import system_session
 from auth import hash_password
+from models.tenant import Tenant
 from models.user import User, UserRole
 
 
 def main() -> int:
-    email = os.getenv("BOOTSTRAP_ADMIN_EMAIL") or input("E-mail do administrador: ").strip().lower()
+    email = (os.getenv("BOOTSTRAP_ADMIN_EMAIL") or input("E-mail do administrador: ")).strip().lower()
     name = os.getenv("BOOTSTRAP_ADMIN_NAME") or input("Nome do administrador: ").strip()
     password = os.getenv("BOOTSTRAP_ADMIN_PASSWORD") or getpass.getpass("Senha (mínimo 12 caracteres): ")
 
@@ -17,17 +19,21 @@ def main() -> int:
     if len(password) < 12:
         raise SystemExit("A senha inicial deve ter pelo menos 12 caracteres.")
 
-    db = SessionLocal()
-    try:
+    with system_session() as db:
         if db.query(User).filter(User.email == email).first():
             raise SystemExit("Já existe um usuário com esse e-mail.")
-        user = User(name=name, email=email, hashed_password=hash_password(password), role=UserRole.admin)
+        slug = os.getenv("BOOTSTRAP_TENANT_SLUG", "legacy").strip().lower()
+        tenant = db.query(Tenant).filter(Tenant.slug == slug).first()
+        if tenant is None:
+            tenant = Tenant(name=os.getenv("BOOTSTRAP_TENANT_NAME", "Meu salão"), slug=slug,
+                            trial_ends_at=datetime.utcnow() + timedelta(days=14))
+            db.add(tenant)
+            db.flush()
+        user = User(tenant_id=tenant.id, name=name, email=email, hashed_password=hash_password(password), role=UserRole.admin)
         db.add(user)
         db.commit()
         print(f"Administrador {email} criado com sucesso.")
         return 0
-    finally:
-        db.close()
 
 
 if __name__ == "__main__":

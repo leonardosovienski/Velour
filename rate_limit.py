@@ -19,23 +19,49 @@ class RateLimiter:
         self.message = message
         self._lock = threading.Lock()
         self._hits: dict[str, list[float]] = defaultdict(list)
+        self._last_cleanup = 0.0
+        self.max_keys = 100_000
+
+    def _prune(self, key: str, now: float) -> list[float]:
+        if now - self._last_cleanup >= self.window_seconds:
+            self._hits = defaultdict(list, {
+                k: [t for t in hits if now - t < self.window_seconds]
+                for k, hits in self._hits.items()
+                if hits and now - hits[-1] < self.window_seconds
+            })
+            self._last_cleanup = now
+        if key not in self._hits and len(self._hits) >= self.max_keys:
+            raise HTTPException(status_code=429, detail=self.message,
+                                headers={"Retry-After": str(self.window_seconds)})
+        hits = self._hits[key]
+        hits[:] = [t for t in hits if now - t < self.window_seconds]
+        return hits
+
+    def _check_hits(self, hits: list[float], now: float) -> None:
+        if len(hits) >= self.max_attempts:
+            retry = max(1, int(self.window_seconds - (now - hits[0])) + 1)
+            raise HTTPException(status_code=429, detail=self.message,
+                                headers={"Retry-After": str(retry)})
 
     def check(self, key: str) -> None:
         now = time.monotonic()
         with self._lock:
-            hits = self._hits[key]
-            hits[:] = [t for t in hits if now - t < self.window_seconds]
-            if len(hits) >= self.max_attempts:
-                raise HTTPException(status_code=429, detail=self.message)
+            self._check_hits(self._prune(key, now), now)
 
     def record(self, key: str) -> None:
         with self._lock:
-            self._hits[key].append(time.monotonic())
+            now = time.monotonic()
+            hits = self._prune(key, now)
+            if len(hits) < self.max_attempts:
+                hits.append(now)
 
     def check_and_record(self, key: str) -> None:
         """Para endpoints onde toda chamada conta (não só falhas)."""
-        self.check(key)
-        self.record(key)
+        with self._lock:
+            now = time.monotonic()
+            hits = self._prune(key, now)
+            self._check_hits(hits, now)
+            hits.append(now)
 
 
 def request_key(request, current_user=None) -> str:

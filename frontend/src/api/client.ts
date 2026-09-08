@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type {
-  LoginResponse, UserResponse, UserCreate, UserUpdate,
+  LoginResponse, UserResponse, UserCreate, UserUpdate, SignupRequest, SignupConfig, BillingStatus,
   ClientResponse, ClientBriefing, ClientCreate, ClientUpdate,
   ProfessionalResponse, ProfessionalStats, ProfessionalCreate, ProfessionalUpdate,
   ServiceCategoryResponse, ServiceResponse, ServiceCreate, ServiceUpdate,
@@ -14,12 +14,15 @@ import type {
 } from './types'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
+  timeout: 30000,
 })
 
 export function getErrorDetail(err: unknown): string | undefined {
   if (axios.isAxiosError(err)) {
-    return err.response?.data?.detail
+    const detail: unknown = err.response?.data?.detail
+    if (typeof detail === 'string') return detail
+    if (Array.isArray(detail)) return 'Verifique os campos informados e tente novamente.'
   }
   return undefined
 }
@@ -32,7 +35,7 @@ export function getErrorStatus(err: unknown): number | undefined {
 }
 
 api.interceptors.request.use(config => {
-  const token = localStorage.getItem('access_token')
+  const token = sessionStorage.getItem('access_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
@@ -40,9 +43,12 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(
   r => r,
   err => {
-    if (err.response?.status === 401) {
-      localStorage.removeItem('access_token')
-      window.location.href = '/login'
+    if (err.response?.status === 401 && err.config?.url !== '/auth/login') {
+      sessionStorage.removeItem('access_token')
+      window.dispatchEvent(new Event('velour:session-expired'))
+    }
+    if (err.response?.status === 402) {
+      window.dispatchEvent(new Event('velour:subscription-required'))
     }
     return Promise.reject(err)
   }
@@ -57,7 +63,29 @@ export const authApi = {
     })
     return data
   },
-  me: () => api.get('/auth/me').then(r => r.data),
+  me: () => api.get<UserResponse>('/auth/me').then(r => r.data),
+  forgotPassword: (email: string) => api.post<{ message: string }>('/auth/forgot-password', { email }).then(r => r.data),
+  resetPassword: (token: string, new_password: string) => api.post<{ message: string }>('/auth/reset-password', { token, new_password }).then(r => r.data),
+}
+
+export const tenantsApi = {
+  signupConfig: () => api.get<SignupConfig>('/tenants/signup-config').then(r => r.data),
+  signup: (body: SignupRequest) => api.post<LoginResponse>('/tenants/signup', body).then(r => r.data),
+  export: () => api.get<Blob>('/tenants/export', { responseType: 'blob', timeout: 120000 }).then(r => r.data),
+}
+
+export const billingApi = {
+  status: () => api.get<BillingStatus>('/billing/status').then(r => r.data),
+  checkout: () => api.post<{ url: string }>('/billing/checkout-session', {}).then(r => r.data),
+  portal: () => api.post<{ url: string }>('/billing/portal-session', {}).then(r => r.data),
+}
+
+export const photosApi = {
+  get: (path: string, signal?: AbortSignal) => {
+    // Only trusted upload paths may receive our Authorization header.
+    if (!/^\/uploads\/[A-Za-z0-9_-]+\.(?:jpg|jpeg|png|webp)$/i.test(path)) return Promise.reject(new Error('Invalid photo path'))
+    return api.get<Blob>(path, { responseType: 'blob', signal }).then(r => r.data)
+  },
 }
 
 // Users

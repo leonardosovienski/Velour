@@ -6,7 +6,8 @@ from datetime import datetime, timedelta, date
 from random import choice, randint, uniform, shuffle
 import sys
 
-from database import SessionLocal, engine, Base
+from database import SessionLocal, engine, Base, system_scope, tenant_scope
+from config import settings
 import models  # noqa — registra todos os modelos
 
 from auth import hash_password
@@ -20,13 +21,16 @@ from models.referral import Referral, ReferralStatus
 from models.product import Product, ProductUnit
 from models.service_recipe import ServiceRecipe
 from models.stock_movement import StockMovement, StockMovementType
+from models import Tenant, PasswordResetToken, AuditLog
 
-Base.metadata.create_all(bind=engine)
-db = SessionLocal()
+db = None
 
 
 def limpar():
     # Ordem respeita as FKs (filhos antes dos pais)
+    db.query(PasswordResetToken).delete()
+    db.query(AuditLog).delete()
+    db.query(User).delete()
     db.query(StockMovement).delete()
     db.query(LoyaltyTransaction).delete()
     db.query(Referral).delete()
@@ -37,7 +41,6 @@ def limpar():
     db.query(Professional).delete()
     db.query(Service).delete()
     db.query(ServiceCategory).delete()
-    db.query(User).delete()
     db.commit()
     print("Banco limpo.")
 
@@ -401,6 +404,18 @@ def seed_loyalty_transactions(clientes, agendamentos):
 
 
 if __name__ == "__main__":
+    if settings.environment != "development":
+        raise SystemExit("Seed com credenciais de demonstração permitido somente em APP_ENV=development.")
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    with system_scope(db):
+        tenant = db.query(Tenant).filter(Tenant.slug == "demo").first()
+        if tenant is None:
+            tenant = Tenant(name="Velour demonstração", slug="demo", trial_ends_at=datetime.utcnow() + timedelta(days=14))
+            db.add(tenant)
+            db.commit()
+        demo_tenant_id = tenant.id
+    tenant_scope(db, demo_tenant_id)
     print("Iniciando seed do banco Velour...")
     limpar()
     print("Criando dados:")

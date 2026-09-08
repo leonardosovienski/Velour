@@ -3,7 +3,7 @@ import enum
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum as SAEnum, ForeignKey
 
-from database import Base
+from database import Base, TenantScoped
 
 
 class UserRole(str, enum.Enum):
@@ -12,7 +12,7 @@ class UserRole(str, enum.Enum):
     professional = "professional"
 
 
-class User(Base):
+class User(TenantScoped, Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -21,5 +21,6 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     role = Column(SAEnum(UserRole), nullable=False, default=UserRole.professional)
     professional_id = Column(Integer, ForeignKey("professionals.id"), unique=True, nullable=True)
+    token_version = Column(Integer, nullable=False, default=0)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)

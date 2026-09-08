@@ -4,7 +4,7 @@ import enum
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Numeric, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
-from database import Base
+from database import Base, TenantScoped
 
 
 class ProfGender(str, enum.Enum):
@@ -13,7 +13,7 @@ class ProfGender(str, enum.Enum):
     other = "other"
 
 
-class Professional(Base):
+class Professional(TenantScoped, Base):
     __tablename__ = "professionals"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -29,4 +29,4 @@ class Professional(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)
 
-    appointments = relationship("Appointment", back_populates="professional")
+    appointments = relationship("Appointment", back_populates="professional", foreign_keys="Appointment.professional_id")

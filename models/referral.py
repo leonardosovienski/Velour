@@ -4,7 +4,7 @@ import enum
 from sqlalchemy import Column, Integer, DateTime, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
-from database import Base
+from database import Base, TenantScoped
 
 
 class ReferralStatus(str, enum.Enum):
@@ -12,7 +12,7 @@ class ReferralStatus(str, enum.Enum):
     converted = "converted"
 
 
-class Referral(Base):
+class Referral(TenantScoped, Base):
     __tablename__ = "referrals"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -26,4 +26,4 @@ class Referral(Base):
 
     referrer = relationship("Client", back_populates="referrals_made", foreign_keys=[referrer_id])
     referred = relationship("Client", back_populates="referred_clients", foreign_keys=[referred_id])
-    loyalty_transactions = relationship("LoyaltyTransaction", back_populates="referral")
+    loyalty_transactions = relationship("LoyaltyTransaction", back_populates="referral", foreign_keys="LoyaltyTransaction.referral_id")

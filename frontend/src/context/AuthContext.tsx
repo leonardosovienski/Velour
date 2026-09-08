@@ -1,6 +1,6 @@
 import { useState, useEffect, type ReactNode } from 'react'
-import { authApi } from '../api/client'
-import type { UserRole } from '../api/types'
+import { authApi, tenantsApi } from '../api/client'
+import type { LoginResponse, SignupRequest } from '../api/types'
 import { AuthContext, type AuthUser } from './authContextValue'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -8,30 +8,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token')
-    const name = localStorage.getItem('user_name')
-    const role = localStorage.getItem('user_role') as UserRole | null
-    if (token && name && role) setUser({ name, role })
-    setLoading(false)
+    let active = true
+    // Remove legacy persistent credentials; identity is always validated by the API.
+    for (const key of ['access_token', 'user_name', 'user_role']) localStorage.removeItem(key)
+    function expire() { setUser(null) }
+    window.addEventListener('velour:session-expired', expire)
+    if (sessionStorage.getItem('access_token')) {
+      authApi.me().then(data => {
+        if (active) setUser({ name: data.name, role: data.role })
+      }).catch(() => {
+        if (active) setUser(null)
+      }).finally(() => { if (active) setLoading(false) })
+    } else {
+      setLoading(false)
+    }
+    return () => {
+      active = false
+      window.removeEventListener('velour:session-expired', expire)
+    }
   }, [])
 
-  async function login(email: string, password: string) {
-    const data = await authApi.login(email, password)
-    localStorage.setItem('access_token', data.access_token)
-    localStorage.setItem('user_name', data.name)
-    localStorage.setItem('user_role', data.role)
+  function acceptSession(data: LoginResponse) {
+    sessionStorage.setItem('access_token', data.access_token)
     setUser({ name: data.name, role: data.role })
   }
 
+  async function login(email: string, password: string) {
+    acceptSession(await authApi.login(email.trim(), password))
+  }
+
+  async function signup(body: SignupRequest) {
+    acceptSession(await tenantsApi.signup(body))
+  }
+
   function logout() {
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('user_name')
-    localStorage.removeItem('user_role')
+    sessionStorage.removeItem('access_token')
     setUser(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   )

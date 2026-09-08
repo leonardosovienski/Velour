@@ -8,6 +8,8 @@ from sqlalchemy.orm import sessionmaker
 # Garante que o root do projeto está no path para importar os módulos backend
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+from database import ScopedSession, system_scope, tenant_scope
+from models.tenant import Tenant
 from database import Base
 import models  # noqa: F401 — registers all models with Base metadata
 
@@ -16,8 +18,12 @@ import models  # noqa: F401 — registers all models with Base metadata
 def db():
     engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
     Base.metadata.create_all(engine)
-    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=ScopedSession)
     session = Session()
+    with system_scope(session):
+        session.add(Tenant(id=1, name="Test salon", slug="test", subscription_status="active", current_period_end=datetime(2099, 1, 1)))
+        session.commit()
+    tenant_scope(session, 1)
     yield session
     session.close()
     Base.metadata.drop_all(engine)
@@ -90,3 +96,13 @@ def make_appointment(db, client_id, professional_id, service_id,
     db.add(a)
     db.flush()
     return a
+
+
+@pytest.fixture(autouse=True)
+def reset_login_rate_limits():
+    from routers.auth import _login_limiter, _login_ip_limiter
+    from routers.appointments import _create_limiter as appointment_limiter
+    from routers.clients import _create_limiter as client_limiter
+    for limiter in (_login_limiter, _login_ip_limiter, appointment_limiter, client_limiter):
+        limiter._hits.clear()
+    yield

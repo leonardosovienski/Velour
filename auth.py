@@ -2,13 +2,14 @@ import hashlib
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 import jwt
 from jwt import PyJWTError
 from sqlalchemy.orm import Session
 
-from database import get_db
+from database import get_db, tenant_scope
+from models.tenant import Tenant
 from models.user import User
 from config import settings
 
@@ -38,27 +39,34 @@ def verify_password(password: str, hashed: str) -> bool:
 
 # ── JWT ────────────────────────────────────────────────────────────────────
 
-def create_access_token(user_id: int, email: str, role: str) -> str:
+def create_access_token(user_id: int, email: str, role: str, tenant_id: int | None = None, token_version: int = 0) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
-    payload = {"sub": str(user_id), "email": email, "role": role, "exp": expire}
+    payload = {"sub": str(user_id), "email": email, "role": role, "exp": expire,
+               "iat": datetime.now(timezone.utc), "tenant_id": tenant_id, "token_version": token_version}
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def get_current_user(
+    request: Request,
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> User:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-        if not user_id:
-            raise HTTPException(status_code=401, detail="Token inválido")
-    except PyJWTError:
+        user_id = int(payload["sub"])
+        tenant_id = payload["tenant_id"]
+        if user_id <= 0 or type(tenant_id) is not int or tenant_id <= 0:
+            raise ValueError("Invalid token identity")
+    except (PyJWTError, KeyError, TypeError, ValueError):
         raise HTTPException(status_code=401, detail="Token inválido ou expirado")
 
-    user = db.query(User).filter(User.id == int(user_id), User.is_active == True).first()
-    if not user:
+    tenant_scope(db, tenant_id)
+    tenant = db.query(Tenant).filter(Tenant.id == tenant_id, Tenant.is_active == True).first()
+    user = db.query(User).filter(User.id == user_id, User.tenant_id == tenant_id, User.is_active == True).first()
+    if not tenant or not user or payload.get("token_version") != user.token_version:
         raise HTTPException(status_code=401, detail="Usuário não encontrado")
+    request.state.user_id = user.id
+    request.state.tenant_id = tenant.id
     return user
 
 
