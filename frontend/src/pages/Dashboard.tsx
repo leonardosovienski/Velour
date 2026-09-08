@@ -83,17 +83,17 @@ export function Dashboard() {
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Weekly Revenue Chart */}
-        <div className="col-span-2">
+        <div className="lg:col-span-2 min-w-0">
           <Card>
             <div className="text-muted text-xs uppercase tracking-widest mb-4 flex items-center gap-2">
               <TrendingUp size={12} /> Receita — últimos 7 dias
             </div>
-            <div className="flex items-end gap-3 h-36">
+            <div className="flex items-end gap-1.5 sm:gap-3 h-36">
               {weekly.map(day => (
-                <div key={day.date} className="flex-1 flex flex-col items-center gap-1.5">
-                  <div className="text-gold/80 text-xs font-mono">
+                <div key={day.date} className="flex-1 min-w-0 flex flex-col items-center gap-1.5">
+                  <div className="text-gold/80 text-[10px] sm:text-xs font-mono max-w-full truncate" title={`R$${day.revenue.toLocaleString('pt-BR')}`}>
                     {day.revenue > 0 ? `R$${Math.round(day.revenue)}` : ''}
                   </div>
                   <div className="w-full rounded-t-md bg-gold/20 hover:bg-gold/40 transition-colors relative group"
@@ -198,7 +198,7 @@ export function Dashboard() {
 
       {/* Status Breakdown */}
       {today?.status_breakdown && (
-        <div className="grid grid-cols-6 gap-3 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
           {statusOrder.map(status => {
             const count = today.status_breakdown[status] ?? 0
             return (
@@ -280,7 +280,7 @@ function KpiCard({ icon, label, value, bg }: { icon: React.ReactNode; label: str
   return (
     <div className={`bg-surface border rounded-xl p-5 ${bg}`}>
       <div className="flex items-center gap-2 mb-3">{icon}<span className="text-xs text-muted">{label}</span></div>
-      <div className="font-mono text-2xl font-medium text-cream">{value}</div>
+      <div className="font-mono text-xl sm:text-2xl font-medium text-cream break-words">{value}</div>
     </div>
   )
 }

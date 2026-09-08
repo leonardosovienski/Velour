@@ -89,10 +89,12 @@ apenas registra que um pagamento ocorreu e por qual meio.
   quando essa função está habilitada.
 - Nenhum uso para publicidade, treinamento de modelos, ou qualquer finalidade
   fora da prestação do serviço ao Salão.
-- Retenção pelo tempo que o Salão mantiver a conta ativa e os dados
-  cadastrados; a exclusão de um cliente final pelo Salão remove seus dados da
-  Plataforma, ressalvadas cópias de segurança temporárias e obrigações legais
-  de retenção do próprio Salão (ex.: fiscais).
+- A ação de excluir um cadastro na interface o desativa, preservando seu
+  histórico. Ela não apaga definitivamente os dados. Pedidos de eliminação
+  ou anonimização devem ser encaminhados ao canal da empresa e processados
+  pelo operador conforme uma política de retenção ainda a definir, incluindo
+  cópias de segurança e eventuais obrigações de retenção. Esta política deve
+  ser preenchida antes da publicação comercial deste rascunho.
 
 ### 2.4 Subcontratados da Velour
 

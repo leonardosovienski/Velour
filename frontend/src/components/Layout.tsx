@@ -1,12 +1,17 @@
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { Menu } from 'lucide-react'
 import { Sidebar } from './Sidebar'
 
 export function Layout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) { if (event.key === 'Escape') setSidebarOpen(false) }
+    if (sidebarOpen) window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [sidebarOpen])
 
   return (
-    <div className="flex h-screen bg-bg overflow-hidden">
+    <div className="flex h-dvh bg-bg overflow-hidden">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
@@ -19,8 +24,8 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className={`
         fixed md:relative inset-y-0 left-0 z-30 h-full
         transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        md:translate-x-0 md:flex-shrink-0
+        ${sidebarOpen ? 'translate-x-0 visible' : '-translate-x-full invisible'}
+        md:translate-x-0 md:visible md:flex-shrink-0
       `}>
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
@@ -32,6 +37,7 @@ export function Layout({ children }: { children: ReactNode }) {
             onClick={() => setSidebarOpen(true)}
             className="text-muted hover:text-cream p-1"
             aria-label="Abrir menu"
+            aria-expanded={sidebarOpen}
           >
             <Menu size={20} />
           </button>
@@ -52,7 +58,7 @@ export function PageHeader({ title, subtitle, action }: {
   action?: ReactNode
 }) {
   return (
-    <div className="flex items-start justify-between mb-8">
+    <div className="flex flex-col sm:flex-row gap-4 items-start justify-between mb-8">
       <div>
         <h1 className="font-display text-3xl font-semibold text-cream">{title}</h1>
         {subtitle && <p className="text-muted text-sm mt-1">{subtitle}</p>}

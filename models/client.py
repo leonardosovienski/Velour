@@ -6,7 +6,7 @@ import string
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, Numeric, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
-from database import Base
+from database import Base, TenantScoped
 
 
 class Gender(str, enum.Enum):
@@ -52,11 +52,11 @@ def generate_referral_code(length: int = 8) -> str:
     return ''.join(random.choices(chars, k=length))
 
 
-class Client(Base):
+class Client(TenantScoped, Base):
     __tablename__ = "clients"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    code = Column(String(20), unique=True, nullable=False, index=True)  # VLR-00042
+    code = Column(String(20), nullable=False, index=True)  # VLR-00042
     name = Column(String(120), nullable=False)
     phone = Column(String(50), nullable=False)
     email = Column(String(120), nullable=True)
@@ -80,7 +80,7 @@ class Client(Base):
     total_visits = Column(Integer, default=0)
 
     # Indicação
-    referral_code = Column(String(20), unique=True, nullable=False)
+    referral_code = Column(String(20), nullable=False)
     referred_by_id = Column(Integer, ForeignKey("clients.id"), nullable=True)
 
     is_active = Column(Boolean, default=True)
@@ -89,7 +89,7 @@ class Client(Base):
     appointments = relationship(
         "Appointment", back_populates="client", foreign_keys="Appointment.client_id"
     )
-    loyalty_transactions = relationship("LoyaltyTransaction", back_populates="client")
+    loyalty_transactions = relationship("LoyaltyTransaction", back_populates="client", foreign_keys="LoyaltyTransaction.client_id")
     referrals_made = relationship(
         "Referral", back_populates="referrer", foreign_keys="Referral.referrer_id"
     )

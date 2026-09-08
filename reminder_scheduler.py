@@ -4,7 +4,10 @@ from datetime import datetime, timedelta
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sqlalchemy.orm import Session
 
-from database import SessionLocal
+from database import SessionLocal, system_scope
+from config import settings
+from runtime_guard import runtime_guard
+from models.tenant import Tenant
 from email_service import send_appointment_reminder
 from logging_config import log_with_fields
 from models.appointment import Appointment, AppointmentStatus
@@ -18,31 +21,36 @@ REMINDER_WINDOW_HOURS = 24
 
 
 def _run_reminder_job():
+    if settings.environment == "production":
+        runtime_guard.check()
     now = datetime.now()
     window_start = now + timedelta(hours=REMINDER_WINDOW_HOURS)
     window_end = window_start + timedelta(hours=1)
     db: Session = SessionLocal()
     try:
-        appointments = (
-            db.query(Appointment)
-            .filter(
-                Appointment.status.in_([AppointmentStatus.scheduled, AppointmentStatus.confirmed]),
-                Appointment.reminder_sent == False,  # noqa: E712
-                Appointment.scheduled_at >= window_start,
-                Appointment.scheduled_at < window_end,
+        with system_scope(db):
+            appointments = (
+                db.query(Appointment)
+                .join(Tenant, Tenant.id == Appointment.tenant_id)
+                .filter(Tenant.is_active == True)
+                .filter(
+                    Appointment.status.in_([AppointmentStatus.scheduled, AppointmentStatus.confirmed]),
+                    Appointment.reminder_sent == False,  # noqa: E712
+                    Appointment.scheduled_at >= window_start,
+                    Appointment.scheduled_at < window_end,
+                )
+                .all()
             )
-            .all()
-        )
-        sent = 0
-        for appt in appointments:
-            if send_appointment_reminder(appt):
-                appt.reminder_sent = True
-                sent += 1
-        db.commit()
-        log_with_fields(
-            logger, logging.INFO, "reminder_job_completed",
-            candidates=len(appointments), sent=sent,
-        )
+            sent = 0
+            for appt in appointments:
+                if send_appointment_reminder(appt):
+                    appt.reminder_sent = True
+                    sent += 1
+            db.commit()
+            log_with_fields(
+                logger, logging.INFO, "reminder_job_completed",
+                candidates=len(appointments), sent=sent,
+            )
     finally:
         db.close()
 

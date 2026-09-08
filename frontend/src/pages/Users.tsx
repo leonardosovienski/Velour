@@ -230,8 +230,8 @@ function UserModal({ open, user, onClose, onSuccess }: {
         )}
         {!user && (
           <div>
-            <label htmlFor="users-senha-minimo-6-caracteres" className="field-label">Senha * (mínimo 6 caracteres)</label>
-            <input id="users-senha-minimo-6-caracteres" type="password" value={password} onChange={e => setPassword(e.target.value)} minLength={6} required />
+            <label htmlFor="users-senha" className="field-label">Senha * (mínimo 12 caracteres)</label>
+            <input id="users-senha" type="password" autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} minLength={12} maxLength={128} required />
           </div>
         )}
         <div>

@@ -1,4 +1,3 @@
-import threading
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
@@ -10,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from auth import get_current_user, ensure_professional_scope
 from database import get_db
+from config import settings
+from domain_locks import mutation_lock, serialized_mutation
 from email_service import send_appointment_confirmation
 from rate_limit import RateLimiter, request_key
 from models.appointment import Appointment, AppointmentStatus
@@ -31,13 +32,13 @@ router = APIRouter(prefix="/appointments", tags=["appointments"])
 
 # Serializa checagem-de-conflito + criação para evitar overbooking sob
 # requisições concorrentes (a checagem e o INSERT não são atômicos no banco).
-_booking_lock = threading.Lock()
+_booking_lock = mutation_lock
 
 # Serializa o fechamento de atendimentos: evita que duas conclusões
 # concorrentes do primeiro atendimento de clientes diferentes indicados
 # pela mesma pessoa leiam a indicação pendente como não-convertida ao
 # mesmo tempo e apliquem os pontos de indicação em duplicidade.
-_completion_lock = threading.Lock()
+_completion_lock = mutation_lock
 
 # Protege contra criação em massa de agendamentos por token comprometido/script.
 _create_limiter = RateLimiter(
@@ -346,6 +347,7 @@ def create_appointment(body: AppointmentCreate, request: Request, db: Session = 
 
 
 @router.patch("/{appt_id}/status", response_model=AppointmentResponse)
+@serialized_mutation
 def update_status(
     appt_id: int,
     body: AppointmentStatusUpdate,
@@ -356,6 +358,8 @@ def update_status(
     if not appt:
         raise HTTPException(status_code=404, detail="Agendamento não encontrado")
     ensure_professional_scope(current_user, appt.professional_id)
+    if appt.status in (AppointmentStatus.completed, AppointmentStatus.cancelled, AppointmentStatus.no_show):
+        raise HTTPException(status_code=409, detail="Atendimento encerrado. Crie um novo agendamento para reagendar")
     if body.status == AppointmentStatus.completed:
         raise HTTPException(
             status_code=422,
@@ -399,8 +403,13 @@ def complete_appointment(
 
         appt.price_charged = body.price_charged
         appt.discount_points_used = body.discount_points_used
-        appt.photo_before_url = body.photo_before_url
-        appt.photo_after_url = body.photo_after_url
+        # Photos are attached exclusively by the authenticated upload endpoint.
+        # Accept only the appointment's existing references: arbitrary URLs could
+        # otherwise transfer authorization to a photo belonging to another salon.
+        for field in ("photo_before_url", "photo_after_url"):
+            supplied = getattr(body, field)
+            if supplied is not None and supplied != getattr(appt, field):
+                raise HTTPException(status_code=422, detail="Envie fotos pelo endpoint de upload do agendamento")
         appt.formula_used = body.formula_used
         if body.notes:
             appt.notes = body.notes
@@ -420,7 +429,7 @@ def complete_appointment(
 
 
 async def _save_photo(photo: UploadFile, upload_dir: Path) -> str:
-    content = await photo.read()
+    content = await photo.read(MAX_UPLOAD_SIZE_BYTES + 1)
     if len(content) > MAX_UPLOAD_SIZE_BYTES:
         raise HTTPException(status_code=422, detail="Imagem muito grande (máximo 5MB)")
 
@@ -450,21 +459,29 @@ async def upload_photos(
         raise HTTPException(status_code=404, detail="Agendamento não encontrado")
     ensure_professional_scope(current_user, appt.professional_id)
 
-    upload_dir = Path("uploads")
-    upload_dir.mkdir(exist_ok=True)
+    upload_dir = settings.upload_dir
+    upload_dir.mkdir(parents=True, exist_ok=True)
 
-    if photo_before and photo_before.filename:
-        appt.photo_before_url = await _save_photo(photo_before, upload_dir)
-
-    if photo_after and photo_after.filename:
-        appt.photo_after_url = await _save_photo(photo_after, upload_dir)
-
-    db.commit()
+    created = []
+    try:
+        if photo_before and photo_before.filename:
+            appt.photo_before_url = await _save_photo(photo_before, upload_dir)
+            created.append(appt.photo_before_url)
+        if photo_after and photo_after.filename:
+            appt.photo_after_url = await _save_photo(photo_after, upload_dir)
+            created.append(appt.photo_after_url)
+        db.commit()
+    except Exception:
+        db.rollback()
+        for url in created:
+            (upload_dir / Path(url).name).unlink(missing_ok=True)
+        raise
     db.refresh(appt)
     return {"photo_before_url": appt.photo_before_url, "photo_after_url": appt.photo_after_url}
 
 
 @router.delete("/{appt_id}", status_code=204)
+@serialized_mutation
 def cancel_appointment(appt_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     appt = db.query(Appointment).filter(Appointment.id == appt_id).first()
     if not appt:

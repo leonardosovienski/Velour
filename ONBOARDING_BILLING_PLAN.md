@@ -1,3 +1,5 @@
+> Nota de 08/09/2026: documento histórico. O núcleo SaaS agora está implementado; consulte [PRODUCTION.md](PRODUCTION.md) para comportamento atual, configuração e limitações verificadas.
+
 # Plano técnico — Onboarding self-serve + Billing (Stripe)
 
 > Documento de planejamento, não implementado ainda. Assume as decisões de

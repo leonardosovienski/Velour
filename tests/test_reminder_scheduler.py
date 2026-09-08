@@ -6,7 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from database import Base
+from database import Base, ScopedSession, tenant_scope, system_scope
+from models.tenant import Tenant
 import models  # noqa: F401 — registra os modelos no metadata
 import reminder_scheduler
 from tests.conftest import make_client, make_professional, make_category, make_service, make_appointment
@@ -20,8 +21,13 @@ def session_factory():
         poolclass=StaticPool,
     )
     Base.metadata.create_all(engine)
-    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    yield Session
+    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=ScopedSession)
+    with Session() as db, system_scope(db):
+        db.add(Tenant(id=1, name="Test salon", slug="test", subscription_status="active", current_period_end=datetime(2099, 1, 1)))
+        db.commit()
+    def factory():
+        return tenant_scope(Session(), 1)
+    yield factory
     engine.dispose()
 
 

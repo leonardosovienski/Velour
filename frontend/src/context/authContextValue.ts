@@ -1,5 +1,5 @@
 import { createContext } from 'react'
-import type { UserRole } from '../api/types'
+import type { UserRole, SignupRequest } from '../api/types'
 
 export interface AuthUser {
   name: string
@@ -10,6 +10,7 @@ export interface AuthContextValue {
   user: AuthUser | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
+  signup: (body: SignupRequest) => Promise<void>
   logout: () => void
 }
 

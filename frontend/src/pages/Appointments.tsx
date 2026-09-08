@@ -375,13 +375,19 @@ export function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentD
         setLoading(false)
         return
       }
+      if (photoBefore || photoAfter) {
+        for (const photo of [photoBefore, photoAfter]) {
+          if (photo && (photo.size > 5 * 1024 * 1024 || !['image/jpeg', 'image/png', 'image/webp'].includes(photo.type))) {
+            setError('Envie fotos JPEG, PNG ou WebP com até 5 MB cada.')
+            return
+          }
+        }
+        await appointmentsApi.uploadPhotos(appt.id, photoBefore ?? undefined, photoAfter ?? undefined)
+      }
       await appointmentsApi.complete(appt.id, {
         ...form,
         recipe_overrides: recipe_overrides.length ? recipe_overrides : undefined,
       })
-      if (photoBefore || photoAfter) {
-        await appointmentsApi.uploadPhotos(appt.id, photoBefore ?? undefined, photoAfter ?? undefined)
-      }
       onSuccess()
     } catch (err: unknown) {
       const detail = getErrorDetail(err)
@@ -505,13 +511,13 @@ export function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentD
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label htmlFor="appointments-foto-antes" className="field-label">Foto antes</label>
-              <input id="appointments-foto-antes" type="file" accept="image/*" onChange={e => setPhotoBefore(e.target.files?.[0] ?? null)}
+              <input id="appointments-foto-antes" type="file" accept="image/jpeg,image/png,image/webp" onChange={e => setPhotoBefore(e.target.files?.[0] ?? null)}
                 className="text-xs text-muted file:mr-2 file:text-xs file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-gold/10 file:text-gold hover:file:bg-gold/20" />
               {photoBefore && <p className="text-muted text-xs mt-1 truncate">{photoBefore.name}</p>}
             </div>
             <div>
               <label htmlFor="appointments-foto-depois" className="field-label">Foto depois</label>
-              <input id="appointments-foto-depois" type="file" accept="image/*" onChange={e => setPhotoAfter(e.target.files?.[0] ?? null)}
+              <input id="appointments-foto-depois" type="file" accept="image/jpeg,image/png,image/webp" onChange={e => setPhotoAfter(e.target.files?.[0] ?? null)}
                 className="text-xs text-muted file:mr-2 file:text-xs file:px-3 file:py-1.5 file:rounded file:border-0 file:bg-gold/10 file:text-gold hover:file:bg-gold/20" />
               {photoAfter && <p className="text-muted text-xs mt-1 truncate">{photoAfter.name}</p>}
             </div>

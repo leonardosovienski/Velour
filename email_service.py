@@ -21,7 +21,7 @@ def send_email(to: str, subject: str, body: str) -> bool:
     if not to:
         return False
     if not is_configured():
-        logger.info("SMTP não configurado — pulando envio de e-mail para %s: %s", to, subject)
+        logger.info("SMTP não configurado — envio ignorado")
         return False
 
     msg = EmailMessage()
@@ -38,8 +38,9 @@ def send_email(to: str, subject: str, body: str) -> bool:
                 smtp.login(settings.smtp_user, settings.smtp_password)
             smtp.send_message(msg)
         return True
-    except Exception:
-        logger.exception("Falha ao enviar e-mail para %s", to)
+    except Exception as exc:
+        # SMTP exception messages can contain addresses and provider replies.
+        logger.error("Falha ao enviar e-mail (%s)", type(exc).__name__)
         return False
 
 

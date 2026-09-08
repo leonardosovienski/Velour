@@ -1,0 +1,23 @@
+services:
+  edge:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN:?configure DOMAIN without https}
+      ACME_EMAIL: ${ACME_EMAIL:?configure ACME_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    restart: unless-stopped
+    networks:
+      default:
+        ipv4_address: 172.31.252.4
+
+volumes:
+  caddy_data:
+  caddy_config:

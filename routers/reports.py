@@ -47,7 +47,7 @@ def revenue_report(
     if professional_id:
         q = q.filter(Appointment.professional_id == professional_id)
     if category_id:
-        q = q.join(Service).filter(Service.category_id == category_id)
+        q = q.join(Service, Service.id == Appointment.service_id).filter(Service.category_id == category_id)
 
     appts = q.all()
     receita_total = sum(a.price_charged or a.service.price for a in appts)

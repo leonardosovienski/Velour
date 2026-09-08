@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../context/useAuth'
 import { getErrorStatus } from '../api/client'
-import { Spinner } from '../components/Spinner'
+import { AuthShell, FormError } from '../components/AuthShell'
 
 export function Login() {
   const { login } = useAuth()
@@ -18,81 +18,31 @@ export function Login() {
     setLoading(true)
     try {
       await login(email, password)
-      navigate('/')
+      navigate('/', { replace: true })
     } catch (err) {
-      if (getErrorStatus(err) === 401) {
-        setError('Email ou senha incorretos.')
-      } else {
-        setError('Não foi possível conectar ao servidor. Verifique se o backend está rodando na porta 8000.')
-      }
-    } finally {
-      setLoading(false)
-    }
+      const status = getErrorStatus(err)
+      setError(status === 401 ? 'Email ou senha incorretos.' : status === 429
+        ? 'Muitas tentativas. Aguarde alguns minutos antes de tentar novamente.'
+        : 'Não foi possível entrar. Verifique sua conexão e tente novamente.')
+    } finally { setLoading(false) }
   }
 
   return (
-    <div className="min-h-screen bg-bg flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="font-display text-5xl font-semibold text-gold tracking-widest mb-2">
-            VELOUR
-          </div>
-          <div className="text-muted text-xs uppercase tracking-[0.3em]">
-            Gestão de Salão Premium
-          </div>
+    <AuthShell title="Bem-vindo de volta" subtitle="Acesse a agenda e cuide do seu negócio.">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="login-email" className="field-label">Email</label>
+          <input id="login-email" type="email" autoComplete="username" value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
         </div>
-
-        {/* Card */}
-        <div className="bg-surface border border-border rounded-2xl p-8 shadow-2xl">
-          <h2 className="font-display text-xl text-cream font-medium mb-6">Acesso restrito</h2>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="login-email" className="text-muted text-xs uppercase tracking-wider block mb-1.5">Email</label>
-              <input
-                id="login-email"
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="seu@email.com"
-                required
-                autoFocus
-              />
-            </div>
-
-            <div>
-              <label htmlFor="login-password" className="text-muted text-xs uppercase tracking-wider block mb-1.5">Senha</label>
-              <input
-                id="login-password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-            </div>
-
-            {error && (
-              <div className="bg-danger/10 border border-danger/30 text-red-400 text-sm rounded-lg px-4 py-3">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gold hover:bg-gold/90 text-bg font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2 mt-2 disabled:opacity-60"
-            >
-              {loading ? <Spinner size={18} /> : 'Entrar'}
-            </button>
-          </form>
+        <div>
+          <label htmlFor="login-password" className="field-label">Senha</label>
+          <input id="login-password" type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required />
         </div>
-
-        <p className="text-center text-muted text-xs mt-6">
-          Acesso exclusivo para profissionais e gestores
-        </p>
-      </div>
-    </div>
+        <Link className="text-gold text-sm block text-right" to="/forgot-password">Esqueci minha senha</Link>
+        <FormError message={error} />
+        <button type="submit" disabled={loading} className="primary-button w-full">{loading ? 'Entrando…' : 'Entrar'}</button>
+      </form>
+      <p className="text-center text-muted text-sm mt-6">Seu salão ainda não está no Velour? <Link className="text-gold" to="/signup">Criar conta</Link></p>
+    </AuthShell>
   )
 }

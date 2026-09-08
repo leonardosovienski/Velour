@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from auth import get_current_user, require_admin, require_manager
 from database import get_db
+from domain_locks import serialized_mutation
 from models.product import Product
 from models.service import Service
 from models.service_recipe import ServiceRecipe
@@ -89,6 +90,7 @@ def delete_product(product_id: int, db: Session = Depends(get_db), _=Depends(req
 
 
 @prod_router.post("/{product_id}/stock", response_model=ProductResponse)
+@serialized_mutation
 def move_stock(product_id: int, body: StockEntry, db: Session = Depends(get_db), _=Depends(require_admin)):
     """
     Movimentação manual de estoque (entrada por compra, perda ou ajuste).
@@ -162,6 +164,7 @@ def get_recipe(service_id: int, db: Session = Depends(get_db), _=Depends(get_cur
 
 
 @recipe_router.put("/{service_id}/recipe", response_model=List[ServiceRecipeResponse])
+@serialized_mutation
 def set_recipe(
     service_id: int,
     items: List[RecipeItem],

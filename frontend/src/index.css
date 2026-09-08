@@ -7,7 +7,7 @@
   --color-gold: #C9A84C;
   --color-gold-dim: #8A6F2E;
   --color-cream: #F5F4F0;
-  --color-muted: #6B6B6B;
+  --color-muted: #969696;
   --color-success: #4A7C59;
   --color-danger: #8B2635;
 
@@ -44,13 +44,19 @@
     border-radius: 6px;
     padding: 8px 12px;
     font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     outline: none;
     transition: border-color 0.15s;
     width: 100%;
   }
   input:focus, select:focus, textarea:focus {
     border-color: #C9A84C;
+  }
+  input[type="checkbox"], input[type="radio"] { width: 18px; height: 18px; accent-color: #C9A84C; }
+  button { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
   input[type="datetime-local"]::-webkit-calendar-picker-indicator,
   input[type="date"]::-webkit-calendar-picker-indicator {
@@ -69,6 +75,12 @@
 }
 
 @layer components {
+  .primary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-gold px-4 py-3 text-sm font-semibold text-bg transition-colors hover:bg-gold/90 disabled:opacity-50;
+  }
+  .secondary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-3 text-sm text-cream transition-colors hover:border-gold/40 disabled:opacity-50;
+  }
   .field-label {
     @apply block text-muted text-xs uppercase tracking-wider mb-1.5;
   }

@@ -4,7 +4,7 @@ import enum
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Numeric, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
-from database import Base
+from database import Base, TenantScoped
 
 
 class GenderTarget(str, enum.Enum):
@@ -13,7 +13,7 @@ class GenderTarget(str, enum.Enum):
     all = "all"
 
 
-class ServiceCategory(Base):
+class ServiceCategory(TenantScoped, Base):
     __tablename__ = "service_categories"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -21,10 +21,10 @@ class ServiceCategory(Base):
     gender_target = Column(SAEnum(GenderTarget), nullable=False, default=GenderTarget.all)
     icon = Column(String(50), nullable=True)
 
-    services = relationship("Service", back_populates="category")
+    services = relationship("Service", back_populates="category", foreign_keys="Service.category_id")
 
 
-class Service(Base):
+class Service(TenantScoped, Base):
     __tablename__ = "services"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -37,6 +37,6 @@ class Service(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)
 
-    category = relationship("ServiceCategory", back_populates="services")
-    appointments = relationship("Appointment", back_populates="service")
-    recipes = relationship("ServiceRecipe", back_populates="service")
+    category = relationship("ServiceCategory", back_populates="services", foreign_keys=[category_id])
+    appointments = relationship("Appointment", back_populates="service", foreign_keys="Appointment.service_id")
+    recipes = relationship("ServiceRecipe", back_populates="service", foreign_keys="ServiceRecipe.service_id")

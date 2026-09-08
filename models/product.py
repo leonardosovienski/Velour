@@ -4,7 +4,7 @@ import enum
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, Float, Numeric, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
-from database import Base
+from database import Base, TenantScoped
 
 
 class ProductUnit(str, enum.Enum):
@@ -14,7 +14,7 @@ class ProductUnit(str, enum.Enum):
     unit = "unit"  # unidades inteiras (ex.: par de luvas, touca)
 
 
-class Product(Base):
+class Product(TenantScoped, Base):
     """Insumo de estoque consumido na execução dos serviços."""
     __tablename__ = "products"
 
@@ -28,5 +28,5 @@ class Product(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.now)
 
-    recipes = relationship("ServiceRecipe", back_populates="product")
-    movements = relationship("StockMovement", back_populates="product")
+    recipes = relationship("ServiceRecipe", back_populates="product", foreign_keys="ServiceRecipe.product_id")
+    movements = relationship("StockMovement", back_populates="product", foreign_keys="StockMovement.product_id")

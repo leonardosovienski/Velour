@@ -1,10 +1,10 @@
 from sqlalchemy import Column, Integer, Float, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
-from database import Base
+from database import Base, TenantScoped
 
 
-class ServiceRecipe(Base):
+class ServiceRecipe(TenantScoped, Base):
     """
     Ficha técnica: quanto de cada insumo um serviço consome por execução.
     Objeto de associação N:N entre Service e Product (carrega qty_consumed).
@@ -19,5 +19,5 @@ class ServiceRecipe(Base):
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     qty_consumed = Column(Float, nullable=False)  # quantidade-padrão na unidade do produto
 
-    service = relationship("Service", back_populates="recipes")
-    product = relationship("Product", back_populates="recipes")
+    service = relationship("Service", back_populates="recipes", foreign_keys=[service_id])
+    product = relationship("Product", back_populates="recipes", foreign_keys=[product_id])

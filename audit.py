@@ -1,8 +1,8 @@
-from jwt import decode, PyJWTError
+import logging
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from config import settings
-from database import SessionLocal
+from database import SessionLocal, tenant_scope
 from models.audit_log import AuditLog
 
 
@@ -14,21 +14,16 @@ class AuditMiddleware(BaseHTTPMiddleware):
         if request.method not in {"POST", "PUT", "PATCH", "DELETE"}:
             return response
 
-        user_id = None
-        authorization = request.headers.get("authorization", "")
-        if authorization.lower().startswith("bearer "):
-            try:
-                payload = decode(
-                    authorization.split(" ", 1)[1],
-                    settings.secret_key,
-                    algorithms=[settings.jwt_algorithm],
-                )
-                user_id = int(payload["sub"])
-            except (PyJWTError, KeyError, TypeError, ValueError):
-                pass
+        # Record only identities actually authenticated by the request dependency.
+        # Anonymous attempts remain visible in the structured request log.
+        user_id = getattr(request.state, "user_id", None)
+        tenant_id = getattr(request.state, "tenant_id", None)
+        if user_id is None or tenant_id is None:
+            return response
 
         db = SessionLocal()
         try:
+            tenant_scope(db, tenant_id)
             db.add(AuditLog(
                 user_id=user_id,
                 action=request.method,
@@ -39,6 +34,7 @@ class AuditMiddleware(BaseHTTPMiddleware):
             db.commit()
         except Exception:
             db.rollback()
+            logging.getLogger("velour.audit").exception("audit_write_failed")
         finally:
             db.close()
         return response

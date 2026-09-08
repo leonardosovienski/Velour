@@ -10,6 +10,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from auth import hash_password
+from database import ScopedSession, system_scope, tenant_scope
+from models.tenant import Tenant
 from database import Base, get_db
 from main import app
 from models.user import User, UserRole
@@ -28,8 +30,12 @@ def db():
         poolclass=StaticPool,
     )
     Base.metadata.create_all(engine)
-    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    Session = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=ScopedSession)
     session = Session()
+    with system_scope(session):
+        session.add(Tenant(id=1, name="Test salon", slug="test", subscription_status="active", current_period_end=datetime(2099, 1, 1)))
+        session.commit()
+    tenant_scope(session, 1)
     yield session
     session.close()
     Base.metadata.drop_all(engine)
@@ -43,10 +49,11 @@ def test_client():
 
 
 @pytest.fixture
-def api(db, test_client):
+def api(db, test_client, monkeypatch):
     """Redireciona as dependências get_db do app para a sessão de teste (SQLite em memória)."""
     def _override():
         yield db
+    monkeypatch.setattr("audit.SessionLocal", sessionmaker(bind=db.get_bind(), class_=ScopedSession))
     app.dependency_overrides[get_db] = _override
     yield test_client
     app.dependency_overrides.pop(get_db, None)

@@ -4,7 +4,7 @@ import enum
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
-from database import Base
+from database import Base, TenantScoped
 
 
 class TransactionType(str, enum.Enum):
@@ -14,7 +14,7 @@ class TransactionType(str, enum.Enum):
     redeemed = "redeemed"
 
 
-class LoyaltyTransaction(Base):
+class LoyaltyTransaction(TenantScoped, Base):
     __tablename__ = "loyalty_transactions"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -26,6 +26,6 @@ class LoyaltyTransaction(Base):
     description = Column(String(500), nullable=False)
     created_at = Column(DateTime, default=datetime.now)
 
-    client = relationship("Client", back_populates="loyalty_transactions")
-    appointment = relationship("Appointment", back_populates="loyalty_transactions")
-    referral = relationship("Referral", back_populates="loyalty_transactions")
+    client = relationship("Client", back_populates="loyalty_transactions", foreign_keys=[client_id])
+    appointment = relationship("Appointment", back_populates="loyalty_transactions", foreign_keys=[appointment_id])
+    referral = relationship("Referral", back_populates="loyalty_transactions", foreign_keys=[referral_id])

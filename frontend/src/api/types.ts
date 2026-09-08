@@ -28,6 +28,36 @@ export interface LoginResponse {
   role: UserRole
   professional_id?: number
   name: string
+  tenant_id?: number
+}
+
+export interface SignupRequest {
+  tenant_name: string
+  admin_name: string
+  admin_email: string
+  admin_password: string
+  accepted_terms: boolean
+}
+
+export interface SignupConfig {
+  signup_enabled: boolean
+  trial_days: number
+  terms_url: string
+  privacy_url: string
+  terms_version: string
+}
+
+export interface BillingStatus {
+  tenant_id: number
+  tenant_name: string
+  subscription_status: string
+  trial_ends_at: string | null
+  current_period_end: string | null
+  past_due_since: string | null
+  access_allowed: boolean
+  configured: boolean
+  can_manage_billing: boolean
+  has_billing_customer: boolean
 }
 
 // User

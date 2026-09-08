@@ -1,3 +1,5 @@
+> Nota de 08/09/2026: documento histórico. O núcleo SaaS agora está implementado; consulte [PRODUCTION.md](PRODUCTION.md) para comportamento atual, configuração e limitações verificadas.
+
 # Velour — Documentação Completa do Sistema
 
 Sistema de gestão interno para salão de beleza premium. Uso exclusivo de **profissionais e gestores** (não há acesso do cliente final). O diferencial é o **briefing pré-atendimento**: o profissional abre a agenda e já sabe tudo sobre o cliente antes dele sentar na cadeira.

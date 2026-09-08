@@ -15,7 +15,7 @@ describe('Sidebar', () => {
   it('expõe um landmark de navegação com aria-label', () => {
     render(
       <MemoryRouter>
-        <AuthContext.Provider value={{ user: { name: 'Ana Teste', role: 'admin' }, loading: false, login: vi.fn(), logout: vi.fn() }}>
+        <AuthContext.Provider value={{ user: { name: 'Ana Teste', role: 'admin' }, loading: false, login: vi.fn(), signup: vi.fn(), logout: vi.fn() }}>
           <Sidebar />
         </AuthContext.Provider>
       </MemoryRouter>
@@ -26,7 +26,7 @@ describe('Sidebar', () => {
   it('o botão de fechar do drawer mobile tem aria-label', () => {
     render(
       <MemoryRouter>
-        <AuthContext.Provider value={{ user: { name: 'Ana Teste', role: 'admin' }, loading: false, login: vi.fn(), logout: vi.fn() }}>
+        <AuthContext.Provider value={{ user: { name: 'Ana Teste', role: 'admin' }, loading: false, login: vi.fn(), signup: vi.fn(), logout: vi.fn() }}>
           <Sidebar onClose={() => {}} />
         </AuthContext.Provider>
       </MemoryRouter>

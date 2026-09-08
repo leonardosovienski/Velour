@@ -4,7 +4,7 @@ import enum
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Numeric, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import relationship
 
-from database import Base
+from database import Base, TenantScoped
 from models.client import LoyaltyTier
 
 
@@ -25,7 +25,7 @@ class PaymentMethod(str, enum.Enum):
     other = "other"
 
 
-class Appointment(Base):
+class Appointment(TenantScoped, Base):
     __tablename__ = "appointments"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -53,7 +53,7 @@ class Appointment(Base):
     created_at = Column(DateTime, default=datetime.now)
 
     client = relationship("Client", back_populates="appointments", foreign_keys=[client_id])
-    professional = relationship("Professional", back_populates="appointments")
-    service = relationship("Service", back_populates="appointments")
-    loyalty_transactions = relationship("LoyaltyTransaction", back_populates="appointment")
-    stock_movements = relationship("StockMovement", back_populates="appointment")
+    professional = relationship("Professional", back_populates="appointments", foreign_keys=[professional_id])
+    service = relationship("Service", back_populates="appointments", foreign_keys=[service_id])
+    loyalty_transactions = relationship("LoyaltyTransaction", back_populates="appointment", foreign_keys="LoyaltyTransaction.appointment_id")
+    stock_movements = relationship("StockMovement", back_populates="appointment", foreign_keys="StockMovement.appointment_id")
