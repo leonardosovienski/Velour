@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
 from sqlalchemy.orm import Session
+from pydantic import NaiveDatetime
 
 from auth import get_current_user, ensure_professional_scope
 from database import get_db
@@ -114,7 +115,7 @@ def _check_conflict(db: Session, prof_id: int, start: datetime, end: datetime, i
 def _apply_loyalty_completion(db: Session, appt: Appointment):
     """Processa pontos, tier e indicações ao concluir um atendimento."""
     client = appt.client
-    base_price = Decimal(appt.price_charged or appt.service.price)
+    base_price = Decimal(appt.price_charged if appt.price_charged is not None else appt.service.price)
 
     # Tier vigente ANTES de incorporar o gasto deste atendimento (sem downgrade).
     tier_at_service = client.loyalty_tier
@@ -271,8 +272,8 @@ def _apply_stock_deduction(db: Session, appt: Appointment, overrides: Optional[l
 
 @router.get("", response_model=List[AppointmentDetail])
 def list_appointments(
-    date_from: Optional[datetime] = None,
-    date_to: Optional[datetime] = None,
+    date_from: Optional[NaiveDatetime] = None,
+    date_to: Optional[NaiveDatetime] = None,
     status: Optional[AppointmentStatus] = None,
     professional_id: Optional[int] = None,
     client_id: Optional[int] = None,

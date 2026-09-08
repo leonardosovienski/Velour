@@ -5,6 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 from models.professional import ProfGender
+from schemas.numbers import JsonDecimal
 
 
 class ProfessionalCreate(BaseModel):
@@ -41,8 +42,8 @@ class ProfessionalResponse(BaseModel):
     photo_url: Optional[str]
     specialty: str
     bio: Optional[str]
-    commission_rate: Decimal
-    monthly_goal: Decimal
+    commission_rate: JsonDecimal
+    monthly_goal: JsonDecimal
     is_active: bool
     created_at: datetime
 

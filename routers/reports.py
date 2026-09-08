@@ -50,7 +50,7 @@ def revenue_report(
         q = q.join(Service, Service.id == Appointment.service_id).filter(Service.category_id == category_id)
 
     appts = q.all()
-    receita_total = sum(a.price_charged or a.service.price for a in appts)
+    receita_total = sum(a.price_charged if a.price_charged is not None else a.service.price for a in appts)
 
     # Por profissional
     por_prof: dict = {}
@@ -58,7 +58,7 @@ def revenue_report(
         nome = a.professional.name
         por_prof.setdefault(nome, {"appointments": 0, "revenue": Decimal("0")})
         por_prof[nome]["appointments"] += 1
-        por_prof[nome]["revenue"] += a.price_charged or a.service.price
+        por_prof[nome]["revenue"] += a.price_charged if a.price_charged is not None else a.service.price
 
     # Por categoria
     por_cat: dict = {}
@@ -66,7 +66,7 @@ def revenue_report(
         nome = a.service.category.name
         por_cat.setdefault(nome, {"appointments": 0, "revenue": Decimal("0")})
         por_cat[nome]["appointments"] += 1
-        por_cat[nome]["revenue"] += a.price_charged or a.service.price
+        por_cat[nome]["revenue"] += a.price_charged if a.price_charged is not None else a.service.price
 
     # Por gênero do cliente
     por_genero: dict = {}
@@ -74,7 +74,7 @@ def revenue_report(
         g = a.client.gender.value
         por_genero.setdefault(g, {"appointments": 0, "revenue": Decimal("0")})
         por_genero[g]["appointments"] += 1
-        por_genero[g]["revenue"] += a.price_charged or a.service.price
+        por_genero[g]["revenue"] += a.price_charged if a.price_charged is not None else a.service.price
 
     return {
         "period_start": inicio.isoformat(),

@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from auth import get_current_user, require_manager
 from database import get_db
+from models.appointment import Appointment
 from models.client import Client, LoyaltyTier
 from models.loyalty import LoyaltyTransaction, TransactionType
 from schemas.loyalty import LoyaltyTransactionResponse, LoyaltyOverview, TierDistribution
@@ -26,6 +27,15 @@ def list_transactions(
     _=Depends(get_current_user),
 ):
     q = db.query(LoyaltyTransaction)
+    if _.role == "professional":
+        if _.professional_id is None:
+            return []
+        # Match the client/briefing boundary. A subquery avoids duplicating a
+        # transaction when this professional has several appointments for it.
+        accessible_clients = db.query(Appointment.client_id).filter(
+            Appointment.professional_id == _.professional_id
+        )
+        q = q.filter(LoyaltyTransaction.client_id.in_(accessible_clients))
     if client_id:
         q = q.filter(LoyaltyTransaction.client_id == client_id)
     if type:

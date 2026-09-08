@@ -12,8 +12,7 @@ from schemas.user import UserResponse
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 # Rate limiting de login por (IP, e-mail): protege contra força bruta.
-# Só conta tentativas com credenciais erradas — logins bem-sucedidos não
-# consomem a cota.
+# Todas as tentativas consomem a cota, inclusive logins bem-sucedidos.
 _login_limiter = RateLimiter(
     max_attempts=5,
     window_seconds=300,  # 5 minutos

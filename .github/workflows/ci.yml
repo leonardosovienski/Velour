@@ -130,7 +130,7 @@ jobs:
         run: |
           alembic upgrade head
           alembic check
-      - name: Exercise real PostgreSQL isolation
+      - name: Exercise real PostgreSQL isolation and business dashboards
         run: python -m pytest tests/test_postgres_tenancy.py -v
       - name: Restore backup into a separate database
         env:
