@@ -1,3 +1,4 @@
+import { LoadError } from '../components/LoadError'
 import { useEffect, useState } from 'react'
 import { Star, TrendingUp, TrendingDown, Users } from 'lucide-react'
 import { loyaltyApi, clientsApi } from '../api/client'
@@ -20,6 +21,7 @@ export function Loyalty() {
   const [txs, setTxs] = useState<LoyaltyTransactionResponse[]>([])
   const [clientMap, setClientMap] = useState<Record<number, string>>({})
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -34,10 +36,11 @@ export function Loyalty() {
         c.forEach(cl => { map[cl.id] = cl.name })
         setClientMap(map)
       })
-      .finally(() => setLoading(false))
+      .catch(() => setLoadFailed(true)).finally(() => setLoading(false))
   }, [])
 
   if (loading) return <Layout><PageSpinner /></Layout>
+  if (loadFailed) return <Layout><LoadError /></Layout>
 
   const totalTierClients = overview?.tier_distribution.reduce((s, t) => s + t.count, 0) ?? 0
 

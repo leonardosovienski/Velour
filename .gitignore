@@ -41,3 +41,7 @@ uvicorn.log
 
 # Visual Studio
 .vs/
+
+# Ferramentas e acesso exclusivos da instalacao local
+.tools/
+ACESSO-LOCAL.txt

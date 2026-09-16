@@ -11,6 +11,8 @@ from models.product import Product, ProductUnit
 from models.service_recipe import ServiceRecipe
 from models.stock_movement import StockMovement, StockMovementType
 from models.audit_log import AuditLog
+from models.fiscal import FiscalProfile, FiscalDocument, FiscalEvent, PlatformFiscalProfile
+from models.finance import Expense
 
 __all__ = [
     "User", "UserRole",

@@ -1,3 +1,4 @@
+import { LoadError } from '../components/LoadError'
 import { useEffect, useState } from 'react'
 import { BarChart2, Users, Star, Share2 } from 'lucide-react'
 import { reportsApi } from '../api/client'
@@ -12,6 +13,7 @@ export function Reports() {
   const [loyalty, setLoyalty] = useState<LoyaltyMonthlyItem[]>([])
   const [referrals, setReferrals] = useState<ReferralMonthlyItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -25,7 +27,7 @@ export function Reports() {
       setClients(c)
       setLoyalty(l)
       setReferrals(rf)
-    }).finally(() => setLoading(false))
+    }).catch(() => setLoadFailed(true)).finally(() => setLoading(false))
   }, [])
 
   const tabs = [
@@ -52,7 +54,7 @@ export function Reports() {
         ))}
       </div>
 
-      {loading ? <PageSpinner /> : (
+      {loadFailed ? <LoadError /> : loading ? <PageSpinner /> : (
         <>
           {tab === 'revenue' && revenue && <RevenueTab data={revenue} />}
           {tab === 'clients' && clients && <ClientsTab data={clients} />}
@@ -78,7 +80,7 @@ function RevenueTab({ data }: { data: RevenueReport }) {
         </Card>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
           <div className="text-muted text-xs uppercase tracking-widest mb-4">Por Profissional</div>
           <div className="divide-y divide-border">
@@ -137,7 +139,7 @@ function ClientsTab({ data }: { data: ClientReport }) {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card><Stat label="Clientes Ativos" value={String(data.total_active)} /></Card>
         <Card className="bg-success/5 border-success/20"><Stat label="Novos no Período" value={String(data.new_clients)} color="text-green-400" /></Card>
         <Card className="bg-danger/5 border-danger/20"><Stat label="Risco de Churn (60d)" value={String(data.churn_risk_count)} color="text-red-400" /></Card>

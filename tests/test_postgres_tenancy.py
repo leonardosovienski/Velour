@@ -19,7 +19,7 @@ def postgres_accounts():
     url = os.environ["TEST_POSTGRES_URL"].replace("postgresql://", "postgresql+psycopg://", 1)
     engine = create_engine(url)
     with engine.connect() as connection:
-        assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "d9e64a3b2f10"
+        assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "f2a3b4c5d6e7"
         connection.rollback()
         transaction = connection.begin()
         factory = sessionmaker(bind=connection, class_=ScopedSession, autoflush=False, join_transaction_mode="create_savepoint")

@@ -28,6 +28,8 @@ from routers.audit_logs import router as audit_logs_router
 from routers.tenants import router as tenants_router
 from routers.billing import router as billing_router, require_active_subscription
 from routers.account_recovery import router as account_recovery_router
+from routers.fiscal import router as fiscal_router, platform_router as fiscal_platform_router
+from routers.finance import router as finance_router
 from birthday_scheduler import start_scheduler as start_birthday_scheduler
 from reminder_scheduler import start_scheduler as start_reminder_scheduler
 from config import settings
@@ -88,10 +90,12 @@ app.include_router(auth_router)
 app.include_router(tenants_router)
 app.include_router(billing_router)
 app.include_router(account_recovery_router)
+app.include_router(fiscal_router)
+app.include_router(fiscal_platform_router)
 for business_router in (
     users_router, clients_router, professionals_router, services_router,
     products_router, appointments_router, loyalty_router, referrals_router,
-    dashboard_router, reports_router, audit_logs_router,
+    dashboard_router, reports_router, audit_logs_router, finance_router,
 ):
     app.include_router(business_router, dependencies=[Depends(require_active_subscription)])
 

@@ -1,3 +1,4 @@
+import { LoadError } from '../components/LoadError'
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
@@ -20,6 +21,7 @@ export function Dashboard() {
   const [weekly, setWeekly] = useState<WeeklyRevenueItem[]>([])
   const [alerts, setAlerts] = useState<DashboardAlerts | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [briefingClientId, setBriefingClientId] = useState<number | null>(null)
 
   useEffect(() => {
@@ -33,10 +35,11 @@ export function Dashboard() {
       setKpis(k)
       setWeekly(w)
       setAlerts(a)
-    }).finally(() => setLoading(false))
+    }).catch(() => setLoadFailed(true)).finally(() => setLoading(false))
   }, [])
 
   if (loading) return <Layout><PageSpinner /></Layout>
+  if (loadFailed) return <Layout><LoadError /></Layout>
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite'

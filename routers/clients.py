@@ -93,7 +93,7 @@ def list_clients(
             .subquery()
         )
         q = q.filter(~Client.id.in_(active_ids))
-    return q.offset(offset).limit(limit).all()
+    return q.order_by(Client.id).offset(offset).limit(limit).all()
 
 
 @router.get("/{client_id}", response_model=ClientResponse)

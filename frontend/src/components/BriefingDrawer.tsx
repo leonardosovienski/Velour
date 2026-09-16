@@ -28,10 +28,14 @@ export function BriefingDrawer({ clientId, onClose }: Props) {
 
   useEffect(() => {
     if (!clientId) { setBriefing(null); return }
+    let active = true
+    setBriefing(null)
     setLoading(true)
     clientsApi.briefing(clientId)
-      .then(setBriefing)
-      .finally(() => setLoading(false))
+      .then(data => { if (active) setBriefing(data) })
+      .catch(() => { if (active) setBriefing(null) })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
   }, [clientId])
 
   useEffect(() => {
@@ -46,10 +50,10 @@ export function BriefingDrawer({ clientId, onClose }: Props) {
   return (
     <>
       {open && <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={onClose} />}
-      <div className={`fixed top-0 right-0 h-full z-50 w-96 bg-surface border-l border-border shadow-2xl flex flex-col transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed top-0 right-0 h-full z-50 w-96 max-w-full bg-surface border-l border-border shadow-2xl flex flex-col transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex items-center justify-between p-5 border-b border-border flex-shrink-0">
           <span className="font-display text-lg font-semibold text-gold">Briefing do Cliente</span>
-          <button onClick={onClose} className="text-muted hover:text-cream transition-colors">
+          <button onClick={onClose} aria-label="Fechar briefing" className="text-muted hover:text-cream transition-colors">
             <X size={18} />
           </button>
         </div>

@@ -1,3 +1,4 @@
+import { LoadError } from '../components/LoadError'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { format } from 'date-fns'
 import {
@@ -26,6 +27,7 @@ function isExpiringSoon(date?: string): boolean {
 export function Inventory() {
   const [products, setProducts] = useState<ProductResponse[]>([])
   const [loading, setLoading] = useState(true)
+  const [pageError, setPageError] = useState('')
   const [lowOnly, setLowOnly] = useState(false)
   const [editing, setEditing] = useState<ProductResponse | null>(null)
   const [creating, setCreating] = useState(false)
@@ -34,21 +36,28 @@ export function Inventory() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    setProducts(await productsApi.list({ low_stock: lowOnly || undefined }))
-    setLoading(false)
+    setPageError('')
+    try {
+      setProducts(await productsApi.list({ low_stock: lowOnly || undefined }))
+    } catch (err) { setPageError(getErrorDetail(err) || 'Não foi possível carregar os dados.') }
+    finally { setLoading(false) }
   }, [lowOnly])
 
   useEffect(() => { load() }, [load])
 
   async function toggleActive(p: ProductResponse) {
-    await productsApi.update(p.id, { is_active: !p.is_active })
-    load()
+    setPageError('')
+    try {
+      await productsApi.update(p.id, { is_active: !p.is_active })
+      load()
+    } catch (err) { setPageError(getErrorDetail(err) || 'Não foi possível salvar a alteração.') }
   }
 
   const lowCount = products.filter(p => p.stock_qty <= p.min_stock).length
 
   return (
     <Layout>
+      {pageError && <LoadError message={pageError} onRetry={() => void load()} />}
       <PageHeader
         title="Estoque"
         subtitle={`${products.length} insumos${lowCount ? ` · ${lowCount} abaixo do mínimo` : ''}`}
@@ -324,16 +333,18 @@ function StockModal({ product, onClose, onSuccess }: {
 function MovementsModal({ product, onClose }: { product: ProductResponse | null; onClose: () => void }) {
   const [movements, setMovements] = useState<StockMovementResponse[]>([])
   const [loading, setLoading] = useState(false)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   useEffect(() => {
     if (!product) return
+    setLoadFailed(false)
     setLoading(true)
-    productsApi.movements(product.id).then(setMovements).finally(() => setLoading(false))
+    productsApi.movements(product.id).then(setMovements).catch(() => setLoadFailed(true)).finally(() => setLoading(false))
   }, [product])
 
   return (
     <Modal title={`Histórico — ${product?.name ?? ''}`} open={!!product} onClose={onClose}>
-      {loading ? <div className="py-8 flex justify-center"><Spinner size={24} /></div> : !movements.length ? (
+      {loadFailed ? <LoadError /> : loading ? <div className="py-8 flex justify-center"><Spinner size={24} /></div> : !movements.length ? (
         <div className="text-center py-8 text-muted text-sm">Nenhuma movimentação registrada.</div>
       ) : (
         <div className="space-y-2 max-h-96 overflow-y-auto">

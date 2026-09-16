@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -20,8 +20,15 @@ router = APIRouter(prefix="/reports", tags=["reports"])
 
 def _parse_period(period_start: Optional[str], period_end: Optional[str]):
     hoje = datetime.now()
-    inicio = datetime.fromisoformat(period_start) if period_start else datetime(hoje.year, hoje.month, 1)
-    fim = datetime.fromisoformat(period_end) if period_end else datetime(hoje.year, hoje.month + 1, 1) if hoje.month < 12 else datetime(hoje.year + 1, 1, 1)
+    try:
+        inicio = datetime.fromisoformat(period_start) if period_start else datetime(hoje.year, hoje.month, 1)
+        fim = datetime.fromisoformat(period_end) if period_end else datetime(hoje.year, hoje.month + 1, 1) if hoje.month < 12 else datetime(hoje.year + 1, 1, 1)
+    except ValueError:
+        raise HTTPException(422, 'Informe um período válido no formato AAAA-MM-DD')
+    if inicio.tzinfo is not None or fim.tzinfo is not None:
+        raise HTTPException(422, 'Use datas locais sem Z ou deslocamento de fuso')
+    if inicio >= fim:
+        raise HTTPException(422, 'O fim do período deve ser posterior ao início')
     return inicio, fim
 
 

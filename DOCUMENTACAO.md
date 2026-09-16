@@ -95,6 +95,9 @@ Ao aderir durante o teste, o Checkout preserva o prazo restante. Perto do vencim
 | Relatórios `/reports` | Receita, clientes, fidelidade e indicações por período. Acesso administrativo. |
 | Usuários `/users` | Cadastro, papel, vínculo profissional e ativação de usuários. |
 | Conta e assinatura `/billing` | Situação do teste/assinatura, Checkout, Portal e exportação conforme o papel. |
+| Financeiro `/finance/overview` | Resumo mensal, recebimentos, despesas, documentos e assinatura. Ver [Financeiro](FINANCEIRO_MVP.md). |
+| Documentos fiscais `/finance/documents` | Cadastro, rascunhos, emissão simulada, cancelamento, histórico e demonstrativos para impressão. Administrador; sem validade fiscal. `/fiscal` redireciona para esta área. |
+| Administração Velour `/platform/fiscal` | Emissão demonstrativa para assinantes, apenas operador configurado fora de produção. |
 
 O briefing é um painel de preparação do atendimento com preferências, alergias, observações e último atendimento concluído. Esses registros exigem acesso autorizado e merecem o mesmo cuidado dado às fotos e aos dados cadastrais.
 

@@ -1,3 +1,4 @@
+import { LoadError } from '../components/LoadError'
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import { format } from 'date-fns'
@@ -22,6 +23,7 @@ export function ClientProfile() {
   const [appointments, setAppointments] = useState<AppointmentDetail[]>([])
   const [txs, setTxs] = useState<LoyaltyTransactionResponse[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -34,10 +36,11 @@ export function ClientProfile() {
       setClient(c)
       setAppointments(a)
       setTxs(t)
-    }).finally(() => setLoading(false))
+    }).catch(() => setLoadFailed(true)).finally(() => setLoading(false))
   }, [id])
 
   if (loading) return <Layout><PageSpinner /></Layout>
+  if (loadFailed) return <Layout><LoadError /></Layout>
   if (!client) return <Layout><div className="text-muted">Cliente não encontrado.</div></Layout>
 
   const tierLimit = tierMax[client.loyalty_tier] ?? Infinity

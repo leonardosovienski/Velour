@@ -467,3 +467,15 @@ def test_production_app_binds_gate_to_every_business_router(saas, monkeypatch):
         assert actual.get("/tenants/export", headers=headers).status_code == 200
     finally:
         actual.close()
+
+
+def test_checkout_and_webhook_accept_real_sdk_resource_types(saas):
+    client, factory, gateway, config = saas
+    data, headers = credentials(client)
+    for method in (gateway.v1.subscriptions.list, gateway.v1.checkout.sessions.list,
+                   gateway.v1.prices.retrieve, gateway.v1.checkout.sessions.create):
+        method.return_value = stripe.StripeObject.construct_from(method.return_value, None)
+    assert client.post("/billing/checkout-session", headers=headers).status_code == 200
+    gateway.v1.subscriptions.retrieve.return_value = stripe.StripeObject.construct_from(subscription(data["tenant_id"]), None)
+    assert webhook(client, config, event()).status_code == 200
+    assert client.get("/billing/status", headers=headers).json()["subscription_status"] == "active"

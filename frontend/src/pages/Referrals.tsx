@@ -1,3 +1,4 @@
+import { LoadError } from '../components/LoadError'
 import { useEffect, useState } from 'react'
 import { Share2, Trophy } from 'lucide-react'
 import { referralsApi, clientsApi } from '../api/client'
@@ -12,6 +13,7 @@ export function Referrals() {
   const [ranking, setRanking] = useState<ReferralRankingItem[]>([])
   const [clients, setClients] = useState<Record<number, ClientResponse>>({})
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -24,10 +26,11 @@ export function Referrals() {
       const map: Record<number, ClientResponse> = {}
       cl.forEach(c => { map[c.id] = c })
       setClients(map)
-    }).finally(() => setLoading(false))
+    }).catch(() => setLoadFailed(true)).finally(() => setLoading(false))
   }, [])
 
   if (loading) return <Layout><PageSpinner /></Layout>
+  if (loadFailed) return <Layout><LoadError /></Layout>
 
   const converted = referrals.filter(r => r.status === 'converted').length
   const pending = referrals.filter(r => r.status === 'pending').length

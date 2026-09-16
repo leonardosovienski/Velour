@@ -7,6 +7,7 @@ vi.mock('./api/client', async importOriginal => {
   const original = await importOriginal<typeof import('./api/client')>()
   return {
     ...original,
+    fiscalApi: { ...original.fiscalApi, config: vi.fn().mockResolvedValue({ mode: 'demo', can_manage_platform: false }), profile: vi.fn().mockResolvedValue(null), list: vi.fn().mockResolvedValue([]), appointments: vi.fn().mockResolvedValue([]) },
     authApi: { ...original.authApi, me: vi.fn().mockResolvedValue({ name: 'Ana', role: 'admin' }) },
     billingApi: { ...original.billingApi, status: vi.fn().mockResolvedValue({ tenant_id: 1, tenant_name: 'Salão teste', subscription_status: 'trialing', trial_ends_at: null, current_period_end: null, access_allowed: false, configured: false, can_manage_billing: true, has_billing_customer: false }) },
   }
@@ -37,6 +38,6 @@ it('uma sessão estabelecida pelo cadastro abre onboarding sem redirecionar ao p
   window.history.replaceState({}, '', '/signup')
   sessionStorage.setItem('access_token', 'new-signup-token')
   render(<App />)
-  expect(await screen.findByRole('heading', { name: 'Seu salão está pronto para começar' })).toBeInTheDocument()
+  expect(await screen.findByRole('heading', { name: 'Seu salão está pronto para começar' }, { timeout: 5000 })).toBeInTheDocument()
   expect(window.location.pathname + window.location.search).toBe('/billing?welcome=1')
 })

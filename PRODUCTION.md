@@ -4,6 +4,8 @@ Esta versão implementa isolamento por salão, cadastro de administrador com 14 
 
 ## Arquitetura suportada
 
+O módulo fiscal é um MVP demonstrativo, sem emissão ou transmissão real. Consulte [FISCAL_MVP.md](FISCAL_MVP.md). Mantenha `FISCAL_MODE=disabled` e `FISCAL_DEMO_PLATFORM_USER_ID=0` na implantação comercial; o operador global demonstrativo é rejeitado em produção. A leitura fiscal autenticada também permanece disponível após vencimento da assinatura, e a exportação inclui esses registros.
+
 - Uma instância da API, **um worker**, PostgreSQL 17 e volume persistente de fotos.
 - O PostgreSQL mantém um lock exclusivo durante a vida da API. Uma segunda instância é recusada para preservar os locks, limites de requisição e jobs locais.
 - Caddy termina HTTPS; Nginx serve a SPA e encaminha `/api` à API. Somente 80/443 são públicas. 8080 fica em loopback; banco/API não publicam portas.

@@ -1,3 +1,4 @@
+import { LoadError } from '../components/LoadError'
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { format } from 'date-fns'
 import { Plus, Search, CheckCircle, XCircle, BookOpen, ChevronDown } from 'lucide-react'
@@ -27,8 +28,10 @@ const statusOptions = [
 export function Appointments() {
   const [appointments, setAppointments] = useState<AppointmentDetail[]>([])
   const [loading, setLoading] = useState(true)
+  const [pageError, setPageError] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [dateFrom, setDateFrom] = useState('')
+  const [offset, setOffset] = useState(0)
   const [search, setSearch] = useState('')
   const [creating, setCreating] = useState(false)
   const [completing, setCompleting] = useState<AppointmentDetail | null>(null)
@@ -37,14 +40,17 @@ export function Appointments() {
 
   const load = useCallback(async () => {
     setLoading(true)
-    const data = await appointmentsApi.list({
-      status: statusFilter || undefined,
-      date_from: dateFrom || undefined,
-      limit: 100,
-    })
-    setAppointments(data)
-    setLoading(false)
-  }, [statusFilter, dateFrom])
+    setPageError('')
+    try {
+      const data = await appointmentsApi.list({
+        status: statusFilter || undefined,
+        date_from: dateFrom || undefined,
+        limit: 100, offset,
+      })
+      setAppointments(data)
+    } catch (err) { setPageError(getErrorDetail(err) || 'Não foi possível carregar os dados.') }
+    finally { setLoading(false) }
+  }, [statusFilter, dateFrom, offset])
 
   useEffect(() => { load() }, [load])
 
@@ -59,21 +65,28 @@ export function Appointments() {
   }, [appointments, search])
 
   async function handleCancel(id: number) {
-    await appointmentsApi.cancel(id)
-    setCancelId(null)
-    load()
+    setPageError('')
+    try {
+      await appointmentsApi.cancel(id)
+      setCancelId(null)
+      load()
+    } catch (err) { setPageError(getErrorDetail(err) || 'Não foi possível salvar a alteração.') }
   }
 
   async function handleStatusChange(id: number, status: string) {
-    await appointmentsApi.updateStatus(id, status)
-    load()
+    setPageError('')
+    try {
+      await appointmentsApi.updateStatus(id, status)
+      await load()
+    } catch (err) { setPageError(getErrorDetail(err) || 'Não foi possível alterar a situação do atendimento.') }
   }
 
   return (
     <Layout>
+      {pageError && <LoadError message={pageError} onRetry={() => void load()} />}
       <PageHeader
         title="Agendamentos"
-        subtitle={`${appointments.length} agendamentos`}
+        subtitle={`${appointments.length} agendamentos nesta página`}
         action={
           <button
             onClick={() => setCreating(true)}
@@ -88,14 +101,14 @@ export function Appointments() {
       <div className="flex gap-3 mb-6 flex-wrap">
         <div className="relative flex-1 min-w-48 max-w-xs">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar cliente, profissional…" className="pl-9" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar nesta página…" aria-label="Buscar atendimentos nesta página" className="pl-9" />
         </div>
-        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="w-44">
+        <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setOffset(0) }} className="w-44">
           {statusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
-        <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="w-40" />
+        <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setOffset(0) }} className="w-40" />
         {dateFrom && (
-          <button onClick={() => setDateFrom('')} className="text-muted hover:text-cream text-sm px-2">✕ Limpar data</button>
+          <button onClick={() => { setDateFrom(''); setOffset(0) }} className="text-muted hover:text-cream text-sm px-2">✕ Limpar data</button>
         )}
       </div>
 
@@ -115,6 +128,12 @@ export function Appointments() {
           ))}
         </div>
       )}
+
+      <nav aria-label="Paginação" className="flex items-center gap-4 my-5">
+        <button className="secondary-button" disabled={loading || offset === 0} onClick={() => setOffset(v => Math.max(0, v - 100))}>Anterior</button>
+        <span className="text-muted text-sm">Página {offset / 100 + 1}</span>
+        <button className="secondary-button" disabled={loading || appointments.length < 100} onClick={() => setOffset(v => v + 100)}>Próxima</button>
+      </nav>
 
       <CreateModal
         key={creating ? 'create-creating' : 'create-none'}
@@ -199,13 +218,13 @@ function AppointmentRow({ appt, onComplete, onCancel, onBriefing, onStatusChange
             <BookOpen size={14} />
           </button>
 
-          <div className="relative">
-            <button onClick={() => setShowStatus(s => !s)} title="Mudar status" className="text-muted hover:text-cream p-1.5 rounded hover:bg-white/5 transition-colors">
+          {canComplete && <div className="relative">
+            <button onClick={() => setShowStatus(s => !s)} title="Mudar status" aria-label="Mudar situação do atendimento" className="text-muted hover:text-cream p-1.5 rounded hover:bg-white/5 transition-colors">
               <ChevronDown size={14} />
             </button>
             {showStatus && (
               <div className="absolute right-0 top-8 z-20 bg-surface border border-border rounded-lg shadow-xl py-1 w-44">
-                {statusOptions.filter(o => o.value).map(o => (
+                {statusOptions.filter(o => ['scheduled', 'confirmed', 'in_progress', 'no_show'].includes(o.value) && o.value !== appt.status).map(o => (
                   <button
                     key={o.value}
                     onClick={() => { onStatusChange(o.value); setShowStatus(false) }}
@@ -216,7 +235,7 @@ function AppointmentRow({ appt, onComplete, onCancel, onBriefing, onStatusChange
                 ))}
               </div>
             )}
-          </div>
+          </div>}
 
           {canComplete && (
             <button onClick={onComplete} title="Concluir" aria-label="Concluir atendimento" className="text-green-500 hover:text-green-400 p-1.5 rounded hover:bg-success/10 transition-colors">
@@ -250,7 +269,7 @@ export function CreateModal({ open, onClose, onSuccess }: { open: boolean; onClo
       clientsApi.list({ limit: 200 }),
       professionalsApi.list(),
       servicesApi.list(),
-    ]).then(([c, p, s]) => { setClients(c); setProfessionals(p); setServices(s) })
+    ]).then(([c, p, s]) => { setClients(c); setProfessionals(p); setServices(s) }).catch(err => setError(getErrorDetail(err) || 'Não foi possível carregar clientes, profissionais e serviços.'))
   }, [open])
 
   function set(field: keyof AppointmentCreate, value: string | number) {
