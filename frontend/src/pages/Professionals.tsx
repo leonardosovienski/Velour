@@ -1,3 +1,4 @@
+import { LoadError } from '../components/LoadError'
 import { useEffect, useState, type FormEvent } from 'react'
 import { TrendingUp, Scissors, Plus, Pencil, ToggleLeft, ToggleRight, Gauge, Target, UserX } from 'lucide-react'
 import { professionalsApi, getErrorDetail } from '../api/client'
@@ -11,30 +12,38 @@ export function Professionals() {
   const [professionals, setProfessionals] = useState<ProfessionalResponse[]>([])
   const [stats, setStats] = useState<Record<number, ProfessionalStats>>({})
   const [loading, setLoading] = useState(true)
+  const [pageError, setPageError] = useState('')
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<ProfessionalResponse | null>(null)
   const [panelFor, setPanelFor] = useState<ProfessionalResponse | null>(null)
 
   async function load() {
     setLoading(true)
-    const profs = await professionalsApi.list()
-    setProfessionals(profs)
-    const statsArr = await Promise.all(profs.map(p => professionalsApi.stats(p.id)))
-    const statsMap: Record<number, ProfessionalStats> = {}
-    statsArr.forEach(s => { statsMap[s.professional_id] = s })
-    setStats(statsMap)
-    setLoading(false)
+    setPageError('')
+    try {
+      const profs = await professionalsApi.list()
+      setProfessionals(profs)
+      const statsArr = await Promise.all(profs.map(p => professionalsApi.stats(p.id)))
+      const statsMap: Record<number, ProfessionalStats> = {}
+      statsArr.forEach(s => { statsMap[s.professional_id] = s })
+      setStats(statsMap)
+    } catch (err) { setPageError(getErrorDetail(err) || 'Não foi possível carregar os dados.') }
+    finally { setLoading(false) }
   }
 
   useEffect(() => { load() }, [])
 
   async function handleToggleActive(prof: ProfessionalResponse) {
-    await professionalsApi.update(prof.id, { is_active: !prof.is_active })
-    load()
+    setPageError('')
+    try {
+      await professionalsApi.update(prof.id, { is_active: !prof.is_active })
+      load()
+    } catch (err) { setPageError(getErrorDetail(err) || 'Não foi possível salvar a alteração.') }
   }
 
   return (
     <Layout>
+      {pageError && <LoadError message={pageError} onRetry={() => void load()} />}
       <PageHeader
         title="Profissionais"
         subtitle={`${professionals.length} profissionais ativos`}
@@ -144,11 +153,13 @@ export function Professionals() {
 function DashboardModal({ professional, onClose }: { professional: ProfessionalResponse | null; onClose: () => void }) {
   const [data, setData] = useState<ProfessionalDashboard | null>(null)
   const [loading, setLoading] = useState(false)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   useEffect(() => {
     if (!professional) { setData(null); return }
+    setLoadFailed(false)
     setLoading(true)
-    professionalsApi.dashboard(professional.id).then(setData).finally(() => setLoading(false))
+    professionalsApi.dashboard(professional.id).then(setData).catch(() => setLoadFailed(true)).finally(() => setLoading(false))
   }, [professional])
 
   const goal = data?.monthly_goal
@@ -156,7 +167,7 @@ function DashboardModal({ professional, onClose }: { professional: ProfessionalR
 
   return (
     <Modal title={`Painel — ${professional?.name ?? ''}`} open={!!professional} onClose={onClose} width="max-w-lg">
-      {loading || !data ? (
+      {loadFailed ? <LoadError /> : loading || !data ? (
         <div className="py-10 flex justify-center"><Spinner size={28} /></div>
       ) : (
         <div className="space-y-5">

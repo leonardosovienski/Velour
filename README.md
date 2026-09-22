@@ -2,6 +2,10 @@
 
 Agenda, clientes, profissionais, serviços, estoque, fidelidade, indicações e relatórios. React + TypeScript no frontend, FastAPI no backend, PostgreSQL 17 em produção e SQLite no desenvolvimento.
 
+O [Financeiro](FINANCEIRO_MVP.md) reúne visão geral, recebimentos, despesas, documentos fiscais e assinatura Velour. Recebimentos e despesas são registros operacionais persistidos por salão; não executam cobranças ou transferências.
+
+O [MVP fiscal demonstrativo](FISCAL_MVP.md) oferece cadastros, rascunhos, emissão simulada, cancelamento, histórico e comprovantes de serviços e assinaturas. Os documentos são **sem validade fiscal**, sem conexão com Receita/prefeitura. `demo_fiscal.py` prepara dados fictícios somente em banco vazio migrado.
+
 O SaaS inclui isolamento por salão, cadastro com 14 dias de teste, assinatura mensal via Stripe Checkout/Portal, webhooks assinados, recuperação de senha por e-mail e exportação dos dados do salão. Para abrir vendas, configure e homologue domínio/HTTPS, Stripe, SMTP, documentos da empresa, backups externos e monitoramento conforme o [guia de produção](PRODUCTION.md).
 
 ## Executar localmente
@@ -104,3 +108,7 @@ O lock exclusivo no PostgreSQL recusa uma segunda API. Esta versão não oferece
 - [Minuta da Política de Privacidade](POLITICA_DE_PRIVACIDADE.md)
 
 Os nomes dos dois arquivos terminados em `_PLAN.md` foram preservados para manter links existentes; seu conteúdo descreve a implementação atual e seus limites.
+
+## Revisão de qualidade
+
+Consulte [QUALIDADE_MVP.md](QUALIDADE_MVP.md) para os testes executados, simplificações e limites da revisão local de 16/09/2026.

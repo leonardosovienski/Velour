@@ -45,7 +45,13 @@ def _timestamp(value):
 
 
 def _object_id(value):
+    value = _plain(value)
     return value.get("id") if isinstance(value, dict) else value
+
+
+def _plain(value):
+    """Normalize SDK 15 resources once at the boundary, including nested objects."""
+    return value.to_dict() if isinstance(value, stripe.StripeObject) else value
 
 
 def billing_configured() -> bool:
@@ -97,6 +103,7 @@ def billing_status(user: User = Depends(get_current_user), db: Session = Depends
 
 
 def _store_checkout(tenant, session):
+    session = _plain(session)
     tenant.checkout_session_id = session["id"]
     tenant.checkout_session_expires_at = _timestamp(session.get("expires_at"))
     if not session.get("url"):
@@ -120,10 +127,10 @@ def checkout_session(request: Request, user: User = Depends(require_owner), db: 
             # Stripe may have processed payment before its webhook reaches us.
             # Inspect all states so a past-due or incomplete subscription cannot
             # accidentally create a second recurring charge.
-            subscriptions = client.v1.subscriptions.list({"customer": tenant.stripe_customer_id, "status": "all", "limit": 100})
+            subscriptions = _plain(client.v1.subscriptions.list({"customer": tenant.stripe_customer_id, "status": "all", "limit": 100}))
             if subscriptions.get("has_more") or any(s.get("status") not in _TERMINAL for s in subscriptions.get("data", [])):
                 raise HTTPException(status_code=409, detail="Já existe uma assinatura. Use Gerenciar assinatura para atualizar o pagamento.")
-            sessions = client.v1.checkout.sessions.list({"customer": tenant.stripe_customer_id, "status": "open", "limit": 100})
+            sessions = _plain(client.v1.checkout.sessions.list({"customer": tenant.stripe_customer_id, "status": "open", "limit": 100}))
             for session in sessions.get("data", []):
                 if session.get("mode") == "subscription" and session.get("metadata", {}).get("tenant_id") == str(tenant.id):
                     result = _store_checkout(tenant, session)
@@ -131,7 +138,7 @@ def checkout_session(request: Request, user: User = Depends(require_owner), db: 
                     return result
             if sessions.get("has_more"):
                 raise HTTPException(status_code=409, detail="Há sessões pendentes. Contate o suporte antes de iniciar outra cobrança.")
-            price = client.v1.prices.retrieve(settings.stripe_price_id)
+            price = _plain(client.v1.prices.retrieve(settings.stripe_price_id))
             recurring = price.get("recurring") or {}
             if (not price.get("active") or price.get("type") != "recurring"
                     or recurring.get("interval") != "month" or recurring.get("interval_count") != 1
@@ -187,6 +194,7 @@ def _subscription_id(event_type, obj):
 
 
 def _apply_subscription(tenant, subscription, event_created):
+    subscription = _plain(subscription)
     if _object_id(subscription.get("customer")) != tenant.stripe_customer_id:
         raise HTTPException(status_code=400, detail="Assinatura não pertence à conta informada")
     if subscription.get("metadata", {}).get("tenant_id") != str(tenant.id):
@@ -216,6 +224,7 @@ def _apply_subscription(tenant, subscription, event_created):
 
 
 def process_stripe_event(event, db: Session):
+    event = _plain(event)
     if bool(event.get("livemode")) != settings.stripe_livemode:
         raise HTTPException(status_code=400, detail="Ambiente do webhook inválido")
     event_type = event.get("type")
@@ -240,7 +249,7 @@ def process_stripe_event(event, db: Session):
                 # An old canceled subscription must not overwrite a newer one.
                 if tenant.stripe_subscription_id and tenant.stripe_subscription_id != sub_id:
                     current = client.v1.subscriptions.retrieve(tenant.stripe_subscription_id, {"expand": ["latest_invoice"]})
-                    if current.get("status") not in _TERMINAL:
+                    if _plain(current).get("status") not in _TERMINAL:
                         db.commit()
                         return {"received": True, "ignored": True}
                 current = client.v1.subscriptions.retrieve(sub_id, {"expand": ["latest_invoice"]})

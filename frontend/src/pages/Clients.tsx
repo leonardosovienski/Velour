@@ -1,3 +1,4 @@
+import { LoadError } from '../components/LoadError'
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { Search, Plus, ChevronRight, Phone, Mail } from 'lucide-react'
@@ -19,16 +20,21 @@ const tiers: { value: string; label: string }[] = [
 export function Clients() {
   const [clients, setClients] = useState<ClientResponse[]>([])
   const [loading, setLoading] = useState(true)
+  const [pageError, setPageError] = useState('')
   const [search, setSearch] = useState('')
   const [tier, setTier] = useState('')
+  const [offset, setOffset] = useState(0)
   const [creating, setCreating] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
-    const data = await clientsApi.list({ tier: tier || undefined, limit: 100 })
-    setClients(data)
-    setLoading(false)
-  }, [tier])
+    setPageError('')
+    try {
+      const data = await clientsApi.list({ tier: tier || undefined, limit: 100, offset })
+      setClients(data)
+    } catch (err) { setPageError(getErrorDetail(err) || 'Não foi possível carregar os dados.') }
+    finally { setLoading(false) }
+  }, [tier, offset])
 
   useEffect(() => { load() }, [load])
 
@@ -40,9 +46,10 @@ export function Clients() {
 
   return (
     <Layout>
+      {pageError && <LoadError message={pageError} onRetry={() => void load()} />}
       <PageHeader
         title="Clientes"
-        subtitle={`${clients.length} clientes ativos`}
+        subtitle={`${clients.length} clientes nesta página`}
         action={
           <button
             onClick={() => setCreating(true)}
@@ -54,17 +61,17 @@ export function Clients() {
       />
 
       {/* Filters */}
-      <div className="flex gap-3 mb-6">
+      <div className="flex flex-wrap gap-3 mb-6">
         <div className="relative flex-1 max-w-xs">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Buscar por nome, código ou telefone…"
+            placeholder="Buscar nesta página…" aria-label="Buscar clientes nesta página"
             className="pl-9"
           />
         </div>
-        <select value={tier} onChange={e => setTier(e.target.value)} className="w-44">
+        <select value={tier} onChange={e => { setTier(e.target.value); setOffset(0) }} className="w-44">
           {tiers.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
       </div>
@@ -122,12 +129,18 @@ export function Clients() {
           ))}
 
           {!filtered.length && (
-            <div className="col-span-3 text-center py-16 text-muted">
+            <div className="col-span-full text-center py-16 text-muted">
               Nenhum cliente encontrado.
             </div>
           )}
         </div>
       )}
+
+      <nav aria-label="Paginação" className="flex items-center gap-4 my-5">
+        <button className="secondary-button" disabled={loading || offset === 0} onClick={() => setOffset(v => Math.max(0, v - 100))}>Anterior</button>
+        <span className="text-muted text-sm">Página {offset / 100 + 1}</span>
+        <button className="secondary-button" disabled={loading || clients.length < 100} onClick={() => setOffset(v => v + 100)}>Próxima</button>
+      </nav>
 
       <CreateClientModal
         open={creating}

@@ -10,7 +10,9 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    maxWorkers: 4,
+    // Keep local verification reliable on machines with limited memory.
+    // CI can override this with --maxWorkers when more resources are available.
+    maxWorkers: 1,
     testTimeout: 15000,
     globals: true,
     setupFiles: ['./src/test/setup.ts'],

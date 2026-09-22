@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { Download, ExternalLink, RefreshCw, CheckCircle2, Clock3 } from 'lucide-react'
 import { billingApi, tenantsApi, getErrorDetail } from '../api/client'
@@ -16,7 +16,8 @@ function dateLabel(value: string | null) {
   return Number.isNaN(date.getTime()) ? 'Não informado' : date.toLocaleDateString('pt-BR')
 }
 
-export function Billing() {
+export function Billing({ embedded = false }: { embedded?: boolean }) {
+  const Wrapper = embedded ? Fragment : Layout
   const { user } = useAuth()
   const [params] = useSearchParams()
   const [status, setStatus] = useState<BillingStatus | null>(null)
@@ -70,7 +71,7 @@ export function Billing() {
   }
 
   return (
-    <Layout>
+    <Wrapper>
       <PageHeader title="Conta e assinatura" subtitle="Acompanhe seu plano e mantenha seu salão em dia." action={<button className="secondary-button" disabled={loading || !!busy} onClick={refresh}><RefreshCw size={15} /> Atualizar status</button>} />
       <div className="space-y-5">
         {params.get('welcome') === '1' && <Card className="border-gold/30"><h2 className="text-cream font-medium mb-2">Seu salão está pronto para começar</h2><p className="text-muted text-sm">Cadastre os profissionais, adicione os serviços e marque seu primeiro atendimento.</p><div className="flex gap-3 flex-wrap mt-4"><Link className="secondary-button" to="/professionals">1. Profissionais</Link><Link className="secondary-button" to="/services">2. Serviços</Link><Link className="secondary-button" to="/appointments">3. Agenda</Link></div></Card>}
@@ -101,6 +102,6 @@ export function Billing() {
           {status.access_allowed && <Link className="text-gold text-sm inline-block" to="/">Voltar ao painel</Link>}
         </>}
       </div>
-    </Layout>
+    </Wrapper>
   )
 }

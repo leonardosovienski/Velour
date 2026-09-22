@@ -1,3 +1,4 @@
+import { LoadError } from '../components/LoadError'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Plus, ToggleRight, ToggleLeft, Pencil, ShieldCheck, Shield, User } from 'lucide-react'
 import { usersApi, professionalsApi, getErrorDetail } from '../api/client'
@@ -27,25 +28,33 @@ const roleColor: Record<UserRole, string> = {
 export function Users() {
   const [users, setUsers] = useState<UserResponse[]>([])
   const [loading, setLoading] = useState(true)
+  const [pageError, setPageError] = useState('')
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState<UserResponse | null>(null)
 
   async function load() {
     setLoading(true)
-    const data = await usersApi.list()
-    setUsers(data)
-    setLoading(false)
+    setPageError('')
+    try {
+      const data = await usersApi.list()
+      setUsers(data)
+    } catch (err) { setPageError(getErrorDetail(err) || 'Não foi possível carregar os dados.') }
+    finally { setLoading(false) }
   }
 
   useEffect(() => { load() }, [])
 
   async function handleToggleActive(u: UserResponse) {
-    await usersApi.update(u.id, { is_active: !u.is_active })
-    load()
+    setPageError('')
+    try {
+      await usersApi.update(u.id, { is_active: !u.is_active })
+      load()
+    } catch (err) { setPageError(getErrorDetail(err) || 'Não foi possível salvar a alteração.') }
   }
 
   return (
     <Layout>
+      {pageError && <LoadError message={pageError} onRetry={() => void load()} />}
       <PageHeader
         title="Usuários"
         subtitle={`${users.length} usuários cadastrados`}

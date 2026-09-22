@@ -297,7 +297,7 @@ def list_appointments(
         q = q.filter(Appointment.professional_id == professional_id)
     if client_id:
         q = q.filter(Appointment.client_id == client_id)
-    return q.order_by(Appointment.scheduled_at).offset(offset).limit(limit).all()
+    return q.order_by(Appointment.scheduled_at, Appointment.id).offset(offset).limit(limit).all()
 
 
 @router.get("/{appt_id}", response_model=AppointmentDetail)

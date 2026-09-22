@@ -48,6 +48,8 @@ class Settings:
     terms_version: str
     terms_url: str
     privacy_url: str
+    fiscal_mode: str = "disabled"
+    fiscal_demo_platform_user_id: int = 0
 
     @property
     def frontend_url(self) -> str:
@@ -83,6 +85,12 @@ def get_settings() -> Settings:
     terms_url = os.getenv("TERMS_URL", "")
     privacy_url = os.getenv("PRIVACY_URL", "")
     auto_create = _as_bool(os.getenv("AUTO_CREATE_TABLES"), environment != "production")
+    fiscal_mode = os.getenv("FISCAL_MODE", "disabled").strip().lower()
+    if fiscal_mode not in {"disabled", "demo"}:
+        raise RuntimeError("FISCAL_MODE deve ser disabled ou demo; emissão real não implementada.")
+    platform_demo_id = int(os.getenv("FISCAL_DEMO_PLATFORM_USER_ID", "0"))
+    if platform_demo_id < 0 or (environment == "production" and platform_demo_id):
+        raise RuntimeError("Operação fiscal global de demonstração só é permitida fora de produção.")
     algorithm = os.getenv("JWT_ALGORITHM", "HS256")
     if algorithm != "HS256":
         raise RuntimeError("JWT_ALGORITHM deve ser HS256.")
@@ -138,6 +146,8 @@ def get_settings() -> Settings:
         terms_version=os.getenv("TERMS_VERSION", "2026-09-08"),
         terms_url=terms_url,
         privacy_url=privacy_url,
+        fiscal_mode=fiscal_mode,
+        fiscal_demo_platform_user_id=platform_demo_id,
     )
 
 

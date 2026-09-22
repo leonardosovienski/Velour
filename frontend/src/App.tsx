@@ -1,23 +1,26 @@
-import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router'
 import { AuthProvider } from './context/AuthContext'
 import { useAuth } from './context/useAuth'
-import { Login } from './pages/Login'
-import { Signup } from './pages/Signup'
-import { ForgotPassword, ResetPassword } from './pages/PasswordRecovery'
-import { Billing } from './pages/Billing'
-import { Dashboard } from './pages/Dashboard'
-import { Clients } from './pages/Clients'
-import { ClientProfile } from './pages/ClientProfile'
-import { Appointments } from './pages/Appointments'
-import { Professionals } from './pages/Professionals'
-import { Services } from './pages/Services'
-import { Inventory } from './pages/Inventory'
-import { Loyalty } from './pages/Loyalty'
-import { Referrals } from './pages/Referrals'
-import { Reports } from './pages/Reports'
-import { Users } from './pages/Users'
+const Login = lazy(() => import('./pages/Login').then(module => ({ default: module.Login })))
+const Signup = lazy(() => import('./pages/Signup').then(module => ({ default: module.Signup })))
+const ForgotPassword = lazy(() => import('./pages/PasswordRecovery').then(module => ({ default: module.ForgotPassword })))
+const ResetPassword = lazy(() => import('./pages/PasswordRecovery').then(module => ({ default: module.ResetPassword })))
+const Finance = lazy(() => import('./pages/Finance').then(module => ({ default: module.Finance })))
+const PlatformFiscal = lazy(() => import('./pages/Finance').then(module => ({ default: module.PlatformFiscal })))
+const Dashboard = lazy(() => import('./pages/Dashboard').then(module => ({ default: module.Dashboard })))
+const Clients = lazy(() => import('./pages/Clients').then(module => ({ default: module.Clients })))
+const ClientProfile = lazy(() => import('./pages/ClientProfile').then(module => ({ default: module.ClientProfile })))
+const Appointments = lazy(() => import('./pages/Appointments').then(module => ({ default: module.Appointments })))
+const Professionals = lazy(() => import('./pages/Professionals').then(module => ({ default: module.Professionals })))
+const Services = lazy(() => import('./pages/Services').then(module => ({ default: module.Services })))
+const Inventory = lazy(() => import('./pages/Inventory').then(module => ({ default: module.Inventory })))
+const Loyalty = lazy(() => import('./pages/Loyalty').then(module => ({ default: module.Loyalty })))
+const Referrals = lazy(() => import('./pages/Referrals').then(module => ({ default: module.Referrals })))
+const Reports = lazy(() => import('./pages/Reports').then(module => ({ default: module.Reports })))
+const Users = lazy(() => import('./pages/Users').then(module => ({ default: module.Users })))
 import { Spinner } from './components/Spinner'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 function SubscriptionRedirect() {
   const navigate = useNavigate()
@@ -64,13 +67,18 @@ function SessionExpiredNotice() {
 }
 
 function AppRoutes() {
+  const location = useLocation()
   return (
-    <><SubscriptionRedirect /><SessionExpiredNotice /><Routes>
+    <><SubscriptionRedirect /><SessionExpiredNotice /><ErrorBoundary key={location.pathname}><Suspense fallback={<div role="status" className="min-h-screen bg-bg flex items-center justify-center text-muted"><Spinner size={32} /><span className="ml-3">Abrindo página…</span></div>}><Routes>
       <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/signup" element={<PublicRoute redirectTo="/billing?welcome=1"><Signup /></PublicRoute>} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+      <Route path="/billing" element={<ProtectedRoute><Finance section="subscription" /></ProtectedRoute>} />
+      <Route path="/finance" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
+      <Route path="/finance/:section" element={<ProtectedRoute><Finance /></ProtectedRoute>} />
+      <Route path="/platform/fiscal" element={<ProtectedRoute><PlatformFiscal /></ProtectedRoute>} />
+      <Route path="/fiscal" element={<ProtectedRoute><Navigate to="/finance/documents" replace /></ProtectedRoute>} />
 
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/clients" element={<ProtectedRoute><Clients /></ProtectedRoute>} />
@@ -81,11 +89,11 @@ function AppRoutes() {
       <Route path="/inventory" element={<ProtectedRoute><Inventory /></ProtectedRoute>} />
       <Route path="/loyalty" element={<ProtectedRoute><Loyalty /></ProtectedRoute>} />
       <Route path="/referrals" element={<ProtectedRoute><Referrals /></ProtectedRoute>} />
-      <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
+      <Route path="/reports" element={<ProtectedRoute><StaffRoute><Reports /></StaffRoute></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><StaffRoute><Users /></StaffRoute></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes></>
+    </Routes></Suspense></ErrorBoundary></>
   )
 }
 

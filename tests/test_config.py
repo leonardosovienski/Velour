@@ -28,6 +28,15 @@ def test_production_requires_explicit_cors():
     assert "CORS_ORIGINS" in result.stderr
 
 
+def test_fiscal_rejects_real_mode_and_production_demo_operator():
+    result = _run_config({"APP_ENV": "test", "SECRET_KEY": "test-secret", "FISCAL_MODE": "production"})
+    assert result.returncode != 0 and "FISCAL_MODE" in result.stderr
+    result = _run_config({"APP_ENV": "production", "SECRET_KEY": "x" * 32,
+                          "CORS_ORIGINS": "https://app.example.com", "DATABASE_URL": "postgres://user:pass@db/velour",
+                          "FISCAL_MODE": "demo", "FISCAL_DEMO_PLATFORM_USER_ID": "1"})
+    assert result.returncode != 0 and "demonstração" in result.stderr
+
+
 def test_production_requires_strong_secret():
     env = {
         "APP_ENV": "production",

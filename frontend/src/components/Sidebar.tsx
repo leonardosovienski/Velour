@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router'
 import {
   LayoutDashboard, Users, Calendar, Scissors,
-  Star, Share2, BarChart2, LogOut, UserCog, ChevronRight, X, Package, CreditCard,
+  Star, Share2, BarChart2, LogOut, UserCog, ChevronRight, X, Package, Wallet,
 } from 'lucide-react'
 import { useAuth } from '../context/useAuth'
 
@@ -15,7 +15,7 @@ const navItems = [
   { to: '/loyalty',       icon: Star,            label: 'Fidelidade' },
   { to: '/referrals',     icon: Share2,          label: 'Indicações' },
   { to: '/reports',       icon: BarChart2,       label: 'Relatórios' },
-  { to: '/billing',       icon: CreditCard,      label: 'Conta e assinatura' },
+  { to: '/finance',       icon: Wallet,          label: 'Financeiro' },
 ]
 
 const adminItems = [
@@ -49,7 +49,7 @@ export function Sidebar({ onClose }: { onClose?: () => void }) {
       {/* Nav */}
       <nav aria-label="Navegação principal" className="flex-1 py-4 overflow-y-auto">
         <ul className="space-y-0.5 px-3">
-          {navItems.map(({ to, icon: Icon, label }) => (
+          {navItems.filter(item => user?.role !== 'professional' || item.to !== '/reports').map(({ to, icon: Icon, label }) => (
             <li key={to}>
               <NavLink
                 to={to}

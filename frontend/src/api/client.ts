@@ -1,4 +1,6 @@
 import axios from 'axios'
+import type { AccountingReport, Expense, ExpenseInput, FinanceOverview, PaymentMethod } from './financeTypes'
+import type { FiscalAppointment, FiscalConfig, FiscalDocument, FiscalDraft, FiscalEvent, FiscalProfile, FiscalTenant } from './fiscalTypes'
 import type {
   LoginResponse, UserResponse, UserCreate, UserUpdate, SignupRequest, SignupConfig, BillingStatus,
   ClientResponse, ClientBriefing, ClientCreate, ClientUpdate,
@@ -17,6 +19,32 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
   timeout: 30000,
 })
+
+const fiscalPath = (platform: boolean) => platform ? '/fiscal-platform' : '/fiscal'
+export const financeApi = {
+  overview: (month: string) => api.get<FinanceOverview>('/finance/overview', { params: { month } }).then(r => r.data),
+  addExpense: (body: ExpenseInput) => api.post<Expense>('/finance/expenses', body).then(r => r.data),
+  payExpense: (id: number, paid_on: string) => api.post<Expense>(`/finance/expenses/${id}/pay`, { paid_on }).then(r => r.data),
+  settle: (id: number, payment_method: PaymentMethod) => api.post(`/finance/receipts/${id}/settle`, { payment_method }).then(r => r.data),
+}
+export const accountingApi = {
+  report: (month: string) => api.get<AccountingReport>('/accounting/report', { params: { month } }).then(r => r.data),
+  download: (month: string, format: 'txt' | 'pdf') => api.get<Blob>('/accounting/report/download', { params: { month, format }, responseType: 'blob' }).then(r => r.data),
+}
+export const fiscalApi = {
+  get: (id: number) => api.get<FiscalDocument>(`/fiscal/documents/${id}`).then(r => r.data),
+  config: () => api.get<FiscalConfig>('/fiscal/config').then(r => r.data),
+  profile: (platform = false) => api.get<FiscalProfile | null>(`${fiscalPath(platform)}/profile`).then(r => r.data),
+  saveProfile: (body: FiscalProfile, platform = false) => api.put<FiscalProfile>(`${fiscalPath(platform)}/profile`, body).then(r => r.data),
+  appointments: () => api.get<FiscalAppointment[]>('/fiscal/appointments').then(r => r.data),
+  tenants: () => api.get<FiscalTenant[]>('/fiscal-platform/tenants').then(r => r.data),
+  list: (platform = false, received = false, offset = 0) => api.get<FiscalDocument[]>(`${fiscalPath(platform)}/documents`, { params: { kind: received ? 'platform' : 'salon', offset, limit: 50 } }).then(r => r.data),
+  create: (body: FiscalDraft, platform = false) => api.post<FiscalDocument>(`${fiscalPath(platform)}/documents`, body).then(r => r.data),
+  simulate: (id: number, platform = false) => api.post<FiscalDocument>(`${fiscalPath(platform)}/documents/${id}/simulate`).then(r => r.data),
+  cancel: (id: number, reason: string, platform = false) => api.post<FiscalDocument>(`${fiscalPath(platform)}/documents/${id}/cancel`, { reason }).then(r => r.data),
+  events: (id: number, platform = false) => api.get<FiscalEvent[]>(`${fiscalPath(platform)}/documents/${id}/events`).then(r => r.data),
+  print: (id: number, platform = false) => api.get<Blob>(`${fiscalPath(platform)}/documents/${id}/print`, { responseType: 'blob' }).then(r => r.data),
+}
 
 export function getErrorDetail(err: unknown): string | undefined {
   if (axios.isAxiosError(err)) {

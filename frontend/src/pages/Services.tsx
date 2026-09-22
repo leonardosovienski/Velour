@@ -1,3 +1,4 @@
+import { LoadError } from '../components/LoadError'
 import { useEffect, useState, type FormEvent } from 'react'
 import {
   Plus, Tag, Clock, DollarSign, Star, Pencil, FlaskConical, Trash2,
@@ -37,6 +38,7 @@ export function Services() {
   const [services, setServices] = useState<ServiceResponse[]>([])
   const [categories, setCategories] = useState<ServiceCategoryResponse[]>([])
   const [loading, setLoading] = useState(true)
+  const [pageError, setPageError] = useState('')
   const [creatingService, setCreatingService] = useState(false)
   const [editingService, setEditingService] = useState<ServiceResponse | null>(null)
   const [recipeFor, setRecipeFor] = useState<ServiceResponse | null>(null)
@@ -44,10 +46,13 @@ export function Services() {
 
   async function load() {
     setLoading(true)
-    const [s, c] = await Promise.all([servicesApi.list(), serviceCategoriesApi.list()])
-    setServices(s)
-    setCategories(c)
-    setLoading(false)
+    setPageError('')
+    try {
+      const [s, c] = await Promise.all([servicesApi.list(), serviceCategoriesApi.list()])
+      setServices(s)
+      setCategories(c)
+    } catch (err) { setPageError(getErrorDetail(err) || 'Não foi possível carregar os dados.') }
+    finally { setLoading(false) }
   }
 
   useEffect(() => { load() }, [])
@@ -56,6 +61,7 @@ export function Services() {
 
   return (
     <Layout>
+      {pageError && <LoadError message={pageError} onRetry={() => void load()} />}
       <PageHeader
         title="Serviços"
         subtitle="Gestão de serviços e categorias"
@@ -181,6 +187,7 @@ export function Services() {
 }
 
 function RecipeModal({ service, onClose }: { service: ServiceResponse | null; onClose: () => void }) {
+  const [ready, setReady] = useState(false)
   const [products, setProducts] = useState<ProductResponse[]>([])
   const [items, setItems] = useState<RecipeItem[]>([])
   const [loading, setLoading] = useState(false)
@@ -189,13 +196,16 @@ function RecipeModal({ service, onClose }: { service: ServiceResponse | null; on
 
   useEffect(() => {
     if (!service) return
+    setReady(false)
     setError('')
     setLoading(true)
     Promise.all([productsApi.list(), recipesApi.get(service.id)])
       .then(([prods, recipe]) => {
         setProducts(prods)
         setItems(recipe.map(r => ({ product_id: r.product_id, qty_consumed: r.qty_consumed })))
+        setReady(true)
       })
+      .catch(err => setError(getErrorDetail(err) || 'Não foi possível carregar a receita de insumos.'))
       .finally(() => setLoading(false))
   }, [service])
 
@@ -214,7 +224,7 @@ function RecipeModal({ service, onClose }: { service: ServiceResponse | null; on
   }
 
   async function save() {
-    if (!service) return
+    if (!service || !ready) return
     setError('')
     setSaving(true)
     try {
@@ -276,7 +286,7 @@ function RecipeModal({ service, onClose }: { service: ServiceResponse | null; on
 
           <div className="flex justify-end gap-3 pt-2 border-t border-border">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-muted hover:text-cream transition-colors">Cancelar</button>
-            <button onClick={save} disabled={saving} className="flex items-center gap-2 bg-gold hover:bg-gold/90 text-bg font-semibold px-5 py-2 rounded-lg text-sm disabled:opacity-60">
+            <button onClick={save} disabled={saving || !ready} className="flex items-center gap-2 bg-gold hover:bg-gold/90 text-bg font-semibold px-5 py-2 rounded-lg text-sm disabled:opacity-60">
               {saving ? <Spinner size={16} /> : 'Salvar Ficha'}
             </button>
           </div>
