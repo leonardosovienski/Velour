@@ -1,6 +1,6 @@
 # Financeiro do Velour
 
-O menu Financeiro reúne cinco áreas em `/finance/overview`: Visão geral, Recebimentos, Despesas, Documentos fiscais e Assinatura Velour. `/fiscal` encaminha para os documentos; `/billing` mantém compatibilidade com retornos do Stripe e onboarding dentro da nova estrutura.
+O menu Financeiro reúne seis áreas em `/finance/overview`: Visão geral, Recebimentos, Despesas, Contábil, Documentos fiscais e Assinatura Velour. `/fiscal` encaminha para os documentos; `/billing` mantém compatibilidade com retornos do Stripe e onboarding dentro da nova estrutura.
 
 ## Regras
 
@@ -12,6 +12,16 @@ O menu Financeiro reúne cinco áreas em `/finance/overview`: Visão geral, Rece
 - Documentos fiscais continuam demonstrativos, sem validade fiscal; veja FISCAL_MVP.md. Links nos recebimentos abrem o documento existente ou preenchem o atendimento no rascunho.
 - Plano e documentos recebidos do Velour ficam em Assinatura Velour. A emissão Velour → assinantes tem página separada `/platform/fiscal`, disponível apenas ao operador demonstrativo configurado, fora de produção.
 - As rotas financeiras exigem assinatura ativa; consulta fiscal e cobrança mantêm as exceções existentes para contas vencidas.
+
+## Contábil (demonstração acadêmica)
+
+A área Contábil (`/finance/accounting`) monta, para o mês de referência, a DRE, o livro diário com lançamentos em partidas dobradas e o balancete de verificação, usando um plano de contas simplificado. Tudo é calculado na hora a partir dos registros existentes: não há tabela nova, escrituração oficial, SPED nem apuração de tributos. O relatório pode ser baixado em TXT ou PDF, sempre com o aviso de que não tem validade contábil ou fiscal.
+
+- Receita e comissão (`commission_rate` do profissional) entram pela data do atendimento concluído; o recebimento registrado baixa Clientes a receber contra Caixa.
+- Insumos consumidos são valorizados pelo `cost_per_unit` do produto na data do movimento de estoque. O relatório não registra compras, então a conta de estoque mostra apenas as saídas do mês.
+- O ISS é estimado com a alíquota do cadastro fiscal demonstrativo; sem cadastro, a alíquota é zero.
+- Despesas entram pelo vencimento e, quando pagas, baixam Contas a pagar contra Caixa.
+- Administradores e gerentes acessam; profissionais recebem 403.
 
 ## Banco e apresentação
 
@@ -25,5 +35,7 @@ Para um ambiente novo, siga a preparação de FISCAL_MVP.md. Abra Financeiro, co
 - POST `/finance/expenses`: criação de despesa.
 - POST `/finance/expenses/{id}/pay`: registro da data do pagamento.
 - POST `/finance/receipts/{appointment_id}/settle`: registro de recebimento integral com forma de pagamento.
+- GET `/accounting/report?month=AAAA-MM`: DRE, lançamentos, balancete e plano de contas do mês.
+- GET `/accounting/report/download?month=AAAA-MM&format=txt|pdf`: mesmo relatório em arquivo.
 
 As consultas usam o escopo autenticado do salão. As mutações são serializadas conforme a arquitetura de API única do projeto. O resumo lista todos os registros do mês; paginação e relatórios de grande volume são evoluções futuras.

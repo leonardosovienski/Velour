@@ -7,6 +7,7 @@ import { Layout, Card, PageHeader } from '../components/Layout'
 import { useAuth } from '../context/useAuth'
 import { Fiscal } from './Fiscal'
 import { Billing } from './Billing'
+import { Accounting } from './Accounting'
 
 const money = (n: number) => n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 const today = () => new Date().toLocaleDateString('en-CA')
@@ -14,7 +15,7 @@ const field = 'w-full mt-2 bg-bg border border-border rounded-lg p-3 text-cream 
 const categories: Record<ExpenseCategory, string> = { rent: 'Aluguel', supplies: 'Produtos e materiais', utilities: 'Contas e serviços', people: 'Equipe', other: 'Outras despesas' }
 const methods: Record<PaymentMethod, string> = { pix: 'Pix', cash: 'Dinheiro', debit_card: 'Cartão de débito', credit_card: 'Cartão de crédito', other: 'Outro' }
 const docLabels = { draft: 'Rascunho', simulated: 'Emitido · demonstração', cancelled: 'Cancelado' }
-const tabs = [['overview', 'Visão geral'], ['receipts', 'Recebimentos'], ['expenses', 'Despesas'], ['documents', 'Documentos fiscais'], ['subscription', 'Assinatura Velour']]
+const tabs = [['overview', 'Visão geral'], ['receipts', 'Recebimentos'], ['expenses', 'Despesas'], ['accounting', 'Contábil'], ['documents', 'Documentos fiscais'], ['subscription', 'Assinatura Velour']]
 
 export function Finance({ section: fixedSection }: { section?: string }) {
   const { section: routeSection } = useParams()
@@ -28,7 +29,7 @@ export function Finance({ section: fixedSection }: { section?: string }) {
     if (user?.role === 'admin') fiscalApi.config().then(c => { if (active) setOperator(c.can_manage_platform) }).catch(() => {})
     return () => { active = false }
   }, [user?.role])
-  const general = ['overview', 'receipts', 'expenses'].includes(section)
+  const general = ['overview', 'receipts', 'expenses', 'accounting'].includes(section)
   return <Layout>
     <PageHeader title="Financeiro" subtitle="Acompanhe o dinheiro do salão, organize as contas e cuide dos documentos." />
     <nav aria-label="Áreas do financeiro" className="flex gap-1 overflow-x-auto border-b border-border mb-6 pb-1">
@@ -36,7 +37,7 @@ export function Finance({ section: fixedSection }: { section?: string }) {
     </nav>
     {general && (user?.role === 'professional' ? <Card><p className="text-muted">As finanças são gerenciadas pelo administrador ou gerente do salão.</p></Card> : <>
       <div className="flex flex-wrap items-end justify-between gap-4 mb-6"><div><h2 className="font-display text-2xl text-cream">{tabs.find(([key]) => key === section)?.[1]}</h2><p className="text-muted text-sm mt-1">Atendimentos do mês e despesas pelo vencimento.</p></div><label className="text-muted text-sm">Mês de referência<input type="month" required className={`${field} max-w-52`} value={month} onChange={e => { if (e.target.value) setMonth(e.target.value) }} /></label></div>
-      <FinanceLedger key={`${section}-${month}`} section={section} month={month} />
+      {section === 'accounting' ? <Accounting key={month} month={month} /> : <FinanceLedger key={`${section}-${month}`} section={section} month={month} />}
     </>)}
     {section === 'documents' && <Fiscal key={params.toString()} embedded fixedScope="salon" appointmentId={Number(params.get('appointment')) || undefined} documentId={Number(params.get('document')) || undefined} />}
     {section === 'subscription' && <div className="space-y-8"><Billing embedded />{user?.role === 'admin' && <Fiscal embedded fixedScope="received" />}</div>}

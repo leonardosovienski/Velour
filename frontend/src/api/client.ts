@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { Expense, ExpenseInput, FinanceOverview, PaymentMethod } from './financeTypes'
+import type { AccountingReport, Expense, ExpenseInput, FinanceOverview, PaymentMethod } from './financeTypes'
 import type { FiscalAppointment, FiscalConfig, FiscalDocument, FiscalDraft, FiscalEvent, FiscalProfile, FiscalTenant } from './fiscalTypes'
 import type {
   LoginResponse, UserResponse, UserCreate, UserUpdate, SignupRequest, SignupConfig, BillingStatus,
@@ -26,6 +26,10 @@ export const financeApi = {
   addExpense: (body: ExpenseInput) => api.post<Expense>('/finance/expenses', body).then(r => r.data),
   payExpense: (id: number, paid_on: string) => api.post<Expense>(`/finance/expenses/${id}/pay`, { paid_on }).then(r => r.data),
   settle: (id: number, payment_method: PaymentMethod) => api.post(`/finance/receipts/${id}/settle`, { payment_method }).then(r => r.data),
+}
+export const accountingApi = {
+  report: (month: string) => api.get<AccountingReport>('/accounting/report', { params: { month } }).then(r => r.data),
+  download: (month: string, format: 'txt' | 'pdf') => api.get<Blob>('/accounting/report/download', { params: { month, format }, responseType: 'blob' }).then(r => r.data),
 }
 export const fiscalApi = {
   get: (id: number) => api.get<FiscalDocument>(`/fiscal/documents/${id}`).then(r => r.data),
