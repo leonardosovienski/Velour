@@ -43,7 +43,9 @@ python -m alembic upgrade head
 python demo_fiscal.py
 ```
 
-O script recusa bancos com dados existentes; permite apenas o salão vazio de compatibilidade criado pela migração, que permanece intacto. Não apaga nem reinicializa bancos. Cria conta, salão, quatro atendimentos e exemplos de rascunho/emissão/cancelamento/assinatura. Exibe senha aleatória de demonstração e o ID do operador.
+O script pede a senha da conta de demonstração (mínimo 12 caracteres) sem exibi-la; em automação, use `DEMO_FISCAL_PASSWORD`.
+
+O script recusa bancos com dados existentes; permite apenas o salão vazio de compatibilidade criado pela migração, que permanece intacto. Não apaga nem reinicializa bancos. Cria conta, salão, quatro atendimentos e exemplos de rascunho/emissão/cancelamento/assinatura. Exibe o e-mail da conta e o ID do operador; a senha nunca é impressa.
 
 No mesmo terminal, use o ID informado:
 
@@ -52,7 +54,7 @@ $env:FISCAL_DEMO_PLATFORM_USER_ID = '1'
 python -m uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-Em outro terminal, no diretório `frontend`: `npm ci` e `npm run dev -- --host 127.0.0.1`. Entre com as credenciais geradas e abra **Fiscal**.
+Em outro terminal, no diretório `frontend`: `npm ci` e `npm run dev -- --host 127.0.0.1`. Entre com o e-mail exibido e a senha escolhida e abra **Fiscal**.
 
 ### Roteiro
 

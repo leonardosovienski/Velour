@@ -3,8 +3,9 @@
 Run with APP_ENV=development, FISCAL_MODE=demo, AUTO_CREATE_TABLES=false.
 Never resets an existing database. Credentials are generated for this demo only.
 """
+import getpass
 import json
-import secrets
+import os
 from datetime import datetime, timedelta
 from decimal import Decimal
 
@@ -16,10 +17,11 @@ from routers.fiscal import create_document, transition
 from schemas.fiscal import AppointmentFiscalDraft, FiscalProfileData, SubscriptionFiscalDraft
 
 
-def seed_demo():
+def seed_demo(password: str):
     if settings.environment != "development" or settings.fiscal_mode != "demo" or settings.auto_create_tables:
         raise RuntimeError("Use development, FISCAL_MODE=demo e AUTO_CREATE_TABLES=false em banco vazio migrado.")
-    password = secrets.token_urlsafe(18)
+    if len(password) < 12:
+        raise RuntimeError("A senha da demonstração precisa ter pelo menos 12 caracteres.")
     party = {"legal_name": "Cliente fictício", "tax_id": "52998224725", "email": "cliente@example.com",
              "street": "Rua de Demonstração", "number": "100", "district": "Centro", "postal_code": "83702000",
              "city": "Araucária", "municipality_code": "4101804", "state": "PR"}
@@ -72,9 +74,10 @@ def seed_demo():
         result = create_document(db, subscription, platform_profile, user, tenant.id, "platform", "subscription:demo-mensalidade-2026-09", subscription.amount)
         transition(db, db.get(FiscalDocument, result.id), user, "simulate")
         db.commit()
-        return {"email": user.email, "password": password, "FISCAL_DEMO_PLATFORM_USER_ID": user.id,
-                "notice": "Credenciais exclusivas da demonstração local. Não usar em produção."}
+        return {"email": user.email, "FISCAL_DEMO_PLATFORM_USER_ID": user.id,
+                "notice": "Entre com a senha informada ao executar o script. Uso exclusivo da demonstração local."}
 
 
 if __name__ == "__main__":
-    print(json.dumps(seed_demo(), ensure_ascii=False, indent=2))
+    password = os.getenv("DEMO_FISCAL_PASSWORD") or getpass.getpass("Senha da conta de demonstração (mínimo 12 caracteres): ")
+    print(json.dumps(seed_demo(password), ensure_ascii=False, indent=2))

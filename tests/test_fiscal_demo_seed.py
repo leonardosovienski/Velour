@@ -11,11 +11,12 @@ def test_demo_seed_requires_empty_database_and_preserves_existing_data(tmp_path)
     root = Path(__file__).resolve().parents[1]
     url = f"sqlite:///{tmp_path / 'demo.db'}"
     env = {**os.environ, "APP_ENV": "development", "FISCAL_MODE": "demo", "DATABASE_URL": url,
-           "AUTO_CREATE_TABLES": "false", "SCHEDULER_ENABLED": "false", "PYTHONIOENCODING": "utf-8"}
+           "AUTO_CREATE_TABLES": "false", "SCHEDULER_ENABLED": "false", "PYTHONIOENCODING": "utf-8",
+           "DEMO_FISCAL_PASSWORD": "demo-password-long-enough"}
     subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=root, env=env, check=True, capture_output=True)
     result = subprocess.run([sys.executable, "demo_fiscal.py"], cwd=root, env=env, check=True, capture_output=True)
     access = json.loads(result.stdout)
-    assert len(access["password"]) >= 20
+    assert "password" not in access and "demo-password-long-enough" not in result.stdout.decode()
     engine = create_engine(url)
     with engine.connect() as connection:
         before = connection.execute(text("SELECT id, status, amount FROM fiscal_documents ORDER BY id")).all()
