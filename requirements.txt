@@ -1,10 +1,10 @@
 # Velour — dependencias de runtime
 fastapi==0.141.1
-uvicorn[standard]==0.53.0
-SQLAlchemy==2.0.54
+uvicorn[standard]==0.54.0
+SQLAlchemy==2.1.0
 alembic==1.20.0
-psycopg[binary]==3.3.5
-PyJWT==2.14.0
+psycopg[binary]==3.3.6
+PyJWT==2.15.0
 python-multipart==0.0.32
 APScheduler==3.11.3
 python-dotenv==1.2.3
