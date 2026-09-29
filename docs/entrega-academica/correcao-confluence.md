@@ -36,4 +36,4 @@ Use o status cinza "Pendente" nas linhas pendentes.
 
 ## Jira
 
-Depois desta correção, o usuário pediu para marcar as tarefas como concluídas no Jira. Em 29/09/2026 estão em Concluído VEL-55, VEL-56, VEL-57, VEL-58, VEL-60 e VEL-61, e continuam pendentes VEL-54 e VEL-59. A página do Confluence não acompanhou essa mudança.
+Depois desta correção, o usuário pediu para marcar as tarefas como concluídas no Jira. Em 29/09/2026 estão em Concluído VEL-55, VEL-56, VEL-57, VEL-58, VEL-60 e VEL-61, e continuam pendentes VEL-54 e VEL-59. Em seguida, a página foi alinhada ao Jira na versão 4: mesmas situações, com VEL-54 e VEL-59 como Pendente.

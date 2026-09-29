@@ -58,14 +58,14 @@ Não executado: containers e backup com restauração, porque o Docker não tem 
 - Primeiro, as tarefas de 05/10 a 24/11 foram devolvidas a "Tarefas pendentes", por ainda não terem acontecido. Depois, a pedido do usuário, VEL-55, VEL-58, VEL-60 e VEL-61 foram movidas de volta para Concluído em 29/09/2026. O Jira passou a mostrar como concluídas, incluindo a Banca Final de 23 e 24/11, tarefas com data futura.
 - VEL-15 passou de Tarefa para História.
 
-**No Confluence:** a página "Cronograma e status das entregas" foi corrigida na versão 3, com autorização do usuário. O texto passou a citar o projeto `VEL`, as entregas de 05/10 em diante ficaram como Pendente e a lista de entrega final foi desmarcada. O texto usado está em [correcao-confluence.md](correcao-confluence.md).
+**No Confluence:** a página "Cronograma e status das entregas" foi corrigida na versão 3 e depois alinhada ao Jira na versão 4, com autorização do usuário. O texto cita o projeto `VEL`, e a coluna de situação espelha o Jira: tudo Concluído, exceto VEL-54 e VEL-59. A lista de entrega final continua desmarcada, porque vídeo, apresentação e artigo não estão prontos. O texto da versão 3 está em [correcao-confluence.md](correcao-confluence.md).
 
 ## O que não consegui corrigir
 
 A permissão do ambiente negou estas ações, mesmo depois da autorização do usuário. Elas ficam com você:
 
 - **Jira:** mover VEL-54 e VEL-59 para Concluído. Continuam em "Tarefas pendentes".
-- **Confluence:** a página de cronograma continua mostrando todas as entregas de 05/10 em diante como Pendente. Ela não foi alterada de volta, porque marca artigo, vídeo e apresentação como feitos, e esses itens não existem prontos. O Jira e o Confluence divergem nesse ponto.
+- **Confluence:** nada pendente na coluna de situação, que já espelha o Jira. Só a lista de entrega final segue desmarcada, e cabe a você marcá-la quando vídeo, apresentação e artigo existirem.
 - **Figma:** o protótipo não existe e não tenho acesso ao Figma.
 - **Envio do e-mail à professora:** depende de escolhas do grupo.
 
