@@ -16,7 +16,7 @@ Material de apoio para atender os pedidos da professora Kátia Arruda dos Santos
 ## Vídeo e apresentação
 
 - **Apresentação:** 13 slides na identidade visual do Velour, publicados como artefato privado em https://claude.ai/artifact/5u8FDuwNVet9WiFJ8q75fv. Só o dono abre o link até ele ser compartilhado. Os campos entre colchetes, como nomes do grupo e data da banca, precisam ser preenchidos.
-- **Vídeo:** 2 minutos e 30 segundos, sem voz, com legendas na tela. Mostra a gestão no Jira, a arquitetura, e a aplicação real: login, dashboard, clientes, criação de agendamento, conflito de horário, conclusão com R$ 143,00, perfil do cliente, estoque, financeiro, contábil, fiscal, fidelidade e relatórios, e o resultado dos testes. O arquivo não está no repositório, por ser binário. Foi gravado com dados fictícios do `seed.py`.
+- **Vídeo:** 2 minutos e 40 segundos, sem voz, com legendas na tela. Mostra a gestão no Jira, a arquitetura, e a aplicação real: login, dashboard, clientes, criação de agendamento, conflito de horário, conclusão com R$ 143,00, perfil do cliente, estoque, financeiro, contábil, fiscal, fidelidade e relatórios, e o resultado dos testes. O arquivo não está no repositório, por ser binário. Foi gravado com dados fictícios do `seed.py`.
 - **O que o vídeo não tem:** gravação da tela do Jira, do Confluence e do Figma. Os cartões do Jira e do Figma são resumos, com a captura da tela de login do protótipo, e a professora pediu a tela real dessas ferramentas na primeira entrega.
 
 ## Pedidos da professora e situação
