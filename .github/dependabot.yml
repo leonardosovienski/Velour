@@ -41,6 +41,12 @@ updates:
 
     open-pull-requests-limit: 5
 
+    # typescript-eslint ainda não suporta TypeScript 7 (peer < 6.1); a versão
+    # major volta a ser proposta quando o suporte existir.
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+
     groups:
       frontend-minor-patch:
         applies-to: "version-updates"

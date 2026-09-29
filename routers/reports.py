@@ -111,7 +111,7 @@ def client_report(
         db.query(Appointment.client_id)
         .filter(Appointment.status == AppointmentStatus.completed, Appointment.scheduled_at >= cutoff_churn)
         .distinct()
-        .subquery()
+        .scalar_subquery()
     )
     churn_count = db.query(Client).filter(Client.is_active == True, ~Client.id.in_(ids_ativos)).count()
 
