@@ -106,6 +106,25 @@ describe('CompleteModal — fluxo de pagamento', () => {
     expect(onSuccess).toHaveBeenCalled()
   })
 
+  it('envia como valor recebido o valor final sugerido quando o campo não é alterado', async () => {
+    const user = userEvent.setup()
+    const onSuccess = vi.fn()
+    render(<CompleteModal appt={appt} onClose={() => {}} onSuccess={onSuccess} />)
+
+    await user.click(screen.getByLabelText('Pagamento recebido'))
+    await user.selectOptions(screen.getByLabelText('Forma de pagamento *'), 'pix')
+    // Cliente gold, 10% de desconto sobre R$ 100: valor final sugerido de R$ 90,00.
+    expect(screen.getByLabelText('Valor recebido (R$) *')).toHaveValue(90)
+    await user.click(screen.getByRole('button', { name: 'Concluir Atendimento' }))
+
+    await waitFor(() => expect(completeMock).toHaveBeenCalledTimes(1))
+    const body = completeMock.mock.calls[0][1]
+    expect(body.paid).toBe(true)
+    expect(body.payment_method).toBe('pix')
+    expect(body.amount_paid).toBe(90)
+    expect(onSuccess).toHaveBeenCalled()
+  })
+
   it('falha de upload não conclui nem cobra o atendimento; permite nova tentativa', async () => {
     const user = userEvent.setup()
     uploadPhotosMock.mockRejectedValueOnce(new Error('upload failed'))

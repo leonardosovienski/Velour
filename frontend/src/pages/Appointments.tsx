@@ -379,6 +379,15 @@ export function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentD
     setForm(f => ({ ...f, [field]: value }))
   }
 
+  const base = form.price_charged ?? 0
+  const tier: LoyaltyTier = appt?.client?.loyalty_tier ?? 'bronze'
+  const tierRate = TIER_RATES[tier]
+  const tierDiscount = base * tierRate
+  const maxTotal = base * 0.5
+  const pointsRaw = ((form.discount_points_used ?? 0) / 100) * 10
+  const pointsDiscount = Math.min(pointsRaw, Math.max(maxTotal - tierDiscount, 0))
+  const finalPrice = Math.max(0, base - tierDiscount - pointsDiscount)
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!appt) return
@@ -389,7 +398,10 @@ export function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentD
       const recipe_overrides: RecipeOverride[] = recipe
         .filter(i => overrides[i.product_id] !== i.qty_consumed)
         .map(i => ({ product_id: i.product_id, actual_qty: overrides[i.product_id] ?? i.qty_consumed }))
-      if (form.paid && (!form.payment_method || form.amount_paid == null)) {
+      // O campo "Valor recebido" exibe o valor final como sugestão; se o usuário não o alterou,
+      // é essa sugestão que deve ser enviada, e não um valor ausente.
+      const amountPaid = form.paid ? (form.amount_paid ?? Number(finalPrice.toFixed(2))) : undefined
+      if (form.paid && !form.payment_method) {
         setError('Informe a forma de pagamento e o valor recebido.')
         setLoading(false)
         return
@@ -405,6 +417,7 @@ export function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentD
       }
       await appointmentsApi.complete(appt.id, {
         ...form,
+        amount_paid: amountPaid,
         recipe_overrides: recipe_overrides.length ? recipe_overrides : undefined,
       })
       onSuccess()
@@ -415,15 +428,6 @@ export function CompleteModal({ appt, onClose, onSuccess }: { appt: AppointmentD
       setLoading(false)
     }
   }
-
-  const base = form.price_charged ?? 0
-  const tier: LoyaltyTier = appt?.client?.loyalty_tier ?? 'bronze'
-  const tierRate = TIER_RATES[tier]
-  const tierDiscount = base * tierRate
-  const maxTotal = base * 0.5
-  const pointsRaw = ((form.discount_points_used ?? 0) / 100) * 10
-  const pointsDiscount = Math.min(pointsRaw, Math.max(maxTotal - tierDiscount, 0))
-  const finalPrice = Math.max(0, base - tierDiscount - pointsDiscount)
 
   return (
     <Modal title="Concluir Atendimento" open={!!appt} onClose={onClose}>
