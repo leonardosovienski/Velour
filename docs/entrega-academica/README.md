@@ -55,7 +55,7 @@ Não executado: containers e backup com restauração, porque o Docker não tem 
 - Um aviso do SQLAlchemy em `routers/reports.py`, sobre o uso de uma subconsulta em `IN`, foi corrigido sem mudar o resultado. Os testes continuam aprovados em SQLite e PostgreSQL, com esse aviso tratado como erro.
 
 **No Jira:**
-- VEL-54, VEL-55, VEL-58, VEL-59, VEL-60 e VEL-61 voltaram para "Tarefas pendentes", pois têm datas de 05/10 a 24/11.
+- Primeiro, as tarefas de 05/10 a 24/11 foram devolvidas a "Tarefas pendentes", por ainda não terem acontecido. Depois, a pedido do usuário, VEL-55, VEL-58, VEL-60 e VEL-61 foram movidas de volta para Concluído em 29/09/2026. O Jira passou a mostrar como concluídas, incluindo a Banca Final de 23 e 24/11, tarefas com data futura.
 - VEL-15 passou de Tarefa para História.
 
 **No Confluence:** a página "Cronograma e status das entregas" foi corrigida na versão 3, com autorização do usuário. O texto passou a citar o projeto `VEL`, as entregas de 05/10 em diante ficaram como Pendente e a lista de entrega final foi desmarcada. O texto usado está em [correcao-confluence.md](correcao-confluence.md).
@@ -64,7 +64,8 @@ Não executado: containers e backup com restauração, porque o Docker não tem 
 
 A permissão do ambiente negou estas ações, mesmo depois da autorização do usuário. Elas ficam com você:
 
-- **Jira:** mover VEL-56 e VEL-57 para "Tarefas pendentes". Estão em Concluído, mas têm datas de 19/10 e 26/10. Enquanto isso, o Confluence mostra essas duas como Pendente e o Jira como Concluído.
+- **Jira:** mover VEL-54 e VEL-59 para Concluído. Continuam em "Tarefas pendentes".
+- **Confluence:** a página de cronograma continua mostrando todas as entregas de 05/10 em diante como Pendente. Ela não foi alterada de volta, porque marca artigo, vídeo e apresentação como feitos, e esses itens não existem prontos. O Jira e o Confluence divergem nesse ponto.
 - **Figma:** o protótipo não existe e não tenho acesso ao Figma.
 - **Envio do e-mail à professora:** depende de escolhas do grupo.
 

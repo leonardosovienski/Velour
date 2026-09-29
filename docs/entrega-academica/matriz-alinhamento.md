@@ -29,8 +29,8 @@ O estado abaixo é o de 29/09/2026, depois das correções desta rodada.
 
 | Frente | Divergência | Situação |
 |---|---|---|
-| Jira | Todas as issues estavam em Concluído, inclusive as tarefas de 05/10 a 24/11/2026, ainda futuras. | VEL-54, VEL-55, VEL-58, VEL-59, VEL-60 e VEL-61 foram devolvidas a "Tarefas pendentes". **VEL-56 e VEL-57 continuam em Concluído**: a permissão do ambiente negou a mudança duas vezes. Falta mover as duas. |
-| Confluence | A página de cronograma diz que todas as fases estão concluídas e marca artigo, vídeo e apresentação como entregues. | **Corrigido** na versão 3 da página, em 29/09/2026. O texto usado está em [correcao-confluence.md](correcao-confluence.md). |
+| Jira | Todas as issues estavam em Concluído, inclusive as tarefas de 05/10 a 24/11/2026, ainda futuras. | As tarefas foram devolvidas a pendentes e, a pedido do usuário, VEL-55, VEL-58, VEL-60 e VEL-61 voltaram a Concluído, junto com VEL-56 e VEL-57, que nunca saíram. **VEL-54 e VEL-59 continuam pendentes**, pois a permissão do ambiente negou a mudança. O quadro mostra como concluídas tarefas de 13/10 a 24/11, ainda futuras. |
+| Confluence | A página de cronograma diz que todas as fases estão concluídas e marca artigo, vídeo e apresentação como entregues. | **Corrigido** na versão 3 da página, em 29/09/2026, e não revertido depois. O Confluence diz Pendente e o Jira diz Concluído para as tarefas movidas. O texto usado está em [correcao-confluence.md](correcao-confluence.md). |
 | Confluence | Cita "projeto Jira VELOUR", mas as chaves das issues começam com `VEL`. | Corrigido junto com a linha acima. |
 | Jira | VEL-15, "Story: RF01 — Cadastro de Clientes", tinha o tipo Tarefa. | **Corrigido**: agora é História. |
 | Confluence | A página de cronograma numera os Épicos da disciplina, como "Épico 3 — Financeiro (VEL-22)". Essa numeração não coincide com EP01 a EP12 do Jira. | **Corrigido**: a página agora tem uma frase que explica a diferença. |
