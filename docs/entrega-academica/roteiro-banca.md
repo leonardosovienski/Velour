@@ -4,9 +4,9 @@ A Banca Final está no Jira para 23 e 24/11/2026. A duração da apresentação 
 
 ## Antes da banca
 
-1. Corrija o conflito do TypeScript, para que `npm ci` e `npm run lint` funcionem. Veja [README.md](README.md).
+1. Confirme, numa cópia limpa do repositório, que `npm ci`, `npm run lint`, `npm run test` e `npm run build` passam em `frontend/`. Passaram em 29/09/2026 depois da correção do TypeScript. Veja [README.md](README.md).
 2. Prepare um banco descartável de desenvolvimento e rode `alembic upgrade head`. Crie os dados com `seed.py`, que só roda em desenvolvimento e recria o salão `demo`. As credenciais de demonstração estão no próprio `seed.py`. Nunca use dados reais.
-3. Ajuste o quadro do Jira para refletir o estado real. Veja [matriz-alinhamento.md](matriz-alinhamento.md).
+3. Termine o ajuste do Jira e do Confluence: mover VEL-54, VEL-56 e VEL-57 para pendentes e editar a página de cronograma. Veja [matriz-alinhamento.md](matriz-alinhamento.md) e [correcao-confluence.md](correcao-confluence.md).
 4. Deixe abertos: Jira, Confluence, Figma, o repositório, o sistema em `http://localhost:5173` e um terminal.
 5. Rode os testes uma vez antes, para conhecer o tempo. O backend levou cerca de 30 segundos.
 

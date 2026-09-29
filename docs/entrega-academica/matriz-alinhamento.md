@@ -25,14 +25,16 @@ O Confluence tem cinco páginas no espaço VELOUR: página inicial, Visão geral
 
 ## Divergências encontradas
 
-| Frente | Divergência | Sugestão |
-|---|---|---|
-| Jira | Todas as issues estão em Concluído, inclusive VEL-54 a VEL-61, com datas de 05/10 a 24/11/2026, ainda futuras. VEL-53, de 21 e 22/09, já passou. | Devolver as tarefas futuras ao estado real. Uma banca que compare o quadro com o calendário vai estranhar uma Banca Final concluída antes de acontecer. |
-| Confluence | A página de cronograma diz que todas as fases estão concluídas. A última edição, em 23/09, tem a mensagem "Todas as entregas marcadas como concluídas". | Acompanhar a correção do Jira. |
-| Confluence | Cita "projeto Jira VELOUR", mas as chaves das issues começam com `VEL`. `VELOUR` é só a chave do espaço no Confluence. | Corrigir o texto para `VEL`. |
-| Jira | VEL-15, "Story: RF01 — Cadastro de Clientes", tem o tipo Tarefa. As demais histórias têm o tipo História. | Trocar o tipo para História. |
-| Confluence | A página de cronograma numera os Épicos da disciplina, como "Épico 3 — Financeiro (VEL-22)". Essa numeração não coincide com EP01 a EP12 do Jira. | Explicar a diferença na página, para evitar confusão na banca. |
-| Figma | Nenhum arquivo ou link de Figma no repositório, no Jira ou no Confluence. | Montar o protótipo com [prototipo-figma-telas.md](prototipo-figma-telas.md) e linkar nas issues e no Confluence. |
-| Código | `npm ci` e `npm run lint` falham por causa do TypeScript 7.0.2. | Fixar o TypeScript em uma versão aceita pelo typescript-eslint. |
+O estado abaixo é o de 29/09/2026, depois das correções desta rodada.
 
-Esta análise usou só os títulos das issues e o resumo das páginas do Confluence. Não abri o corpo de cada história para conferir critérios de aceite.
+| Frente | Divergência | Situação |
+|---|---|---|
+| Jira | Todas as issues estavam em Concluído, inclusive as tarefas de 05/10 a 24/11/2026, ainda futuras. | VEL-55, VEL-58, VEL-59, VEL-60 e VEL-61 foram devolvidas a "Tarefas pendentes". **VEL-54, VEL-56 e VEL-57 continuam em Concluído**: a permissão do ambiente negou a mudança. Falta mover as três. |
+| Confluence | A página de cronograma diz que todas as fases estão concluídas e marca artigo, vídeo e apresentação como entregues. | **Não corrigido**, pois a permissão negou a edição. O texto pronto está em [correcao-confluence.md](correcao-confluence.md). |
+| Confluence | Cita "projeto Jira VELOUR", mas as chaves das issues começam com `VEL`. | Incluído na correção pendente acima. |
+| Jira | VEL-15, "Story: RF01 — Cadastro de Clientes", tinha o tipo Tarefa. | **Corrigido**: agora é História. |
+| Confluence | A página de cronograma numera os Épicos da disciplina, como "Épico 3 — Financeiro (VEL-22)". Essa numeração não coincide com EP01 a EP12 do Jira. | A correção pendente acrescenta uma frase que explica a diferença. |
+| Figma | Nenhum arquivo ou link de Figma no repositório, no Jira ou no Confluence. | **Aberto.** Montar o protótipo com [prototipo-figma-telas.md](prototipo-figma-telas.md) e linkar nas issues e no Confluence. |
+| Código | `npm ci` e `npm run lint` falhavam por causa do TypeScript 7.0.2. | **Corrigido**: TypeScript fixado na série 6.0, com lockfile regenerado. |
+
+Esta análise usou só os títulos das issues e o conteúdo da página de cronograma do Confluence. Não abri o corpo de cada história para conferir critérios de aceite.
