@@ -1,6 +1,6 @@
 # Correção da página de cronograma no Confluence
 
-A página "Cronograma e status das entregas", no espaço `VELOUR`, tem o identificador 10616833. A permissão do ambiente negou a edição feita por esta sessão, então a correção precisa ser aplicada à mão. Edite a versão atual, que é a 2.
+A página "Cronograma e status das entregas", no espaço `VELOUR`, tem o identificador 10616833. **Esta correção já foi aplicada em 29/09/2026**, na versão 3, com autorização do usuário. O texto abaixo fica como registro do que foi alterado e serve caso a página precise ser refeita.
 
 ## O que está errado
 
@@ -36,4 +36,4 @@ Use o status cinza "Pendente" nas linhas pendentes.
 
 ## Jira
 
-O Jira já foi corrigido para VEL-55, VEL-58, VEL-59, VEL-60 e VEL-61. Faltam VEL-54, VEL-56 e VEL-57, que continuam em Concluído. Mova as três para "Tarefas pendentes". Enquanto isso não for feito, a página do Confluence e o Jira divergem nessas três linhas.
+O Jira já foi corrigido para VEL-54, VEL-55, VEL-58, VEL-59, VEL-60 e VEL-61. Faltam VEL-56 e VEL-57, que continuam em Concluído. Mova as duas para "Tarefas pendentes". Enquanto isso não for feito, a página do Confluence e o Jira divergem nessas duas linhas.

@@ -55,15 +55,16 @@ Não executado: containers e backup com restauração, porque o Docker não tem 
 - Um aviso do SQLAlchemy em `routers/reports.py`, sobre o uso de uma subconsulta em `IN`, foi corrigido sem mudar o resultado. Os testes continuam aprovados em SQLite e PostgreSQL, com esse aviso tratado como erro.
 
 **No Jira:**
-- VEL-55, VEL-58, VEL-59, VEL-60 e VEL-61 voltaram para "Tarefas pendentes", pois têm datas de 13/10 a 24/11.
+- VEL-54, VEL-55, VEL-58, VEL-59, VEL-60 e VEL-61 voltaram para "Tarefas pendentes", pois têm datas de 05/10 a 24/11.
 - VEL-15 passou de Tarefa para História.
+
+**No Confluence:** a página "Cronograma e status das entregas" foi corrigida na versão 3, com autorização do usuário. O texto passou a citar o projeto `VEL`, as entregas de 05/10 em diante ficaram como Pendente e a lista de entrega final foi desmarcada. O texto usado está em [correcao-confluence.md](correcao-confluence.md).
 
 ## O que não consegui corrigir
 
-A permissão do ambiente negou estas ações. Elas ficam com você:
+A permissão do ambiente negou estas ações, mesmo depois da autorização do usuário. Elas ficam com você:
 
-- **Jira:** mover VEL-54, VEL-56 e VEL-57 para "Tarefas pendentes". Estão em Concluído, mas têm datas de 05/10, 19/10 e 26/10.
-- **Confluence:** editar a página "Cronograma e status das entregas". O texto pronto está em [correcao-confluence.md](correcao-confluence.md).
+- **Jira:** mover VEL-56 e VEL-57 para "Tarefas pendentes". Estão em Concluído, mas têm datas de 19/10 e 26/10. Enquanto isso, o Confluence mostra essas duas como Pendente e o Jira como Concluído.
 - **Figma:** o protótipo não existe e não tenho acesso ao Figma.
 - **Envio do e-mail à professora:** depende de escolhas do grupo.
 

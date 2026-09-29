@@ -29,11 +29,11 @@ O estado abaixo é o de 29/09/2026, depois das correções desta rodada.
 
 | Frente | Divergência | Situação |
 |---|---|---|
-| Jira | Todas as issues estavam em Concluído, inclusive as tarefas de 05/10 a 24/11/2026, ainda futuras. | VEL-55, VEL-58, VEL-59, VEL-60 e VEL-61 foram devolvidas a "Tarefas pendentes". **VEL-54, VEL-56 e VEL-57 continuam em Concluído**: a permissão do ambiente negou a mudança. Falta mover as três. |
-| Confluence | A página de cronograma diz que todas as fases estão concluídas e marca artigo, vídeo e apresentação como entregues. | **Não corrigido**, pois a permissão negou a edição. O texto pronto está em [correcao-confluence.md](correcao-confluence.md). |
-| Confluence | Cita "projeto Jira VELOUR", mas as chaves das issues começam com `VEL`. | Incluído na correção pendente acima. |
+| Jira | Todas as issues estavam em Concluído, inclusive as tarefas de 05/10 a 24/11/2026, ainda futuras. | VEL-54, VEL-55, VEL-58, VEL-59, VEL-60 e VEL-61 foram devolvidas a "Tarefas pendentes". **VEL-56 e VEL-57 continuam em Concluído**: a permissão do ambiente negou a mudança duas vezes. Falta mover as duas. |
+| Confluence | A página de cronograma diz que todas as fases estão concluídas e marca artigo, vídeo e apresentação como entregues. | **Corrigido** na versão 3 da página, em 29/09/2026. O texto usado está em [correcao-confluence.md](correcao-confluence.md). |
+| Confluence | Cita "projeto Jira VELOUR", mas as chaves das issues começam com `VEL`. | Corrigido junto com a linha acima. |
 | Jira | VEL-15, "Story: RF01 — Cadastro de Clientes", tinha o tipo Tarefa. | **Corrigido**: agora é História. |
-| Confluence | A página de cronograma numera os Épicos da disciplina, como "Épico 3 — Financeiro (VEL-22)". Essa numeração não coincide com EP01 a EP12 do Jira. | A correção pendente acrescenta uma frase que explica a diferença. |
+| Confluence | A página de cronograma numera os Épicos da disciplina, como "Épico 3 — Financeiro (VEL-22)". Essa numeração não coincide com EP01 a EP12 do Jira. | **Corrigido**: a página agora tem uma frase que explica a diferença. |
 | Figma | Nenhum arquivo ou link de Figma no repositório, no Jira ou no Confluence. | **Aberto.** Montar o protótipo com [prototipo-figma-telas.md](prototipo-figma-telas.md) e linkar nas issues e no Confluence. |
 | Código | `npm ci` e `npm run lint` falhavam por causa do TypeScript 7.0.2. | **Corrigido**: TypeScript fixado na série 6.0, com lockfile regenerado. |
 
