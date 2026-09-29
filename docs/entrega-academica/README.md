@@ -9,15 +9,15 @@ Material de apoio para atender os pedidos da professora Kátia Arruda dos Santos
 | [resposta-email-professora.md](resposta-email-professora.md) | Rascunho da resposta ao e-mail de 08/09, com campos a preencher. |
 | [artigo-cientifico.md](artigo-cientifico.md) | Rascunho do artigo exigido na Banca Final. |
 | [roteiro-banca.md](roteiro-banca.md) | Roteiro de demonstração, checklist e perguntas prováveis da banca. |
-| [prototipo-figma-telas.md](prototipo-figma-telas.md) | Especificação das telas para montar o protótipo no Figma. |
+| [prototipo-figma-telas.md](prototipo-figma-telas.md) | Comparação do protótipo do Figma com o sistema e especificação do que falta. |
 | [matriz-alinhamento.md](matriz-alinhamento.md) | Épicos do Jira, páginas do Confluence, código e telas lado a lado, com as divergências. |
 | [correcao-confluence.md](correcao-confluence.md) | Texto pronto para corrigir a página de cronograma no Confluence. |
 
 ## Vídeo e apresentação
 
-- **Apresentação:** 13 slides na identidade visual do Velour, publicados como artefato privado em https://claude.ai/artifact/5u8FDuwNVet9WiFJ8q75fv. Só o dono abre o link até ele ser compartilhado. Os campos entre colchetes, como nomes do grupo, data da banca e link do Figma, precisam ser preenchidos.
+- **Apresentação:** 13 slides na identidade visual do Velour, publicados como artefato privado em https://claude.ai/artifact/5u8FDuwNVet9WiFJ8q75fv. Só o dono abre o link até ele ser compartilhado. Os campos entre colchetes, como nomes do grupo e data da banca, precisam ser preenchidos.
 - **Vídeo:** 2 minutos e 30 segundos, sem voz, com legendas na tela. Mostra a gestão no Jira, a arquitetura, e a aplicação real: login, dashboard, clientes, criação de agendamento, conflito de horário, conclusão com R$ 143,00, perfil do cliente, estoque, financeiro, contábil, fiscal, fidelidade e relatórios, e o resultado dos testes. O arquivo não está no repositório, por ser binário. Foi gravado com dados fictícios do `seed.py`.
-- **O que o vídeo não tem:** gravação da tela do Jira, do Confluence e do Figma. O cartão do Jira é um resumo dos épicos, e a professora pediu a tela real dessas ferramentas na primeira entrega.
+- **O que o vídeo não tem:** gravação da tela do Jira, do Confluence e do Figma. Os cartões do Jira e do Figma são resumos, com a captura da tela de login do protótipo, e a professora pediu a tela real dessas ferramentas na primeira entrega.
 
 ## Pedidos da professora e situação
 
@@ -26,7 +26,7 @@ Material de apoio para atender os pedidos da professora Kátia Arruda dos Santos
 | Responder confirmando ciência e a escolha sobre a gamificação, copiando o grupo e o coordenador Márcio | E-mail de 08/09, prazo 11/09 | Rascunho pronto. O prazo já venceu. Falta a escolha do grupo e os endereços. |
 | Acompanhar a gamificação: grupo de WhatsApp, entregas por Épico com vídeo e defesa presencial | E-mails de 08/09 e 18/09 | Vale só se o grupo estiver entre os confirmados: G1, G2, G6, G7, G8, G10, G11, G12, G14, G17 e G18. |
 | Apresentar o sistema em pleno funcionamento, com código-fonte | Banca Final | Sistema verificado e instalação limpa corrigida. Roteiro pronto. |
-| Comprovar Jira, Confluence e Figma alinhados ao código | E-mails de 05/08 e 08/09 | Jira e Confluence existem. Não há arquivo de Figma no repositório, no Jira nem no Confluence. Especificação pronta para montar. |
+| Comprovar Jira, Confluence e Figma alinhados ao código | E-mails de 05/08 e 08/09 | Jira e Confluence existem. O Figma existe como protótipo do Figma Make, com 10 das 16 telas e identidade visual um pouco diferente. Veja [prototipo-figma-telas.md](prototipo-figma-telas.md). O link ainda não está no Jira nem no Confluence. |
 | Apresentar o artigo científico nas normas da instituição | E-mail de 08/09 | Rascunho estruturado. Faltam autores, modelo da instituição e conferência das referências. |
 | Ler os materiais anexados | E-mails de 05/08 e 11/08 | Não feito. Os PDFs não estavam acessíveis. Podem conter exigências que não constam aqui. |
 
@@ -73,7 +73,7 @@ A permissão do ambiente negou estas ações, mesmo depois da autorização do u
 
 - **Jira:** mover VEL-54 e VEL-59 para Concluído. Continuam em "Tarefas pendentes".
 - **Confluence:** nada pendente na coluna de situação, que já espelha o Jira. Só a lista de entrega final segue desmarcada, e cabe a você marcá-la quando vídeo, apresentação e artigo existirem.
-- **Figma:** o protótipo não existe e não tenho acesso ao Figma.
+- **Figma:** só a tela de login do protótipo foi vista de fato. O restante vem do resumo do Figma Make, porque o Opera não permite clicar nem navegar pelo protótipo.
 - **Envio do e-mail à professora:** depende de escolhas do grupo.
 
 ## Pontos que dependem do grupo

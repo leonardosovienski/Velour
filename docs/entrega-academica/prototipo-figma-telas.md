@@ -1,6 +1,22 @@
 # Especificação para o protótipo no Figma
 
-Não existe arquivo de Figma ligado ao projeto, e esta sessão não tem acesso ao Figma. Este documento lista o que desenhar, tirado das rotas e dos componentes reais do frontend. Ao terminar, cole o link nas issues do Jira e no Confluence.
+O protótipo existe no Figma Make: https://www.figma.com/make/b2WZxFKGy7MKOfKsXn8fFk/Execute-task. O arquivo é privado, da conta do autor. Foi lido pelo Opera em 29/09/2026. Só a tela de login foi vista de fato. O restante vem do resumo que o próprio Figma Make gerou no chat do projeto.
+
+Este documento continua útil como especificação do que ainda falta ao protótipo. A lista foi tirada das rotas e dos componentes reais do frontend.
+
+## Protótipo existente versus sistema
+
+O protótipo tem 10 telas navegáveis, segundo o resumo do Figma Make: Login com validação, Dashboard, Clientes, Agendamentos com detecção de conflito no formulário, Profissionais com comissão, Serviços com categorias, Fidelidade, Indicações, Relatórios com quatro abas de gráficos e Usuários com os três perfis.
+
+O sistema tem 16 telas. Não constam no protótipo:
+
+- Perfil do cliente, em `/clients/:id`.
+- Estoque.
+- Financeiro, com Visão geral, Recebimentos, Despesas, Contábil, Documentos fiscais e Assinatura.
+- Cadastro do salão e recuperação de senha.
+- Administração Velour.
+
+A identidade visual difere um pouco. O protótipo usa fundo `#0D0C0B`, ouro `#BF9B5F` e as fontes DM Serif Display, Outfit e DM Mono, com o subtítulo "Studio Management". O sistema usa `#0A0A0A`, `#C9A84C`, Cormorant Garamond, DM Sans e JetBrains Mono, com "Gestão Premium". Na tela de login vista, o botão aparece em âmbar mais vivo que o ouro descrito. Como a professora cobra alinhamento entre Figma e código, convém igualar as cores e as fontes, ou explicar que o protótipo veio antes.
 
 ## Referência visual
 

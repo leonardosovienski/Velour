@@ -34,7 +34,7 @@ O estado abaixo é o de 29/09/2026, depois das correções desta rodada.
 | Confluence | Cita "projeto Jira VELOUR", mas as chaves das issues começam com `VEL`. | Corrigido junto com a linha acima. |
 | Jira | VEL-15, "Story: RF01 — Cadastro de Clientes", tinha o tipo Tarefa. | **Corrigido**: agora é História. |
 | Confluence | A página de cronograma numera os Épicos da disciplina, como "Épico 3 — Financeiro (VEL-22)". Essa numeração não coincide com EP01 a EP12 do Jira. | **Corrigido**: a página agora tem uma frase que explica a diferença. |
-| Figma | Nenhum arquivo ou link de Figma no repositório, no Jira ou no Confluence. | **Aberto.** Montar o protótipo com [prototipo-figma-telas.md](prototipo-figma-telas.md) e linkar nas issues e no Confluence. |
+| Figma | O protótipo existe no Figma Make, mas o link não está no repositório, no Jira nem no Confluence. Ele cobre 10 das 16 telas e usa cores e fontes um pouco diferentes do sistema. | **Aberto.** Linkar nas issues e no Confluence, e igualar a identidade visual ou explicar a diferença. Veja [prototipo-figma-telas.md](prototipo-figma-telas.md). |
 | Código | `npm ci` e `npm run lint` falhavam por causa do TypeScript 7.0.2. | **Corrigido**: TypeScript fixado na série 6.0, com lockfile regenerado. |
 
 Esta análise usou só os títulos das issues e o conteúdo da página de cronograma do Confluence. Não abri o corpo de cada história para conferir critérios de aceite.

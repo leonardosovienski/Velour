@@ -8,7 +8,7 @@ O prazo pedido era 11/09, então o texto pede desculpas pelo atraso. Se o grupo 
 
 1. Escolha a opção A ou B no segundo parágrafo e apague a outra. A lista de 18/09 traz os grupos confirmados: G1, G2, G6, G7, G8, G10, G11, G12, G14, G17 e G18. Confira se o seu grupo consta nela.
 2. Responda **na mesma conversa**, com "Responder a todos" ou copiando todos os integrantes do grupo e o coordenador Márcio. O e-mail original foi enviado a você com cópia oculta, então o endereço do Márcio precisa ser obtido à parte.
-3. Só inclua o link do Figma se o arquivo existir. Hoje não há nenhum.
+3. O link do Figma já está no texto. Confirme que o arquivo está compartilhável com a professora antes de enviar, pois o acesso atual é só da sua conta.
 
 ## Texto
 
@@ -24,7 +24,7 @@ Em nome do grupo [G__], confirmo a ciência das diretrizes sobre o Plano de Ensi
 
 Peço desculpas pelo atraso em responder. Confirmo também o recebimento dos materiais enviados em 05/08 e da versão atualizada do guia técnico enviada em 11/08. [Opcional: Sobre a 1ª Entrega, compreendi a pontuação registrada em 17/08 e sigo com as próximas etapas do cronograma.]
 
-Sobre o andamento do projeto, o Velour, sistema de gestão de salões de beleza, está no repositório https://github.com/leonardosovienski/Velour. A gestão ágil está no Jira, projeto VEL, com 12 épicos, e a documentação está no Confluence, espaço VELOUR. [Protótipo no Figma: link, quando estiver pronto.]
+Sobre o andamento do projeto, o Velour, sistema de gestão de salões de beleza, está no repositório https://github.com/leonardosovienski/Velour. A gestão ágil está no Jira, projeto VEL, com 12 épicos, e a documentação está no Confluence, espaço VELOUR. O protótipo de interface está no Figma: https://www.figma.com/make/b2WZxFKGy7MKOfKsXn8fFk/Execute-task
 
 Fico à disposição para qualquer esclarecimento.
 
