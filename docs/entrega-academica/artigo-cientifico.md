@@ -106,8 +106,10 @@ A verificação de 29/09/2026 ocorreu em um contêiner Linux com Python 3.11, No
 | Testes do frontend | 55 aprovados, em 16 arquivos |
 | Análise estática e build do frontend | Aprovados |
 | Auditoria de dependências do frontend | Nenhuma vulnerabilidade de gravidade alta |
+| Navegação por 16 telas em navegador, com dados fictícios | Todas carregaram, sem falha de API |
+| Fluxos de agenda, conclusão e permissões pela API, com dados fictícios | Comportamento conforme as regras descritas na seção 4 |
 
-Não foram executados nessa rodada os containers, o backup com restauração e o teste de migração a partir de uma base existente. Um resultado de testes aprovados sustenta a verificação local, mas não equivale a homologação para clientes reais.
+Não foram executados nessa rodada os containers, o backup com restauração e o teste de migração a partir de uma base existente. A navegação em navegador cobriu o perfil de administrador. Um resultado de testes aprovados sustenta a verificação local, mas não equivale a homologação para clientes reais.
 
 ## 6 Limitações
 

@@ -21,6 +21,10 @@ A Banca Final está no Jira para 23 e 24/11/2026. A duração da apresentação 
 | 9:30 a 10:30 | 5. Qualidade | Rodar `python -m pytest tests/` e mostrar o resultado. Explicar que os testes PostgreSQL só rodam com base configurada. |
 | 10:30 a 12:00 | 6. Limites e próximos passos | Fiscal e contábil demonstrativos, Stripe e SMTP sem homologação real, uma réplica da API, sem portal do cliente. |
 
+### Exemplo verificado com o seed atual
+
+Em 29/09/2026, com os dados de `seed.py`, a conclusão de um serviço de R$ 180,00 para um cliente Platinum, resgatando 100 pontos, resultou em R$ 143,00. O desconto do nível foi de R$ 27,00 e o resgate valeu R$ 10,00. Repetir a conclusão retornou 409 e não alterou os pontos. Os valores dependem dos dados gerados, então confirme antes da banca. As capturas das telas com esses dados estão em [telas](telas).
+
 ### Sequência da demonstração
 
 1. **Login como administrador.** Abra o Dashboard, com agenda do dia, receita e alertas.

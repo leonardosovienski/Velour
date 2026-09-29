@@ -42,7 +42,10 @@ Ambiente: contêiner Linux com Python 3.11.15, Node 22.22.2, npm 10.9.7 e Postgr
 | Frontend, `npm run build` | Concluído. Pacote inicial de 324,99 kB, 104,97 kB com gzip. |
 | Frontend, `npm audit --audit-level=high` | Nenhuma vulnerabilidade. |
 
-Não executado: containers, backup e restauração, teste de migração a partir de uma base existente e navegação manual pelas telas. Stripe e SMTP não foram homologados com credenciais reais.
+| Navegador (Chromium), login como administrador e 16 telas | Todas carregaram, sem falha de API. O único erro de console foi de certificado, provavelmente de recurso externo bloqueado pelo proxy. Capturas em [telas](telas). |
+| API contra os dados do `seed.py` | Conflito de agenda 409, horário adjacente 201, data com fuso 422. Conclusão com 100 pontos resultou em R$ 143, repetição 409 sem repetir pontos. Profissional vê só a própria agenda e recebe 403 em estoque, relatórios, fidelidade, usuários e indicações. Sem token, 401. |
+
+Não executado: containers e backup com restauração, porque o Docker não tem daemon neste ambiente. Também não foram testadas a migração a partir de uma base existente, a navegação como profissional pela interface e a interação manual com formulários e modais. A verificação usou um banco SQLite descartável criado pelo `seed.py`, só em desenvolvimento. Stripe e SMTP não foram homologados com credenciais reais.
 
 ## Correções feitas nesta rodada
 

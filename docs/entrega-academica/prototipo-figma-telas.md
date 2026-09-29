@@ -2,6 +2,10 @@
 
 Não existe arquivo de Figma ligado ao projeto, e esta sessão não tem acesso ao Figma. Este documento lista o que desenhar, tirado das rotas e dos componentes reais do frontend. Ao terminar, cole o link nas issues do Jira e no Confluence.
 
+## Referência visual
+
+A pasta [telas](telas) tem capturas de 1440 por 900 pixels das 16 telas do administrador, tiradas em 29/09/2026 com dados fictícios do `seed.py`. Use-as como referência para reproduzir o layout no Figma. Elas mostram o estado carregado. Os estados de carregamento, vazio e erro precisam ser desenhados à parte.
+
 ## Organização do arquivo
 
 Crie um arquivo chamado Velour com quatro páginas: **Fundamentos**, **Componentes**, **Telas** e **Fluxos**. Desenhe em 1440 px de largura e repita as telas principais em 390 px, largura já usada na verificação responsiva do projeto.
