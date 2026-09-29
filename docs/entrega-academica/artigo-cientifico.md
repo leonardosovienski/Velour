@@ -16,13 +16,13 @@ Este texto é um ponto de partida. Todos os fatos técnicos vêm do código e da
 
 ## Resumo
 
-Este trabalho apresenta o Velour, um sistema de gestão para salões de beleza oferecido como software como serviço, desenvolvido como projeto integrador. O sistema reúne agenda, clientes, profissionais, serviços, estoque, programa de fidelidade e indicações, relatórios, assinatura mensal e módulos demonstrativos financeiro, fiscal e contábil. O frontend usa React e TypeScript, e o backend usa FastAPI e SQLAlchemy, com PostgreSQL em produção. Cada salão tem dados, usuários e assinatura isolados, e o escopo é definido pela autenticação, não por dados do cliente. O artigo descreve a arquitetura, as regras de domínio e o processo de desenvolvimento com Scrum, Jira, Confluence e Figma. Em ambiente controlado, 212 testes automatizados do backend, sendo 6 em PostgreSQL, e 55 do frontend foram aprovados. Os módulos fiscal e contábil não têm validade legal, e a cobrança com Stripe e o envio de e-mails não foram homologados com credenciais reais. Conclui-se que o sistema cumpre os requisitos funcionais propostos e indica os passos necessários para uso comercial.
+Este trabalho apresenta o Velour, um sistema de gestão para salões de beleza oferecido como software como serviço, desenvolvido como projeto integrador. O sistema reúne agenda, clientes, profissionais, serviços, estoque, programa de fidelidade e indicações, relatórios, assinatura mensal e módulos demonstrativos financeiro, fiscal e contábil. O frontend usa React e TypeScript, e o backend usa FastAPI e SQLAlchemy, com PostgreSQL em produção. Cada salão tem dados, usuários e assinatura isolados, e o escopo é definido pela autenticação, não por dados do cliente. O artigo descreve a arquitetura, as regras de domínio e o processo de desenvolvimento com Scrum, Jira, Confluence e Figma. Em ambiente controlado, 212 testes automatizados do backend, sendo 6 em PostgreSQL, e 56 do frontend foram aprovados. Os módulos fiscal e contábil não têm validade legal, e a cobrança com Stripe e o envio de e-mails não foram homologados com credenciais reais. Conclui-se que o sistema cumpre os requisitos funcionais propostos e indica os passos necessários para uso comercial.
 
 **Palavras-chave:** software como serviço; multi-inquilino; gestão de salões; FastAPI; React.
 
 ## Abstract
 
-This paper presents Velour, a software-as-a-service platform for beauty salon management built as a capstone project. It provides scheduling, client records, staff, services, inventory, a loyalty and referral program, reports, monthly subscription billing and demonstrative finance, tax and accounting modules. The frontend uses React and TypeScript; the backend uses FastAPI and SQLAlchemy, with PostgreSQL in production. Each salon has isolated data, users and subscription, and the scope is derived from authentication rather than client-supplied data. The paper describes the architecture, the domain rules and the development process based on Scrum, Jira, Confluence and Figma. In a controlled environment, 212 backend automated tests, 6 of them on PostgreSQL, and 55 frontend tests passed. The tax and accounting modules have no legal validity, and Stripe billing and email delivery were not validated with real credentials.
+This paper presents Velour, a software-as-a-service platform for beauty salon management built as a capstone project. It provides scheduling, client records, staff, services, inventory, a loyalty and referral program, reports, monthly subscription billing and demonstrative finance, tax and accounting modules. The frontend uses React and TypeScript; the backend uses FastAPI and SQLAlchemy, with PostgreSQL in production. Each salon has isolated data, users and subscription, and the scope is derived from authentication rather than client-supplied data. The paper describes the architecture, the domain rules and the development process based on Scrum, Jira, Confluence and Figma. In a controlled environment, 212 backend automated tests, 6 of them on PostgreSQL, and 56 frontend tests passed. The tax and accounting modules have no legal validity, and Stripe billing and email delivery were not validated with real credentials.
 
 **Keywords:** software as a service; multi-tenancy; salon management; FastAPI; React.
 
@@ -103,7 +103,7 @@ A verificação de 29/09/2026 ocorreu em um contêiner Linux com Python 3.11, No
 | Testes de isolamento entre salões, PostgreSQL | 6 aprovados |
 | Migrações em banco vazio e verificação de divergências | Concluídas, sem divergências |
 | Auditoria de dependências Python | Nenhuma vulnerabilidade conhecida |
-| Testes do frontend | 55 aprovados, em 16 arquivos |
+| Testes do frontend | 56 aprovados, em 16 arquivos |
 | Análise estática e build do frontend | Aprovados |
 | Auditoria de dependências do frontend | Nenhuma vulnerabilidade de gravidade alta |
 | Navegação por 16 telas em navegador, com dados fictícios | Todas carregaram, sem falha de API |

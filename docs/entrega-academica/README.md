@@ -13,6 +13,12 @@ Material de apoio para atender os pedidos da professora Kátia Arruda dos Santos
 | [matriz-alinhamento.md](matriz-alinhamento.md) | Épicos do Jira, páginas do Confluence, código e telas lado a lado, com as divergências. |
 | [correcao-confluence.md](correcao-confluence.md) | Texto pronto para corrigir a página de cronograma no Confluence. |
 
+## Vídeo e apresentação
+
+- **Apresentação:** 13 slides na identidade visual do Velour, publicados como artefato privado em https://claude.ai/artifact/5u8FDuwNVet9WiFJ8q75fv. Só o dono abre o link até ele ser compartilhado. Os campos entre colchetes, como nomes do grupo, data da banca e link do Figma, precisam ser preenchidos.
+- **Vídeo:** 2 minutos e 30 segundos, sem voz, com legendas na tela. Mostra a gestão no Jira, a arquitetura, e a aplicação real: login, dashboard, clientes, criação de agendamento, conflito de horário, conclusão com R$ 143,00, perfil do cliente, estoque, financeiro, contábil, fiscal, fidelidade e relatórios, e o resultado dos testes. O arquivo não está no repositório, por ser binário. Foi gravado com dados fictícios do `seed.py`.
+- **O que o vídeo não tem:** gravação da tela do Jira, do Confluence e do Figma. O cartão do Jira é um resumo dos épicos, e a professora pediu a tela real dessas ferramentas na primeira entrega.
+
 ## Pedidos da professora e situação
 
 | Pedido | Origem | Situação |
@@ -38,7 +44,7 @@ Ambiente: contêiner Linux com Python 3.11.15, Node 22.22.2, npm 10.9.7 e Postgr
 | `pip-audit -r requirements.txt` | Nenhuma vulnerabilidade conhecida. |
 | Frontend, `npm ci` sem contornos | Concluído. |
 | Frontend, `npm run lint` | Aprovado. |
-| Frontend, `npm run test` | 55 testes aprovados em 16 arquivos. |
+| Frontend, `npm run test` | 56 testes aprovados em 16 arquivos, incluindo o teste da correção descrita abaixo. |
 | Frontend, `npm run build` | Concluído. Pacote inicial de 324,99 kB, 104,97 kB com gzip. |
 | Frontend, `npm audit --audit-level=high` | Nenhuma vulnerabilidade. |
 
@@ -50,6 +56,7 @@ Não executado: containers e backup com restauração, porque o Docker não tem 
 ## Correções feitas nesta rodada
 
 **No repositório:**
+- O formulário de conclusão de atendimento tinha um defeito. O campo "Valor recebido" exibia o valor final como sugestão, mas não o guardava. Quem marcava "Pagamento recebido", escolhia a forma de pagamento e aceitava a sugestão recebia o erro "Informe a forma de pagamento e o valor recebido". Agora a sugestão exibida é enviada. Um teste novo cobre o caso e falha sem a correção. Foi descoberto ao gravar o vídeo da demonstração.
 - O TypeScript voltou para a série 6.0. A versão 7.0.2, aceita pelo Dependabot no commit `d651f68`, quebrava `npm ci` e `npm run lint` porque o typescript-eslint só aceita versões abaixo da 6.1. O `package-lock.json` foi regenerado.
 - O Dependabot agora ignora saltos de versão major do TypeScript, até o typescript-eslint suportar a versão 7.
 - Um aviso do SQLAlchemy em `routers/reports.py`, sobre o uso de uma subconsulta em `IN`, foi corrigido sem mudar o resultado. Os testes continuam aprovados em SQLite e PostgreSQL, com esse aviso tratado como erro.
