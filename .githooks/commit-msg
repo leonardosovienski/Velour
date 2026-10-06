@@ -1,0 +1,10 @@
+#!/bin/sh
+# Ative uma vez por clone: git config core.hooksPath .githooks
+root="$(git rev-parse --show-toplevel)"
+for python in "$root/.venv/bin/python" "$root/.venv/Scripts/python.exe" python3 python; do
+  if command -v "$python" >/dev/null 2>&1; then
+    exec "$python" "$root/scripts/check_commit_message.py" "$1"
+  fi
+done
+echo "Python não encontrado; não foi possível validar a chave do Jira no commit." >&2
+exit 1
