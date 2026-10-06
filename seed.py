@@ -21,13 +21,15 @@ from models.referral import Referral, ReferralStatus
 from models.product import Product, ProductUnit
 from models.service_recipe import ServiceRecipe
 from models.stock_movement import StockMovement, StockMovementType
-from models import Tenant, PasswordResetToken, AuditLog
+from models import Tenant, PasswordResetToken, AuditLog, Expense, CostBudget
 
 db = None
 
 
 def limpar():
     # Ordem respeita as FKs (filhos antes dos pais)
+    db.query(CostBudget).delete()
+    db.query(Expense).delete()
     db.query(PasswordResetToken).delete()
     db.query(AuditLog).delete()
     db.query(User).delete()
