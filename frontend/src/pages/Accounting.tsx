@@ -38,7 +38,7 @@ export function Accounting({ month }: { month: string }) {
       <button className="secondary-button" disabled={busy} onClick={() => void download('txt')}><FileText size={16} /> Baixar TXT</button>
     </div>
     <div className="grid lg:grid-cols-2 gap-5">
-      <Card>
+      <Card className="min-w-0">
         <h3 className="text-cream font-medium mb-4">DRE · Demonstração do resultado</h3>
         <table className="w-full text-sm"><tbody>{data.dre.map(row => <tr key={row.label} className={row.level ? 'text-muted' : 'text-cream font-medium border-t border-border'}>
           <td className={`py-2 ${row.level ? 'pl-4' : ''}`}>{row.label}</td>
@@ -46,7 +46,7 @@ export function Accounting({ month }: { month: string }) {
         </tr>)}</tbody></table>
         <p className="text-muted text-xs mt-4">ISS estimado com a alíquota do cadastro fiscal ({data.iss_rate.toFixed(2)}%). Receitas e comissões pela data do atendimento; despesas pelo vencimento.</p>
       </Card>
-      <Card>
+      <Card className="min-w-0">
         <div className="flex justify-between items-center mb-4"><h3 className="text-cream font-medium">Balancete de verificação</h3><span className={`inline-flex items-center gap-1 text-xs ${balanced ? 'text-emerald-400' : 'text-danger'}`}><Scale size={14} /> {balanced ? 'Débitos = créditos' : 'Diferença entre débitos e créditos'}</span></div>
         {data.trial_balance.length === 0 ? <p className="text-muted text-sm py-6 text-center">Sem movimento neste mês.</p> : <div className="overflow-x-auto"><table className="w-full text-sm min-w-[460px]"><thead className="text-muted text-left"><tr>{['Conta', 'Débitos', 'Créditos', 'Saldo'].map(t => <th key={t} scope="col" className="pb-3">{t}</th>)}</tr></thead>
           <tbody className="divide-y divide-border">{data.trial_balance.map(row => <tr key={row.code} className="text-cream"><td className="py-2 pr-3"><span className="text-muted font-mono text-xs">{row.code}</span> {row.name}</td><td className="font-mono">{money(row.debit)}</td><td className="font-mono">{money(row.credit)}</td><td className="font-mono">{money(row.balance)}</td></tr>)}</tbody>
