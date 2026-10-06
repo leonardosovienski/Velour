@@ -18,7 +18,7 @@ from models import (
     Appointment, AuditLog, Client, LoyaltyTransaction, Product, Professional,
     Referral, Service, ServiceCategory, ServiceRecipe, StockMovement, Tenant, User,
     UserRole,
-    FiscalProfile, FiscalDocument, FiscalEvent, Expense,
+    FiscalProfile, FiscalDocument, FiscalEvent, Expense, CostBudget,
 )
 from rate_limit import RateLimiter, request_key
 from schemas.tenant import TenantSignup
@@ -97,7 +97,7 @@ def export_tenant(request: Request, user: User = Depends(require_owner), db: Ses
     tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).one()
     tables = (User, Client, Professional, ServiceCategory, Service, Product,
               ServiceRecipe, Appointment, StockMovement, LoyaltyTransaction, Referral, AuditLog,
-              FiscalProfile, FiscalDocument, FiscalEvent, Expense)
+              FiscalProfile, FiscalDocument, FiscalEvent, Expense, CostBudget)
     excluded = {"hashed_password", "token_version"}
     exported = {}
     for model in tables:

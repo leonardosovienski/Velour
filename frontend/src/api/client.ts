@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { AccountingReport, Expense, ExpenseInput, FinanceOverview, PaymentMethod } from './financeTypes'
+import type { AccountingReport, CostBudgetItem, CostReport, Expense, ExpenseInput, FinanceOverview, PaymentMethod } from './financeTypes'
 import type { FiscalAppointment, FiscalConfig, FiscalDocument, FiscalDraft, FiscalEvent, FiscalProfile, FiscalTenant } from './fiscalTypes'
 import type {
   LoginResponse, UserResponse, UserCreate, UserUpdate, SignupRequest, SignupConfig, BillingStatus,
@@ -30,6 +30,11 @@ export const financeApi = {
 export const accountingApi = {
   report: (month: string) => api.get<AccountingReport>('/accounting/report', { params: { month } }).then(r => r.data),
   download: (month: string, format: 'txt' | 'pdf') => api.get<Blob>('/accounting/report/download', { params: { month, format }, responseType: 'blob' }).then(r => r.data),
+}
+export const costsApi = {
+  report: (month: string) => api.get<CostReport>('/costs/report', { params: { month } }).then(r => r.data),
+  saveBudget: (month: string, items: CostBudgetItem[]) => api.put<{ month: string; items: CostBudgetItem[] }>('/costs/budget', { items }, { params: { month } }).then(r => r.data),
+  download: (month: string) => api.get<Blob>('/costs/report/download', { params: { month }, responseType: 'blob' }).then(r => r.data),
 }
 export const fiscalApi = {
   get: (id: number) => api.get<FiscalDocument>(`/fiscal/documents/${id}`).then(r => r.data),

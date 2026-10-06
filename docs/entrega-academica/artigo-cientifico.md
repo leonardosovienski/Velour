@@ -89,9 +89,11 @@ O resgate de pontos é feito em múltiplos de 100, e cada 100 pontos valem R$ 10
 
 **Valores monetários.** O sistema usa aritmética decimal no backend e números JSON nas respostas, sem converter os valores internos para ponto flutuante.
 
-### 4.5 Módulos financeiro, fiscal e contábil
+### 4.5 Módulos financeiro, de custos, fiscal e contábil
 
 O módulo financeiro registra recebimentos e despesas por salão e resume o mês. Os módulos fiscal e contábil são demonstrações acadêmicas. O fiscal simula a emissão de notas de serviço sem transmitir nada à Receita ou à prefeitura. O contábil gera DRE, livro diário e balancete demonstrativos, com exportação em TXT e PDF. Nenhum dos dois tem validade fiscal ou contábil.
+
+A gestão de custos aplica o custeio variável aos mesmos registros. Insumos consumidos, comissões e ISS estimado são custos variáveis. As despesas, pelo vencimento, são custos fixos. A partir deles, o sistema calcula a margem de contribuição, o ponto de equilíbrio, que é o custo fixo dividido pelo índice de margem de contribuição, e a margem de segurança. Mostra ainda a margem por serviço e por profissional e o custo-padrão de cada serviço pela ficha técnica. O orçamento mensal por linha de custo é a única informação gravada pelo módulo. O sistema compara esse orçamento ao realizado e emite alertas quando uma linha estoura o orçamento, quando um serviço tem margem negativa ou quando o preço não cobre insumos e imposto.
 
 ## 5 Verificação e resultados
 

@@ -57,6 +57,7 @@ Todas as permissões se limitam ao salão autenticado. `require_admin` e `requir
 | Ler serviços e fichas técnicas | Sim | Sim | Sim |
 | Gerenciar estoque e fichas técnicas | Sim | Sim | Não |
 | Visão geral de fidelidade, indicações, relatórios e auditoria | Sim | Sim | Não |
+| Financeiro, custos, orçamento e contábil | Sim | Sim | Não |
 
 Usuários `professional` precisam de vínculo com um profissional ativo do mesmo salão; um profissional não pode ser vinculado a dois usuários. O último administrador ativo não pode ser desativado nem perder esse papel. Não existe papel de administrador da plataforma na API pública: suporte entre salões é feito por ferramenta local, descrita em [PRODUCTION.md](PRODUCTION.md).
 
@@ -95,7 +96,8 @@ Ao aderir durante o teste, o Checkout preserva o prazo restante. Perto do vencim
 | Relatórios `/reports` | Receita, clientes, fidelidade e indicações por período. Acesso administrativo. |
 | Usuários `/users` | Cadastro, papel, vínculo profissional e ativação de usuários. |
 | Conta e assinatura `/billing` | Situação do teste/assinatura, Checkout, Portal e exportação conforme o papel. |
-| Financeiro `/finance/overview` | Resumo mensal, recebimentos, despesas, contábil, documentos e assinatura. Ver [Financeiro](FINANCEIRO_MVP.md). |
+| Financeiro `/finance/overview` | Resumo mensal, recebimentos, despesas, custos, contábil, documentos e assinatura. Ver [Financeiro](FINANCEIRO_MVP.md). |
+| Custos `/finance/costs` | Margem de contribuição, ponto de equilíbrio, orçado × realizado, margem por serviço e profissional, custo-padrão da ficha técnica, evolução de seis meses e CSV. Admin/gerente; visão gerencial. Ver [Financeiro](FINANCEIRO_MVP.md#gestão-de-custos). |
 | Contábil `/finance/accounting` | DRE, livro diário e balancete demonstrativos do mês, com download em TXT/PDF. Admin/gerente; sem validade contábil. |
 | Documentos fiscais `/finance/documents` | Cadastro, rascunhos, emissão simulada, cancelamento, histórico e demonstrativos para impressão. Administrador; sem validade fiscal. `/fiscal` redireciona para esta área. |
 | Administração Velour `/platform/fiscal` | Emissão demonstrativa para assinantes, apenas operador configurado fora de produção. |
@@ -274,6 +276,7 @@ Erros usuais: **400** requisição/link inválido; **401** sessão inválida/exp
 | `appointments` | Agenda, conclusão, pagamentos registrados, fotos e lembrete. |
 | `products`, `stock_movements` | Insumos e histórico de saldo. |
 | `loyalty_transactions`, `referrals` | Pontos e conversões de indicação. |
+| `expenses`, `cost_budgets` | Despesas do salão e orçamento mensal por linha de custo. |
 | `audit_logs` | Metadados de mutações HTTP e operações de suporte. |
 | `password_reset_tokens` | Hashes de tokens de recuperação, expiração e uso. |
 | `billing_webhook_events` | Identificadores dos eventos Stripe já processados. |

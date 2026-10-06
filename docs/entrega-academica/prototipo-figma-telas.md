@@ -1,6 +1,6 @@
 # Especificação para o protótipo no Figma
 
-Não existe arquivo de Figma ligado ao projeto, e esta sessão não tem acesso ao Figma. Este documento lista o que desenhar, tirado das rotas e dos componentes reais do frontend. Ao terminar, cole o link nas issues do Jira e no Confluence.
+O protótipo está no Figma Make, com link na página "Cronograma e status das entregas" do Confluence desde 29/09/2026. O arquivo é privado e não foi conferido aqui, porque esta sessão não tem acesso ao Figma. Este documento lista as telas reais do frontend, tiradas das rotas e dos componentes, para comparar com o protótipo e completá-lo. A aba Custos, criada em 06/10, provavelmente falta. Cole o link também nas issues do Jira.
 
 ## Referência visual
 
@@ -63,9 +63,28 @@ Desenhe cada tela com os estados de carregamento, vazio e erro. Papéis: A é ad
 | `/billing` | Conta e assinatura | Todos veem, A gerencia | Situação, Checkout, Portal e exportação. |
 | `/finance/overview` | Financeiro, visão geral | A, G | Resumo mensal. |
 | `/finance/documents` | Documentos fiscais | A | Cadastro, rascunho, emissão simulada e cancelamento. |
+| `/finance/costs` | Custos | A, G | Oito indicadores (receita, custos variáveis, margem de contribuição, custos fixos, resultado, ponto de equilíbrio, margem de segurança e ticket médio), alertas, orçado × realizado com formulário de orçamento, evolução de seis meses, margem por serviço, centros de custo por profissional, custo-padrão da ficha técnica e download em CSV. |
 | `/finance/accounting` | Contábil | A, G | DRE, livro diário e balancete, com download em TXT e PDF. |
 
 O Financeiro também tem as abas Recebimentos, Despesas e Assinatura Velour, sob `/finance/:section`. Desenhe uma variação de cada. O modal de conclusão do atendimento merece um quadro próprio, com valor base, resgate de pontos, desconto do nível, teto de 50%, pagamento e consumo de estoque.
+
+## Prompt para acrescentar a aba Custos no Figma Make
+
+Cole no protótipo do Figma Make, ajustando se as telas tiverem outros nomes:
+
+```text
+Na tela Financeiro, acrescente a aba "Custos" entre "Despesas" e "Contábil", no mesmo visual escuro com dourado.
+Topo: seletor "Mês de referência", botões "Baixar planilha (CSV)" e "Definir orçamento do mês".
+Oito cartões: Receita do mês, Custos variáveis, Margem de contribuição (com % da receita), Custos fixos,
+Resultado do mês (verde se lucro, rosa se prejuízo), Ponto de equilíbrio (com "Cerca de N atendimentos"),
+Margem de segurança e Ticket médio.
+Cartão "Alertas de custo" com ícone de aviso, por exemplo "Comissões de profissionais acima do orçamento em R$ 179,50".
+Tabela "Orçado × realizado": Linha de custo, Realizado, Orçado, Variação, Situação
+(Dentro do orçamento, Acima do orçamento ou Sem orçamento, com barra de progresso).
+Tabela "Evolução dos últimos seis meses" com barras de receita e custos.
+Tabelas "Margem por serviço", "Centros de custo por profissional" e "Custo-padrão pela ficha técnica".
+O formulário "Orçamento do mês" tem um campo em R$ para cada linha de custo e o botão "Salvar orçamento".
+```
 
 ## Fluxos para o protótipo clicável
 

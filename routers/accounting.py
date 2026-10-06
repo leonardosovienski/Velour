@@ -54,6 +54,12 @@ def month_bounds(month: str):
     return start, end
 
 
+def estimated_iss_rate(db: Session) -> Decimal:
+    """Alíquota do cadastro fiscal demonstrativo, em %; zero sem cadastro."""
+    profile = db.query(FiscalProfile).first()
+    return Decimal(str(profile.data.get('iss_rate', '0'))) if profile else Decimal('0')
+
+
 def build_report(db: Session, month: str) -> dict:
     try:
         start, end = month_bounds(month)
@@ -70,8 +76,7 @@ def build_report(db: Session, month: str) -> dict:
     consumption = (db.query(StockMovement, Product).join(Product, Product.id == StockMovement.product_id)
                    .filter(StockMovement.type == StockMovementType.consumption,
                            StockMovement.created_at >= start_dt, StockMovement.created_at < end_dt).all())
-    profile = db.query(FiscalProfile).first()
-    iss_rate = Decimal(str(profile.data.get('iss_rate', '0'))) if profile else Decimal('0')
+    iss_rate = estimated_iss_rate(db)
 
     entries = []
 

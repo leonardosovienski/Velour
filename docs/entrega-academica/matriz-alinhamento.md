@@ -17,11 +17,12 @@ Os épicos e histórias vêm do projeto `VEL` do Jira. Os caminhos de código e 
 | VEL-20 EP07 Dashboard e Relatórios | `routers/dashboard.py`, `routers/reports.py` | `pages/Dashboard.tsx`, `pages/Reports.tsx` | `test_dashboard_alerts.py`, `test_report_period_validation.py` |
 | VEL-21 EP08 SaaS: Multi-salão e Assinatura | `routers/tenants.py`, `routers/billing.py`, `database.py` | `pages/Signup.tsx`, `pages/Billing.tsx` | `test_tenancy.py`, `test_saas.py`, `test_postgres_tenancy.py` |
 | VEL-22 EP09 Módulo Financeiro | `routers/finance.py` | `pages/Finance.tsx` | `test_finance.py`, `test_financial_regressions.py` |
+| VEL-62 EP13 Gestão de Custos (histórias VEL-63 e VEL-64) | `routers/costs.py`, `models/finance.py` (`CostBudget`) | `pages/Costs.tsx` | `test_costs.py` |
 | VEL-23 EP10 Módulo Fiscal (demonstração) | `routers/fiscal.py`, `demo_fiscal.py` | `pages/Fiscal.tsx` | `test_fiscal.py`, `test_fiscal_demo_seed.py` |
 | VEL-24 EP11 Módulo Contábil (demonstração) | `routers/accounting.py` | `pages/Accounting.tsx` | `test_accounting.py` |
 | VEL-25 EP12 Entregas Acadêmicas | não se aplica | não se aplica | não se aplica |
 
-O Confluence tem cinco páginas no espaço VELOUR: página inicial, Visão geral e arquitetura, Instalação e execução local, Módulos Financeiro, Fiscal e Contábil, e Cronograma e status das entregas. O manual completo continua em [DOCUMENTACAO.md](../../DOCUMENTACAO.md).
+O Confluence tem cinco páginas no espaço VELOUR: página inicial, Visão geral e arquitetura, Instalação e execução local, Módulos Financeiro, Fiscal e Contábil, e Cronograma e status das entregas. O manual completo continua em [DOCUMENTACAO.md](../../DOCUMENTACAO.md). O espaço pessoal do Leonardo tem mais 8 páginas, de 18/08: introdução, objetivo, levantamento de requisitos, arquitetura técnica, protótipo e fluxo de telas, plano de testes e QA, manual do usuário e notas de reunião.
 
 ## Divergências encontradas
 
@@ -34,7 +35,11 @@ O estado abaixo é o de 29/09/2026, depois das correções desta rodada.
 | Confluence | Cita "projeto Jira VELOUR", mas as chaves das issues começam com `VEL`. | Corrigido junto com a linha acima. |
 | Jira | VEL-15, "Story: RF01 — Cadastro de Clientes", tinha o tipo Tarefa. | **Corrigido**: agora é História. |
 | Confluence | A página de cronograma numera os Épicos da disciplina, como "Épico 3 — Financeiro (VEL-22)". Essa numeração não coincide com EP01 a EP12 do Jira. | **Corrigido**: a página agora tem uma frase que explica a diferença. |
-| Figma | Nenhum arquivo ou link de Figma no repositório, no Jira ou no Confluence. | **Aberto.** Montar o protótipo com [prototipo-figma-telas.md](prototipo-figma-telas.md) e linkar nas issues e no Confluence. |
+| Figma | Nenhum arquivo ou link de Figma no repositório, no Jira ou no Confluence. | **Parcialmente corrigido**: a versão 5 da página de cronograma, de 29/09/2026, tem o link do protótipo no Figma Make. O arquivo é privado, não foi conferido e não está linkado nos cards do Jira. |
 | Código | `npm ci` e `npm run lint` falhavam por causa do TypeScript 7.0.2. | **Corrigido**: TypeScript fixado na série 6.0, com lockfile regenerado. |
+| Guia × código | O guia exige um módulo de Gestão de Custos, e o sistema não tinha. | **Corrigido em 06/10/2026**: aba Custos no Financeiro, com o épico VEL-62 e as histórias VEL-63 e VEL-64 no Jira. Os commits do código citam VEL-22, criados antes do épico. |
+| Guia × GitHub | O guia proíbe commit sem chave do Jira, e nenhum commit até 29/09 tinha chave. | **Corrigido a partir de 06/10/2026**: hook local e job da CI. O histórico não foi reescrito. |
+| Guia × Jira | O guia pede sprints, e o projeto `VEL` é de negócios, sem sprints e só com os status "Tarefas pendentes" e "Concluído". | **Aberto.** Depende do grupo. Veja [guia-da-disciplina.md](guia-da-disciplina.md#o-que-depende-do-grupo). |
+| Guia × Confluence | A página "Módulos Financeiro, Fiscal e Contábil" listava seis abas, sem Custos, e a definição de pronto exige documentação ali. | **Corrigido em 06/10/2026**: página renomeada para "Módulos Financeiro, Custos, Fiscal e Contábil", com a seção de Gestão de Custos. Cronograma, visão geral e página inicial também citam o módulo. |
 
 Esta análise usou só os títulos das issues e o conteúdo da página de cronograma do Confluence. Não abri o corpo de cada história para conferir critérios de aceite.

@@ -12,9 +12,13 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex h-dvh bg-bg overflow-hidden">
+      <a href="#conteudo" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-gold focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-bg">
+        Pular para o conteúdo
+      </a>
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
+          aria-hidden="true"
           className="fixed inset-0 bg-black/60 z-20 md:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -30,7 +34,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <Sidebar onClose={() => setSidebarOpen(false)} />
       </div>
 
-      <main className="flex-1 overflow-y-auto min-w-0">
+      <main id="conteudo" tabIndex={-1} className="flex-1 overflow-y-auto min-w-0 focus:outline-none">
         {/* Mobile top bar */}
         <div className="md:hidden sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-surface border-b border-border">
           <button
