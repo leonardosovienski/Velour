@@ -28,7 +28,7 @@ Material de apoio para atender os pedidos da professora Kátia Arruda dos Santos
 | Responder confirmando ciência e a escolha sobre a gamificação, copiando o grupo e o coordenador Márcio | E-mail de 08/09, prazo 11/09 | Rascunho pronto. O prazo já venceu. Falta a escolha do grupo e os endereços. |
 | Acompanhar a gamificação: grupo de WhatsApp, entregas por Épico com vídeo e defesa presencial | E-mails de 08/09 e 18/09 | Vale só se o grupo estiver entre os confirmados: G1, G2, G6, G7, G8, G10, G11, G12, G14, G17 e G18. |
 | Apresentar o sistema em pleno funcionamento, com código-fonte | Banca Final | Sistema verificado e instalação limpa corrigida. Roteiro pronto. |
-| Comprovar Jira, Confluence e Figma alinhados ao código | E-mails de 05/08 e 08/09 | Jira e Confluence existem. Não há arquivo de Figma no repositório, no Jira nem no Confluence. Especificação pronta para montar. |
+| Comprovar Jira, Confluence e Figma alinhados ao código | E-mails de 05/08 e 08/09 | Jira e Confluence existem. O protótipo no Figma Make está ligado na página de cronograma do Confluence desde 29/09, mas é privado e não foi conferido. |
 | Apresentar o artigo científico nas normas da instituição | E-mail de 08/09 | Rascunho estruturado. Faltam autores, modelo da instituição e conferência das referências. |
 | Ler os materiais anexados | E-mails de 05/08 e 11/08 | O guia da disciplina foi lido em 06/10/2026, a partir de fotos das páginas, e está em [guia-da-disciplina.md](guia-da-disciplina.md). Outros anexos, se houver, continuam sem leitura. |
 
@@ -62,7 +62,7 @@ O guia da disciplina chegou em fotos e está transcrito em [guia-da-disciplina.m
 
 Não executado: containers e backup com restauração, porque o Docker não tem daemon neste ambiente, e o job novo da CI, que só roda num pull request. Também ficaram de fora a migração de uma base com dados reais e a navegação como gerente ou profissional pela interface. A API foi testada para profissional, com resposta 403.
 
-**Fora do repositório**, tudo depende do grupo e está listado em [guia-da-disciplina.md](guia-da-disciplina.md#o-que-depende-do-grupo): quadro e sprints do `VEL` no Jira, cards e página da Gestão de Custos, GitHub for Jira, Figma, vídeo de 3 a 5 minutos e a confirmação da chave `PI6`. Nesta rodada, nada foi alterado no Jira nem no Confluence. Só houve leitura.
+**Fora do repositório**, tudo depende do grupo e está listado em [guia-da-disciplina.md](guia-da-disciplina.md#o-que-depende-do-grupo): quadro e sprints do `VEL` no Jira, cards e documentação da Gestão de Custos no Confluence, GitHub for Jira, compartilhamento do Figma Make, vídeo de 3 a 5 minutos e a confirmação da chave `PI6`. Nesta rodada, nada foi alterado no Jira nem no Confluence. Só houve leitura.
 
 ## Verificações executadas em 29/09/2026
 
@@ -107,7 +107,7 @@ A permissão do ambiente negou estas ações, mesmo depois da autorização do u
 
 - **Jira:** mover VEL-54 e VEL-59 para Concluído. Continuam em "Tarefas pendentes".
 - **Confluence:** nada pendente na coluna de situação, que já espelha o Jira. Só a lista de entrega final segue desmarcada, e cabe a você marcá-la quando vídeo, apresentação e artigo existirem.
-- **Figma:** o protótipo não existe e não tenho acesso ao Figma.
+- **Figma:** não tenho acesso ao Figma. O link do protótipo no Figma Make foi acrescentado depois, na versão 5 da página de cronograma do Confluence.
 - **Envio do e-mail à professora:** depende de escolhas do grupo.
 
 ## Pontos que dependem do grupo

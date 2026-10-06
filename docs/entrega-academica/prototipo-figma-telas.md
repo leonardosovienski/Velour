@@ -1,6 +1,6 @@
 # Especificação para o protótipo no Figma
 
-Não existe arquivo de Figma ligado ao projeto, e esta sessão não tem acesso ao Figma. Este documento lista o que desenhar, tirado das rotas e dos componentes reais do frontend. Ao terminar, cole o link nas issues do Jira e no Confluence.
+O protótipo está no Figma Make, com link na página "Cronograma e status das entregas" do Confluence desde 29/09/2026. O arquivo é privado e não foi conferido aqui, porque esta sessão não tem acesso ao Figma. Este documento lista as telas reais do frontend, tiradas das rotas e dos componentes, para comparar com o protótipo e completá-lo. A aba Custos, criada em 06/10, provavelmente falta. Cole o link também nas issues do Jira.
 
 ## Referência visual
 

@@ -21,7 +21,7 @@ Os épicos e histórias vêm do projeto `VEL` do Jira. Os caminhos de código e 
 | VEL-24 EP11 Módulo Contábil (demonstração) | `routers/accounting.py` | `pages/Accounting.tsx` | `test_accounting.py` |
 | VEL-25 EP12 Entregas Acadêmicas | não se aplica | não se aplica | não se aplica |
 
-O Confluence tem cinco páginas no espaço VELOUR: página inicial, Visão geral e arquitetura, Instalação e execução local, Módulos Financeiro, Fiscal e Contábil, e Cronograma e status das entregas. O manual completo continua em [DOCUMENTACAO.md](../../DOCUMENTACAO.md).
+O Confluence tem cinco páginas no espaço VELOUR: página inicial, Visão geral e arquitetura, Instalação e execução local, Módulos Financeiro, Fiscal e Contábil, e Cronograma e status das entregas. O manual completo continua em [DOCUMENTACAO.md](../../DOCUMENTACAO.md). O espaço pessoal do Leonardo tem mais 8 páginas, de 18/08: introdução, objetivo, levantamento de requisitos, arquitetura técnica, protótipo e fluxo de telas, plano de testes e QA, manual do usuário e notas de reunião.
 
 ## Divergências encontradas
 
@@ -34,11 +34,11 @@ O estado abaixo é o de 29/09/2026, depois das correções desta rodada.
 | Confluence | Cita "projeto Jira VELOUR", mas as chaves das issues começam com `VEL`. | Corrigido junto com a linha acima. |
 | Jira | VEL-15, "Story: RF01 — Cadastro de Clientes", tinha o tipo Tarefa. | **Corrigido**: agora é História. |
 | Confluence | A página de cronograma numera os Épicos da disciplina, como "Épico 3 — Financeiro (VEL-22)". Essa numeração não coincide com EP01 a EP12 do Jira. | **Corrigido**: a página agora tem uma frase que explica a diferença. |
-| Figma | Nenhum arquivo ou link de Figma no repositório, no Jira ou no Confluence. | **Aberto.** Montar o protótipo com [prototipo-figma-telas.md](prototipo-figma-telas.md) e linkar nas issues e no Confluence. |
+| Figma | Nenhum arquivo ou link de Figma no repositório, no Jira ou no Confluence. | **Parcialmente corrigido**: a versão 5 da página de cronograma, de 29/09/2026, tem o link do protótipo no Figma Make. O arquivo é privado, não foi conferido e não está linkado nos cards do Jira. |
 | Código | `npm ci` e `npm run lint` falhavam por causa do TypeScript 7.0.2. | **Corrigido**: TypeScript fixado na série 6.0, com lockfile regenerado. |
 | Guia × código | O guia exige um módulo de Gestão de Custos, e o sistema não tinha. | **Corrigido em 06/10/2026**: aba Custos no Financeiro. Não há card próprio no Jira; os commits citam VEL-22. Cards propostos em [guia-da-disciplina.md](guia-da-disciplina.md#cards-propostos-para-a-gestão-de-custos). |
 | Guia × GitHub | O guia proíbe commit sem chave do Jira, e nenhum commit até 29/09 tinha chave. | **Corrigido a partir de 06/10/2026**: hook local e job da CI. O histórico não foi reescrito. |
 | Guia × Jira | O guia pede sprints, e o projeto `VEL` não tem quadro nem sprints. | **Aberto.** Depende do grupo. |
-| Guia × Confluence | A Gestão de Custos não tem página no Confluence, e a definição de pronto exige documentação ali. | **Aberto.** Texto-base em [FINANCEIRO_MVP.md](../../FINANCEIRO_MVP.md#gestão-de-custos). |
+| Guia × Confluence | A página "Módulos Financeiro, Fiscal e Contábil" lista seis abas, sem Custos, e a definição de pronto exige documentação ali. | **Aberto.** Texto-base em [FINANCEIRO_MVP.md](../../FINANCEIRO_MVP.md#gestão-de-custos). |
 
 Esta análise usou só os títulos das issues e o conteúdo da página de cronograma do Confluence. Não abri o corpo de cada história para conferir critérios de aceite.
