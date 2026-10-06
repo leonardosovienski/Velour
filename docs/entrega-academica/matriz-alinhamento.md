@@ -16,7 +16,7 @@ Os épicos e histórias vêm do projeto `VEL` do Jira. Os caminhos de código e 
 | VEL-19 EP06 Fidelidade e Indicações | `routers/loyalty.py`, `routers/referrals.py`, `birthday_scheduler.py` | `pages/Loyalty.tsx`, `pages/Referrals.tsx` | `test_loyalty.py`, `test_tiers.py`, `test_tier_discount.py`, `test_referrals.py` |
 | VEL-20 EP07 Dashboard e Relatórios | `routers/dashboard.py`, `routers/reports.py` | `pages/Dashboard.tsx`, `pages/Reports.tsx` | `test_dashboard_alerts.py`, `test_report_period_validation.py` |
 | VEL-21 EP08 SaaS: Multi-salão e Assinatura | `routers/tenants.py`, `routers/billing.py`, `database.py` | `pages/Signup.tsx`, `pages/Billing.tsx` | `test_tenancy.py`, `test_saas.py`, `test_postgres_tenancy.py` |
-| VEL-22 EP09 Módulo Financeiro | `routers/finance.py` | `pages/Finance.tsx` | `test_finance.py`, `test_financial_regressions.py` |
+| VEL-22 EP09 Módulo Financeiro | `routers/finance.py`, `routers/costs.py` (gestão de custos, desde 06/10/2026) | `pages/Finance.tsx`, `pages/Costs.tsx` | `test_finance.py`, `test_financial_regressions.py`, `test_costs.py` |
 | VEL-23 EP10 Módulo Fiscal (demonstração) | `routers/fiscal.py`, `demo_fiscal.py` | `pages/Fiscal.tsx` | `test_fiscal.py`, `test_fiscal_demo_seed.py` |
 | VEL-24 EP11 Módulo Contábil (demonstração) | `routers/accounting.py` | `pages/Accounting.tsx` | `test_accounting.py` |
 | VEL-25 EP12 Entregas Acadêmicas | não se aplica | não se aplica | não se aplica |
@@ -36,5 +36,9 @@ O estado abaixo é o de 29/09/2026, depois das correções desta rodada.
 | Confluence | A página de cronograma numera os Épicos da disciplina, como "Épico 3 — Financeiro (VEL-22)". Essa numeração não coincide com EP01 a EP12 do Jira. | **Corrigido**: a página agora tem uma frase que explica a diferença. |
 | Figma | Nenhum arquivo ou link de Figma no repositório, no Jira ou no Confluence. | **Aberto.** Montar o protótipo com [prototipo-figma-telas.md](prototipo-figma-telas.md) e linkar nas issues e no Confluence. |
 | Código | `npm ci` e `npm run lint` falhavam por causa do TypeScript 7.0.2. | **Corrigido**: TypeScript fixado na série 6.0, com lockfile regenerado. |
+| Guia × código | O guia exige um módulo de Gestão de Custos, e o sistema não tinha. | **Corrigido em 06/10/2026**: aba Custos no Financeiro. Não há card próprio no Jira; os commits citam VEL-22. Cards propostos em [guia-da-disciplina.md](guia-da-disciplina.md#cards-propostos-para-a-gestão-de-custos). |
+| Guia × GitHub | O guia proíbe commit sem chave do Jira, e nenhum commit até 29/09 tinha chave. | **Corrigido a partir de 06/10/2026**: hook local e job da CI. O histórico não foi reescrito. |
+| Guia × Jira | O guia pede sprints, e o projeto `VEL` não tem quadro nem sprints. | **Aberto.** Depende do grupo. |
+| Guia × Confluence | A Gestão de Custos não tem página no Confluence, e a definição de pronto exige documentação ali. | **Aberto.** Texto-base em [FINANCEIRO_MVP.md](../../FINANCEIRO_MVP.md#gestão-de-custos). |
 
 Esta análise usou só os títulos das issues e o conteúdo da página de cronograma do Confluence. Não abri o corpo de cada história para conferir critérios de aceite.

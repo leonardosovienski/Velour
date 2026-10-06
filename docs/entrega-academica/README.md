@@ -6,6 +6,8 @@ Material de apoio para atender os pedidos da professora Kátia Arruda dos Santos
 
 | Arquivo | Para que serve |
 |---|---|
+| [guia-da-disciplina.md](guia-da-disciplina.md) | Exigências do guia da disciplina, cronograma, critérios do Pódio e situação do Velour em 06/10/2026. |
+| [der.md](der.md) | Diagrama entidade-relacionamento do banco, gerado dos modelos. |
 | [resposta-email-professora.md](resposta-email-professora.md) | Rascunho da resposta ao e-mail de 08/09, com campos a preencher. |
 | [artigo-cientifico.md](artigo-cientifico.md) | Rascunho do artigo exigido na Banca Final. |
 | [roteiro-banca.md](roteiro-banca.md) | Roteiro de demonstração, checklist e perguntas prováveis da banca. |
@@ -28,7 +30,39 @@ Material de apoio para atender os pedidos da professora Kátia Arruda dos Santos
 | Apresentar o sistema em pleno funcionamento, com código-fonte | Banca Final | Sistema verificado e instalação limpa corrigida. Roteiro pronto. |
 | Comprovar Jira, Confluence e Figma alinhados ao código | E-mails de 05/08 e 08/09 | Jira e Confluence existem. Não há arquivo de Figma no repositório, no Jira nem no Confluence. Especificação pronta para montar. |
 | Apresentar o artigo científico nas normas da instituição | E-mail de 08/09 | Rascunho estruturado. Faltam autores, modelo da instituição e conferência das referências. |
-| Ler os materiais anexados | E-mails de 05/08 e 11/08 | Não feito. Os PDFs não estavam acessíveis. Podem conter exigências que não constam aqui. |
+| Ler os materiais anexados | E-mails de 05/08 e 11/08 | O guia da disciplina foi lido em 06/10/2026, a partir de fotos das páginas, e está em [guia-da-disciplina.md](guia-da-disciplina.md). Outros anexos, se houver, continuam sem leitura. |
+
+## Rodada de 06/10/2026: guia da disciplina
+
+O guia da disciplina chegou em fotos e está transcrito em [guia-da-disciplina.md](guia-da-disciplina.md). As lacunas que podiam ser resolvidas no código foram fechadas nesta rodada.
+
+**No repositório:**
+- **Gestão de Custos**, que o guia exige ao lado de Financeiro e Contabilidade. É a aba Custos do Financeiro, com indicadores, ponto de equilíbrio, orçado × realizado, alertas, margens por serviço e por profissional, custo-padrão da ficha técnica, evolução de seis meses e CSV. O orçamento fica na tabela nova `cost_budgets`, da migração `a7b8c9d0e1f2`. Detalhes em [FINANCEIRO_MVP.md](../../FINANCEIRO_MVP.md#gestão-de-custos). Captura em [telas/admin-financeiro-custos.png](telas/admin-financeiro-custos.png).
+- **Commits com a chave do Jira**, a regra de ouro do guia. O hook `.githooks/commit-msg` e o job "Commit traceability (Jira)" da CI recusam commit sem `VEL-<número>`. Veja [CONTRIBUTING.md](../../CONTRIBUTING.md).
+- **Acessibilidade**, pedida na Aula 12. Atalho "Pular para o conteúdo" no primeiro Tab, e o overlay do menu móvel foi ocultado dos leitores de tela. As abas Custos e Contábil deixaram de estourar a largura em celulares de 390 px. Na Contábil, o problema já existia.
+- **DER** gerado dos modelos, em [der.md](der.md), pedido na Aula 06.
+- Correção de duas vulnerabilidades altas em dependências de desenvolvimento do frontend: `brace-expansion` e `source-map-js`. O `npm audit` já falhava na `main`. A correção usou `npm audit fix` e só mudou versões patch.
+- Documentação: manual, Financeiro, artigo (seção 4.5), especificação do Figma, roteiro da banca e matriz de alinhamento.
+
+**Verificações executadas**, num contêiner Linux com Python 3.13.16, Node 22.22.0, npm 10.9.4 e PostgreSQL 16 descartável. A CI usa Node 24 e PostgreSQL 17, então o resultado não substitui a CI.
+
+| Verificação | Resultado |
+|---|---|
+| Backend, `pytest tests/` com SQLite em memória e aviso do SQLAlchemy tratado como erro | 239 aprovados e 7 pulados, que são a suíte PostgreSQL |
+| Suíte PostgreSQL com `TEST_POSTGRES_URL` | 7 aprovados, incluindo o relatório de custos e a restrição única do orçamento |
+| Migrações em PostgreSQL | Subida até `f2a3b4c5d6e7`, depois até `a7b8c9d0e1f2`, descida e nova subida. `alembic check` sem divergências. |
+| Migrações em SQLite, mesmo fluxo da CI | `upgrade c4f1a9d7e2b0`, `downgrade base`, `upgrade head` e `check`, sem divergências |
+| `pip-audit -r requirements.txt` | Nenhuma vulnerabilidade conhecida |
+| Frontend: `npm ci`, `npm run lint` e `npm run build` | Aprovados. Pacote inicial de 325,26 kB, 105,02 kB com gzip. |
+| Frontend, `npm run test` | 62 aprovados em 18 arquivos |
+| `npm audit --audit-level=high` | Nenhuma vulnerabilidade, depois da correção |
+| Hook de commit | Recusa mensagem sem chave e aceita `VEL-<número>: descrição` |
+| Navegador (Chromium) com dados do `seed.py` | As sete abas do Financeiro aparecem. O orçamento salvo persiste depois de recarregar, e a linha estourada gera alerta. O primeiro Tab foca o atalho, e o Enter leva ao conteúdo. A 390 px não há rolagem horizontal em Custos, Contábil, Visão geral e Recebimentos. Sem erros de console. |
+| API com dados do `seed.py` | O resultado de setembro na gestão de custos, R$ 400,00, é igual ao da DRE. |
+
+Não executado: containers e backup com restauração, porque o Docker não tem daemon neste ambiente, e o job novo da CI, que só roda num pull request. Também ficaram de fora a migração de uma base com dados reais e a navegação como gerente ou profissional pela interface. A API foi testada para profissional, com resposta 403.
+
+**Fora do repositório**, tudo depende do grupo e está listado em [guia-da-disciplina.md](guia-da-disciplina.md#o-que-depende-do-grupo): quadro e sprints do `VEL` no Jira, cards e página da Gestão de Custos, GitHub for Jira, Figma, vídeo de 3 a 5 minutos e a confirmação da chave `PI6`. Nesta rodada, nada foi alterado no Jira nem no Confluence. Só houve leitura.
 
 ## Verificações executadas em 29/09/2026
 

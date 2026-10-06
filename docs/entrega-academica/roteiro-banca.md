@@ -1,6 +1,6 @@
 # Roteiro da Banca Final
 
-A Banca Final está no Jira para 23 e 24/11/2026. A duração da apresentação não consta nos e-mails lidos. O roteiro abaixo supõe cerca de 12 minutos e pode ser cortado. A professora também exige, na primeira entrega, vídeo de até 5 minutos com Confluence, Jira e Figma. O trecho 2 serve de base para esse vídeo.
+A Banca Final está no Jira para 23 e 24/11/2026. A duração da apresentação não consta nos e-mails lidos nem no guia da disciplina. O roteiro abaixo supõe cerca de 12 minutos e pode ser cortado. Os vídeos das entregas têm estrutura própria, de 3 a 5 minutos, descrita no [guia da disciplina](guia-da-disciplina.md#vídeo-de-demonstração).
 
 ## Antes da banca
 
@@ -32,7 +32,7 @@ Em 29/09/2026, com os dados de `seed.py`, a conclusão de um serviço de R$ 180,
 3. **Agenda.** Crie um atendimento e tente outro no mesmo horário para o mesmo profissional. A API recusa com 409. Crie um adjacente, que é aceito.
 4. **Conclusão.** Conclua um atendimento de cliente com pontos, resgatando 100 pontos. Mostre o desconto do nível, o teto de 50% e o pagamento registrado.
 5. **Efeitos.** Abra o perfil do cliente para ver pontos e nível. Volte ao estoque para ver a baixa. Tente concluir de novo e mostre que não repete os efeitos.
-6. **Financeiro.** Recebimentos, despesas e resumo do mês. Em seguida o Contábil, com DRE e download do PDF, e os Documentos fiscais, com emissão simulada.
+6. **Financeiro.** Recebimentos, despesas e resumo do mês. Depois a aba Custos: defina o orçamento de comissões abaixo do realizado, salve e mostre o alerta e a linha "Acima do orçamento". Mostre também a margem de contribuição, o ponto de equilíbrio e o custo-padrão da ficha técnica. Em seguida o Contábil, com DRE e download do PDF, e os Documentos fiscais, com emissão simulada.
 7. **Permissões.** Entre como profissional e mostre que só a própria agenda aparece. O menu esconde Relatórios e Usuários, mas ainda lista Estoque e Financeiro. Abra uma dessas telas para mostrar que a API nega o acesso, e explique que a autorização está no servidor, não no menu.
 8. **Isolamento.** Mostre no teste `test_tenancy.py` o acesso negado a dados de outro salão, em vez de criar um segundo salão ao vivo.
 9. **Assinatura.** Abra `/billing` e explique o teste de 14 dias e o bloqueio por 402.

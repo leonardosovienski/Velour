@@ -70,6 +70,7 @@ Frontend: `http://localhost:5173`. API de desenvolvimento: `http://127.0.0.1:800
 | `audit.py`, `request_logging.py`, `logging_config.py` | Auditoria e logs estruturados sem payloads ou credenciais. |
 | `migrations/`, `alembic.ini` | Evolução versionada do schema. |
 | `preflight.py`, `platform_admin.py`, `scripts/backup.py` | Verificação de implantação, suporte local e backup consistente. |
+| `scripts/check_commit_message.py`, `.githooks/` | Regra de commits com a chave do card do Jira, no hook local e na CI. |
 | `compose.yaml`, `compose.production.yaml`, `deploy/` | PostgreSQL, migração, API única, frontend e HTTPS. |
 
 ## Invariantes de segurança e dados
@@ -98,9 +99,14 @@ Frontend: `http://localhost:5173`. API de desenvolvimento: `http://127.0.0.1:800
 - Datas da agenda são horários locais sem fuso; `scheduled_at` e os filtros da agenda rejeitam `Z`/offset com 422. Preserve o texto do formulário `datetime-local`, sem `toISOString`. Prazos SaaS/recuperação usam UTC: não aplique conversões genéricas a ambos. A implantação usa um fuso operacional compartilhado por todos os salões. A correção não reinterpreta datas históricas sem offset armazenado.
 - Categorias vinculadas a serviços, inclusive inativos, não podem ser excluídas (409). Alterar a categoria de um serviço exige que a nova categoria exista no mesmo salão.
 - Stripe é a autoridade da assinatura. Preserve verificação da assinatura do webhook, ambiente, cliente, tenant, Price e quantidade; consulte estado atual no provedor antes de aplicar. Repetições, eventos fora de ordem e falha do provedor não devem conceder acesso indevido ou criar cobranças duplicadas.
+- A gestão de custos é calculada a partir dos registros: insumos pelo atendimento que os consumiu, comissões e ISS como custos variáveis, e despesas pelo vencimento como custos fixos. Só `cost_budgets` é gravado. PUT do orçamento substitui o mês inteiro. Sem margem positiva, o ponto de equilíbrio é `null`, não zero.
 - Desativação e cancelamento não apagam histórico. Exportação JSON não inclui os arquivos de foto nem substitui backup.
 
-Mantenha enums e schemas sincronizados com o frontend: papéis `admin/manager/professional`; gêneros `M/F/other`; conversa `chatty/quiet/neutral`; agenda `scheduled/confirmed/in_progress/completed/cancelled/no_show`; pagamento `cash/debit_card/credit_card/pix/other`; fidelidade `earned_appointment/earned_referral/earned_birthday/redeemed`.
+Mantenha enums e schemas sincronizados com o frontend: papéis `admin/manager/professional`; gêneros `M/F/other`; conversa `chatty/quiet/neutral`; agenda `scheduled/confirmed/in_progress/completed/cancelled/no_show`; pagamento `cash/debit_card/credit_card/pix/other`; fidelidade `earned_appointment/earned_referral/earned_birthday/redeemed`; despesas `rent/supplies/utilities/people/other`; linhas de custo `inputs/commissions/taxes/rent/supplies/utilities/people/other`.
+
+## Commits
+
+Toda mensagem de commit começa com a chave do card do Jira do projeto `VEL`, como `VEL-62: Cria tabela de orçamento de custos`. Ative o hook com `git config core.hooksPath .githooks`. A CI recusa pull request que tenha commit sem chave, exceto merges, reverts do Git e robôs. Detalhes em [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Verificação antes da entrega
 

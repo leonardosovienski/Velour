@@ -63,6 +63,7 @@ Desenhe cada tela com os estados de carregamento, vazio e erro. Papéis: A é ad
 | `/billing` | Conta e assinatura | Todos veem, A gerencia | Situação, Checkout, Portal e exportação. |
 | `/finance/overview` | Financeiro, visão geral | A, G | Resumo mensal. |
 | `/finance/documents` | Documentos fiscais | A | Cadastro, rascunho, emissão simulada e cancelamento. |
+| `/finance/costs` | Custos | A, G | Oito indicadores (receita, custos variáveis, margem de contribuição, custos fixos, resultado, ponto de equilíbrio, margem de segurança e ticket médio), alertas, orçado × realizado com formulário de orçamento, evolução de seis meses, margem por serviço, centros de custo por profissional, custo-padrão da ficha técnica e download em CSV. |
 | `/finance/accounting` | Contábil | A, G | DRE, livro diário e balancete, com download em TXT e PDF. |
 
 O Financeiro também tem as abas Recebimentos, Despesas e Assinatura Velour, sob `/finance/:section`. Desenhe uma variação de cada. O modal de conclusão do atendimento merece um quadro próprio, com valor base, resgate de pontos, desconto do nível, teto de 50%, pagamento e consumo de estoque.

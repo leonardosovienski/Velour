@@ -2,7 +2,7 @@
 
 Agenda, clientes, profissionais, serviços, estoque, fidelidade, indicações e relatórios. React + TypeScript no frontend, FastAPI no backend, PostgreSQL 17 em produção e SQLite no desenvolvimento.
 
-O [Financeiro](FINANCEIRO_MVP.md) reúne visão geral, recebimentos, despesas, documentos fiscais e assinatura Velour. Recebimentos e despesas são registros operacionais persistidos por salão; não executam cobranças ou transferências.
+O [Financeiro](FINANCEIRO_MVP.md) reúne visão geral, recebimentos, despesas, gestão de custos, contábil, documentos fiscais e assinatura Velour. Recebimentos e despesas são registros operacionais persistidos por salão; não executam cobranças ou transferências. A gestão de custos mostra margem de contribuição, ponto de equilíbrio, orçado × realizado e custo-padrão da ficha técnica.
 
 O [MVP fiscal demonstrativo](FISCAL_MVP.md) oferece cadastros, rascunhos, emissão simulada, cancelamento, histórico e comprovantes de serviços e assinaturas. Os documentos são **sem validade fiscal**, sem conexão com Receita/prefeitura. `demo_fiscal.py` prepara dados fictícios somente em banco vazio migrado.
 
@@ -103,6 +103,7 @@ O lock exclusivo no PostgreSQL recusa uma segunda API. Esta versão não oferece
 - [Arquitetura e isolamento por salão](MULTI_TENANCY_PLAN.md)
 - [Cadastro, assinatura e estados de acesso](ONBOARDING_BILLING_PLAN.md)
 - [Desenvolvimento e convenções do repositório](CLAUDE.md)
+- [Commits rastreáveis ao Jira e definição de pronto](CONTRIBUTING.md)
 - [Segurança e relato de vulnerabilidades](SECURITY.md)
 - [Minuta dos Termos de Uso](TERMOS_DE_USO.md)
 - [Minuta da Política de Privacidade](POLITICA_DE_PRIVACIDADE.md)
