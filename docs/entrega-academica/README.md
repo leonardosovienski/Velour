@@ -18,8 +18,9 @@ Material de apoio para atender os pedidos da professora Kátia Arruda dos Santos
 ## Vídeo e apresentação
 
 - **Apresentação:** 13 slides na identidade visual do Velour, publicados como artefato privado em https://claude.ai/artifact/5u8FDuwNVet9WiFJ8q75fv. Só o dono abre o link até ele ser compartilhado. Os campos entre colchetes, como nomes do grupo, data da banca e link do Figma, precisam ser preenchidos.
-- **Vídeo:** 2 minutos e 30 segundos, sem voz, com legendas na tela. Mostra a gestão no Jira, a arquitetura, e a aplicação real: login, dashboard, clientes, criação de agendamento, conflito de horário, conclusão com R$ 143,00, perfil do cliente, estoque, financeiro, contábil, fiscal, fidelidade e relatórios, e o resultado dos testes. O arquivo não está no repositório, por ser binário. Foi gravado com dados fictícios do `seed.py`.
-- **O que o vídeo não tem:** gravação da tela do Jira, do Confluence e do Figma. O cartão do Jira é um resumo dos épicos, e a professora pediu a tela real dessas ferramentas na primeira entrega.
+- **Vídeo de 06/10/2026:** [video/velour-demonstracao.mp4](video/velour-demonstracao.mp4), enviado à professora no mesmo dia, segundo o usuário. Tem 4 minutos, sem som, legendas na tela e dados fictícios do `seed.py`. Segue a estrutura do guia: abertura (0:00), Jira e Confluence (0:24), Figma (1:15), software funcionando (1:27) e qualidade de código (cerca de 3:15). No software, mostra uma despesa gravada, o orçamento salvo e mantido ao recarregar a página, o alerta de orçamento estourado, a DRE com o mesmo resultado da gestão de custos, o atalho de acessibilidade e a tela no celular. Na qualidade, mostra o `git commit` sem chave recusado e os testes.
+- **O que esse vídeo não tem:** a tela real do Jira, do Confluence e do Figma. Os cards, as histórias e a página aparecem com o conteúdo real lido pela API, no visual do Velour. Do Figma aparecem o link e a interface do sistema, porque o arquivo é privado. Se a professora exigir a tela das ferramentas, grave esses trechos e substitua o intervalo de 0:24 a 1:27.
+- **Vídeo anterior:** 2 minutos e 30 segundos, sem voz, fora do repositório.
 
 ## Pedidos da professora e situação
 
@@ -62,7 +63,7 @@ O guia da disciplina chegou em fotos e está transcrito em [guia-da-disciplina.m
 
 Não executado: containers e backup com restauração, porque o Docker não tem daemon neste ambiente, e o job novo da CI, que só roda num pull request. Também ficaram de fora a migração de uma base com dados reais e a navegação como gerente ou profissional pela interface. A API foi testada para profissional, com resposta 403.
 
-**Fora do repositório**, tudo depende do grupo e está listado em [guia-da-disciplina.md](guia-da-disciplina.md#o-que-depende-do-grupo): coluna "Em andamento" no quadro do `VEL`, GitHub for Jira, compartilhamento do Figma Make e tela de Custos nele, vídeo de 3 a 5 minutos e a confirmação da chave `PI6`. No Jira e no Confluence, a pedido do usuário, entrou só o mínimo: épico VEL-62 e histórias VEL-63 e VEL-64, critérios de aceite em VEL-11 a VEL-13 e a Gestão de Custos nas páginas do espaço `VELOUR`. Detalhes em [guia-da-disciplina.md](guia-da-disciplina.md#jira-e-confluence-em-06102026).
+**Fora do repositório**, tudo depende do grupo e está listado em [guia-da-disciplina.md](guia-da-disciplina.md#o-que-depende-do-grupo): coluna "Em andamento" no quadro do `VEL`, GitHub for Jira, compartilhamento do Figma Make e tela de Custos nele, e a confirmação da chave `PI6`. O vídeo já foi enviado. No Jira e no Confluence, a pedido do usuário, entrou só o mínimo: épico VEL-62 e histórias VEL-63 e VEL-64, critérios de aceite em VEL-11 a VEL-13 e a Gestão de Custos nas páginas do espaço `VELOUR`. Detalhes em [guia-da-disciplina.md](guia-da-disciplina.md#jira-e-confluence-em-06102026).
 
 ## Verificações executadas em 29/09/2026
 

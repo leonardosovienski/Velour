@@ -50,7 +50,7 @@ Datas de segunda (T.A) e terça (T.B). Os "Épicos" do guia são fases da discip
 | P1 | 21 e 22/09 | Prova do 3º bimestre (60% da nota) | Link do vídeo e pitch parcial | VEL-53 está como Concluído. |
 | 11 | 28 e 29/09 | Épico 3, Sprint 1 | Telas consumindo a API, com layouts e cadastros | Todas as telas consomem a API. |
 | 12 | 05 e 06/10 | Épico 3, Sprint 2 | Painel financeiro com indicadores, relatórios e acessibilidade | Já havia Dashboard, Relatórios e Financeiro. Em 06/10 entraram o painel de custos, com orçamento e alertas, o CSV e o atalho "Pular para o conteúdo". |
-| 13 | 19 e 20/10 | Épico 3, Sprint 3 (Entrega 4) | Testes de ponta a ponta, correção de bugs, commits do GitHub ligados ao Jira e envio do vídeo | Pendente. Há testes de API e de componentes, mas não suíte de ponta a ponta no navegador. Ligação GitHub–Jira e vídeo dependem do grupo. |
+| 13 | 19 e 20/10 | Épico 3, Sprint 3 (Entrega 4) | Testes de ponta a ponta, correção de bugs, commits do GitHub ligados ao Jira e envio do vídeo | Vídeo de 4 minutos gravado e, segundo o usuário, enviado em 06/10, adiantado em relação a esta data; está em [video/velour-demonstracao.mp4](video/velour-demonstracao.mp4). Há testes de API e de componentes, mas não suíte de ponta a ponta no navegador. A ligação GitHub–Jira depende do grupo. |
 | 14 | 26 e 27/10 | Preparação | Alinhar Confluence, Jira e artigo | Pendente. Rascunho do artigo em [artigo-cientifico.md](artigo-cientifico.md). |
 | — | 09 e 10/11 | Pré-Banca Interna | Software completo, auditoria de código e governança | Pendente. |
 | — | 16 e 17/11 | Banca Coordenador | Validação com a coordenação | Pendente. |
@@ -94,6 +94,6 @@ Atualizados com o mínimo para atender ao guia, a pedido do usuário:
 2. Acrescentar critérios de aceite às histórias que só têm a descrição, se a professora cobrar.
 3. Instalar o aplicativo *GitHub for Jira* para os commits aparecerem nos cards. É exigido na Entrega 4.
 4. Compartilhar o protótipo do Figma Make com a professora, conferir se ele cobre a aba Custos e linkar também nos cards do Jira. Os 8 documentos do espaço pessoal do Confluence só valem como evidência se a professora tiver acesso a eles.
-5. Gravar o vídeo da Entrega 4 com 3 a 5 minutos e enviá-lo pelo Google Drive.
+5. Se a professora exigir a tela real do Jira, do Confluence ou do Figma, gravar esses trechos e substituir no vídeo. O vídeo foi enviado em 06/10, segundo o usuário.
 6. Confirmar com a professora a chave `PI6` e qual calendário vale, o do guia ou o dos e-mails.
 7. Ativar o hook de commits em cada clone.
