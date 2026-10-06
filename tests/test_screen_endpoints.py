@@ -11,7 +11,7 @@ def test_all_admin_screen_endpoints_are_available(tenant_api):
         '/dashboard/today', '/dashboard/kpis', '/dashboard/weekly-revenue', '/dashboard/alerts',
         '/reports/revenue', '/reports/clients', '/reports/loyalty-monthly', '/reports/referrals-monthly',
         '/billing/status', '/fiscal/config', '/fiscal/profile', '/fiscal/appointments', '/fiscal/documents',
-        '/finance/overview?month=2026-09',
+        '/finance/overview?month=2026-09', '/accounting/report?month=2026-09', '/costs/report?month=2026-09',
     ]
     for path in endpoints:
         result = api.get(path, headers=headers(a))

@@ -19,7 +19,7 @@ def postgres_accounts():
     url = os.environ["TEST_POSTGRES_URL"].replace("postgresql://", "postgresql+psycopg://", 1)
     engine = create_engine(url)
     with engine.connect() as connection:
-        assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "f2a3b4c5d6e7"
+        assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "a7b8c9d0e1f2"
         connection.rollback()
         transaction = connection.begin()
         factory = sessionmaker(bind=connection, class_=ScopedSession, autoflush=False, join_transaction_mode="create_savepoint")
@@ -81,3 +81,47 @@ def test_migrated_postgresql_business_dashboard(postgres_accounts):
         assert client_report(db=db, _=None)["total_active"] == 1
         assert loyalty_monthly(months=1, db=db, _=None)[0]["points_issued"] == 0
         assert referrals_monthly(months=1, db=db, _=None)[0]["referrals_created"] == 0
+
+
+def test_migrated_postgresql_cost_management(postgres_accounts):
+    """Cost report joins and the budget unique constraint on a migrated database."""
+    from datetime import datetime, timedelta
+    from decimal import Decimal
+
+    import pytest
+    from sqlalchemy.exc import IntegrityError
+
+    from database import tenant_scope
+    from models import Appointment, AppointmentStatus, CostBudget, Product, Professional, StockMovement, StockMovementType, User, UserRole
+    from routers.costs import BudgetInput, build_cost_report, save_budget
+
+    factory, (account, other) = postgres_accounts
+    when = datetime(2026, 9, 15, 10)
+    with factory() as db:
+        tenant_scope(db, account["tenant"])
+        appointment = db.get(Appointment, account["appointment"])
+        appointment.scheduled_at, appointment.ends_at = when, when + timedelta(hours=1)
+        appointment.status = AppointmentStatus.completed
+        db.get(Professional, account["professional"]).commission_rate = Decimal("0.40")
+        product = Product(name="Tintura", cost_per_unit=Decimal("0.50"), stock_qty=100)
+        db.add(product)
+        db.flush()
+        db.add(StockMovement(product_id=product.id, appointment_id=appointment.id, type=StockMovementType.consumption,
+                             qty=-40, qty_before=100, qty_after=60, description="Consumo"))
+        db.commit()
+    with factory() as db:
+        tenant_scope(db, account["tenant"])
+        user = User(role=UserRole.admin, tenant_id=account["tenant"])
+        save_budget(BudgetInput(items=[{"category": "inputs", "amount": "10"}]), month="2026-09", user=user, db=db)
+        report = build_cost_report(db, "2026-09")
+        assert report["summary"]["revenue"] == 100 and report["summary"]["contribution_margin"] == 40
+        assert {line["category"]: line["status"] for line in report["lines"]}["inputs"] == "over"
+        assert len(report["history"]) == 6
+        db.add(CostBudget(tenant_id=account["tenant"], month="2026-09", category="inputs", amount=Decimal("1")))
+        with pytest.raises(IntegrityError):
+            db.commit()
+        db.rollback()
+    with factory() as db:
+        tenant_scope(db, other["tenant"])
+        assert build_cost_report(db, "2026-09")["summary"]["revenue"] == 0
+        assert db.query(CostBudget).count() == 0

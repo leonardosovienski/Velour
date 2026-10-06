@@ -1,6 +1,6 @@
 # Financeiro do Velour
 
-O menu Financeiro reúne seis áreas em `/finance/overview`: Visão geral, Recebimentos, Despesas, Contábil, Documentos fiscais e Assinatura Velour. `/fiscal` encaminha para os documentos; `/billing` mantém compatibilidade com retornos do Stripe e onboarding dentro da nova estrutura.
+O menu Financeiro reúne sete áreas em `/finance/overview`: Visão geral, Recebimentos, Despesas, Custos, Contábil, Documentos fiscais e Assinatura Velour. `/fiscal` encaminha para os documentos; `/billing` mantém compatibilidade com retornos do Stripe e onboarding dentro da nova estrutura.
 
 ## Regras
 
@@ -23,9 +23,24 @@ A área Contábil (`/finance/accounting`) monta, para o mês de referência, a D
 - Despesas entram pelo vencimento e, quando pagas, baixam Contas a pagar contra Caixa.
 - Administradores e gerentes acessam; profissionais recebem 403.
 
+## Gestão de custos
+
+A área Custos (`/finance/costs`) é uma visão gerencial do mês de referência, no método de custeio variável. Calcula na hora, a partir dos registros, e grava somente o orçamento mensal.
+
+- **Custos variáveis:** insumos consumidos, comissões e ISS estimado. A receita e a comissão seguem os mesmos critérios do Contábil. Os insumos acompanham o atendimento que os consumiu, pelo custo cadastrado do produto, mesmo quando a baixa de estoque ocorre no mês seguinte. A DRE usa a data do movimento de estoque. Por isso, os dois resultados só coincidem quando a baixa acontece no mesmo mês do atendimento.
+- **Custos fixos:** despesas pelo vencimento, por categoria (aluguel, produtos e materiais, contas e serviços, equipe e outras). São as mesmas despesas da DRE.
+- **Indicadores:** receita, custos variáveis, margem de contribuição em reais e em percentual, custos fixos e resultado. Também mostra o ponto de equilíbrio em reais, calculado como custos fixos divididos pelo índice de margem de contribuição, e o número aproximado de atendimentos pelo ticket médio. Completam o painel a margem de segurança, o ticket médio e o custo por atendimento. Sem custos fixos, o ponto de equilíbrio é zero. Com custos fixos e sem margem positiva, ele não é calculável, e o sistema não inventa um valor.
+- **Margem por serviço** e **centros de custo por profissional:** receita, insumos, comissões, ISS e margem de contribuição de cada um no mês.
+- **Custo-padrão pela ficha técnica:** para cada serviço ativo, o custo de insumos previsto por execução (quantidade da ficha técnica × custo do produto), o ISS e a margem antes da comissão.
+- **Orçado × realizado:** o orçamento é definido por linha de custo e por mês, em `cost_budgets`, isolado por salão. Salvar substitui o orçamento inteiro do mês: linha omitida deixa de ter orçamento. Valores negativos, linhas repetidas ou desconhecidas retornam 422.
+- **Regras e alertas:** linha acima do orçamento, serviço com margem de contribuição negativa, preço que não cobre insumos e ISS da ficha técnica, e resultado negativo no mês.
+- **Evolução:** receita, custos e resultado dos seis meses que terminam no mês de referência.
+- **Planilha:** o relatório pode ser baixado em CSV com `;` e vírgula decimal. Textos que começam com `=`, `+`, `-` ou `@` recebem apóstrofo para não virarem fórmula na planilha.
+- Administradores e gerentes acessam e definem o orçamento; profissionais recebem 403. Os números são gerenciais e não substituem contabilidade de custos oficial.
+
 ## Banco e apresentação
 
-Execute `python -m alembic upgrade head` antes de iniciar a versão nova. A revisão `f2a3b4c5d6e7` acrescenta a tabela `expenses`; não altera os atendimentos ou documentos existentes.
+Execute `python -m alembic upgrade head` antes de iniciar a versão nova. A revisão `f2a3b4c5d6e7` acrescenta a tabela `expenses`, e a `a7b8c9d0e1f2` acrescenta `cost_budgets`. Nenhuma das duas altera atendimentos ou documentos existentes.
 
 Para um ambiente novo, siga a preparação de FISCAL_MVP.md. Abra Financeiro, consulte os recebimentos, registre uma despesa fictícia e confira o resumo do mês. Em Recebimentos, use Preparar documento para abrir os dados do atendimento; pagamento e emissão são ações independentes.
 
@@ -37,5 +52,8 @@ Para um ambiente novo, siga a preparação de FISCAL_MVP.md. Abra Financeiro, co
 - POST `/finance/receipts/{appointment_id}/settle`: registro de recebimento integral com forma de pagamento.
 - GET `/accounting/report?month=AAAA-MM`: DRE, lançamentos, balancete e plano de contas do mês.
 - GET `/accounting/report/download?month=AAAA-MM&format=txt|pdf`: mesmo relatório em arquivo.
+- GET `/costs/report?month=AAAA-MM`: indicadores, orçado × realizado, margens por serviço e profissional, custo-padrão, evolução de seis meses e alertas.
+- PUT `/costs/budget?month=AAAA-MM`: `{items: [{category, amount}]}` substitui o orçamento do mês. Categorias: `inputs`, `commissions`, `taxes`, `rent`, `supplies`, `utilities`, `people` e `other`.
+- GET `/costs/report/download?month=AAAA-MM`: mesmo relatório em CSV.
 
 As consultas usam o escopo autenticado do salão. As mutações são serializadas conforme a arquitetura de API única do projeto. O resumo lista todos os registros do mês; paginação e relatórios de grande volume são evoluções futuras.

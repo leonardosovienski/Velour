@@ -10,16 +10,17 @@ vi.mock('../context/useAuth', () => ({ useAuth: () => ({ user: { name: 'Admin', 
 vi.mock('./Fiscal', () => ({ Fiscal: ({ fixedScope }: { fixedScope: string }) => <p>Fiscal: {fixedScope}</p> }))
 vi.mock('./Billing', () => ({ Billing: () => <p>Plano do salão</p> }))
 vi.mock('./Accounting', () => ({ Accounting: ({ month }: { month: string }) => <p>Contábil: {month}</p> }))
+vi.mock('./Costs', () => ({ Costs: ({ month }: { month: string }) => <p>Custos: {month}</p> }))
 vi.mock('../api/client', () => ({ financeApi: { overview: vi.fn(), settle: vi.fn(), addExpense: vi.fn(), payExpense: vi.fn() }, fiscalApi: { config: vi.fn().mockResolvedValue({ can_manage_platform: false }) }, getErrorDetail: () => undefined }))
 const overview: FinanceOverview = { month: '2026-09', received: 50, receivable: 70, expenses_paid: 20, expenses_pending: 80, balance: 30, expenses: [], receipts: [{ id: 7, client: 'Ana', service: 'Corte', date: '2026-09-15', amount: 120, received: 50, remaining: 70, payment_method: 'pix', document_id: null, document_status: null }] }
 beforeEach(() => { vi.clearAllMocks(); vi.mocked(financeApi.overview).mockResolvedValue(overview); vi.mocked(financeApi.settle).mockResolvedValue({}) })
 function show(section: string) { render(<MemoryRouter><Finance section={section} /></MemoryRouter>) }
 
-it('reúne as seis áreas sem confundir saldo dos registros com saldo bancário', async () => {
+it('reúne as sete áreas sem confundir saldo dos registros com saldo bancário', async () => {
   show('overview')
   expect(await screen.findByText('Saldo dos registros')).toBeInTheDocument()
   expect(screen.getByText(/não é saldo bancário/)).toBeInTheDocument()
-  expect(screen.getByRole('navigation', { name: 'Áreas do financeiro' }).querySelectorAll('a')).toHaveLength(6)
+  expect(screen.getByRole('navigation', { name: 'Áreas do financeiro' }).querySelectorAll('a')).toHaveLength(7)
   expect(screen.queryByText(/Administração Velour/)).not.toBeInTheDocument()
 })
 
@@ -49,5 +50,11 @@ it('falha no carregamento não inventa valores zerados', async () => {
 it('área contábil usa o mesmo mês de referência', () => {
   show('accounting')
   expect(screen.getByText(/^Contábil: \d{4}-\d{2}$/)).toBeInTheDocument()
+  expect(financeApi.overview).not.toHaveBeenCalled()
+})
+
+it('área de custos usa o mesmo mês de referência', () => {
+  show('costs')
+  expect(screen.getByText(/^Custos: \d{4}-\d{2}$/)).toBeInTheDocument()
   expect(financeApi.overview).not.toHaveBeenCalled()
 })

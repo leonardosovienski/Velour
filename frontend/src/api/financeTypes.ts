@@ -8,3 +8,13 @@ export interface DreRow { label: string; value: number; level: number }
 export interface JournalEntry { date: string; history: string; debit: string; credit: string; amount: number }
 export interface TrialBalanceRow { code: string; name: string; debit: number; credit: number; balance: number; nature: 'D' | 'C' }
 export interface AccountingReport { month: string; notice: string; iss_rate: number; dre: DreRow[]; entries: JournalEntry[]; trial_balance: TrialBalanceRow[]; total_debit: number; total_credit: number; result: number; chart_of_accounts: { code: string; name: string; nature: 'D' | 'C' }[] }
+export type CostCategory = 'inputs' | 'commissions' | 'taxes' | 'rent' | 'supplies' | 'utilities' | 'people' | 'other'
+export interface CostSummary { appointments: number; revenue: number; variable_costs: number; contribution_margin: number; contribution_margin_ratio: number | null; fixed_costs: number; result: number; average_ticket: number | null; cost_per_appointment: number | null; break_even_revenue: number | null; break_even_appointments: number | null; safety_margin: number | null }
+export interface CostLine { category: CostCategory; label: string; kind: 'variable' | 'fixed'; actual: number; budget: number | null; variance: number | null; consumed_ratio: number | null; status: 'within' | 'over' | 'no_budget' }
+export interface CostCenter { id: number; name: string; appointments: number; revenue: number; inputs: number; commissions: number; taxes: number; contribution_margin: number; margin_ratio: number | null }
+export interface ServiceCost extends CostCenter { category: string }
+export interface ProfessionalCost extends CostCenter { commission_rate: number }
+export interface StandardCost { id: number; name: string; price: number; recipe_items: number; standard_input_cost: number; input_ratio: number | null; taxes: number; margin_before_commission: number }
+export interface CostHistoryItem { month: string; appointments: number; revenue: number; variable_costs: number; fixed_costs: number; result: number }
+export interface CostReport { month: string; notice: string; iss_rate: number; summary: CostSummary; lines: CostLine[]; budget_total: number | null; services: ServiceCost[]; professionals: ProfessionalCost[]; standard_costs: StandardCost[]; history: CostHistoryItem[]; alerts: { level: 'warning' | 'danger'; message: string }[] }
+export interface CostBudgetItem { category: CostCategory; amount: number }
