@@ -62,7 +62,7 @@ O guia da disciplina chegou em fotos e está transcrito em [guia-da-disciplina.m
 
 Não executado: containers e backup com restauração, porque o Docker não tem daemon neste ambiente, e o job novo da CI, que só roda num pull request. Também ficaram de fora a migração de uma base com dados reais e a navegação como gerente ou profissional pela interface. A API foi testada para profissional, com resposta 403.
 
-**Fora do repositório**, tudo depende do grupo e está listado em [guia-da-disciplina.md](guia-da-disciplina.md#o-que-depende-do-grupo): quadro e sprints do `VEL` no Jira, cards e documentação da Gestão de Custos no Confluence, GitHub for Jira, compartilhamento do Figma Make, vídeo de 3 a 5 minutos e a confirmação da chave `PI6`. Nesta rodada, nada foi alterado no Jira nem no Confluence. Só houve leitura.
+**Fora do repositório**, tudo depende do grupo e está listado em [guia-da-disciplina.md](guia-da-disciplina.md#o-que-depende-do-grupo): coluna "Em andamento" no quadro do `VEL`, GitHub for Jira, compartilhamento do Figma Make e tela de Custos nele, vídeo de 3 a 5 minutos e a confirmação da chave `PI6`. No Jira e no Confluence, a pedido do usuário, entrou só o mínimo: épico VEL-62 e histórias VEL-63 e VEL-64, critérios de aceite em VEL-11 a VEL-13 e a Gestão de Custos nas páginas do espaço `VELOUR`. Detalhes em [guia-da-disciplina.md](guia-da-disciplina.md#jira-e-confluence-em-06102026).
 
 ## Verificações executadas em 29/09/2026
 

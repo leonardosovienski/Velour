@@ -68,6 +68,24 @@ Desenhe cada tela com os estados de carregamento, vazio e erro. Papéis: A é ad
 
 O Financeiro também tem as abas Recebimentos, Despesas e Assinatura Velour, sob `/finance/:section`. Desenhe uma variação de cada. O modal de conclusão do atendimento merece um quadro próprio, com valor base, resgate de pontos, desconto do nível, teto de 50%, pagamento e consumo de estoque.
 
+## Prompt para acrescentar a aba Custos no Figma Make
+
+Cole no protótipo do Figma Make, ajustando se as telas tiverem outros nomes:
+
+```text
+Na tela Financeiro, acrescente a aba "Custos" entre "Despesas" e "Contábil", no mesmo visual escuro com dourado.
+Topo: seletor "Mês de referência", botões "Baixar planilha (CSV)" e "Definir orçamento do mês".
+Oito cartões: Receita do mês, Custos variáveis, Margem de contribuição (com % da receita), Custos fixos,
+Resultado do mês (verde se lucro, rosa se prejuízo), Ponto de equilíbrio (com "Cerca de N atendimentos"),
+Margem de segurança e Ticket médio.
+Cartão "Alertas de custo" com ícone de aviso, por exemplo "Comissões de profissionais acima do orçamento em R$ 179,50".
+Tabela "Orçado × realizado": Linha de custo, Realizado, Orçado, Variação, Situação
+(Dentro do orçamento, Acima do orçamento ou Sem orçamento, com barra de progresso).
+Tabela "Evolução dos últimos seis meses" com barras de receita e custos.
+Tabelas "Margem por serviço", "Centros de custo por profissional" e "Custo-padrão pela ficha técnica".
+O formulário "Orçamento do mês" tem um campo em R$ para cada linha de custo e o botão "Salvar orçamento".
+```
+
 ## Fluxos para o protótipo clicável
 
 1. **Primeiro acesso:** cadastro, chegada em `/billing?welcome=1`, cadastro de serviço, profissional e cliente.

@@ -14,7 +14,7 @@ O grupo atua como consultoria de TI. O produto é uma aplicação de porte corpo
 | Front-end, back-end e banco de dados | React com TypeScript, FastAPI, SQLAlchemy e Alembic, PostgreSQL em produção | [README.md](../../README.md) |
 | Modelo relacional (DER/SQL) | **Novo em 06/10/2026.** DER gerado dos modelos, com o SQL nas migrações | [der.md](der.md) |
 | Código versionado e rastreável | Hook e CI exigem a chave do card no commit desde 06/10/2026 | [CONTRIBUTING.md](../../CONTRIBUTING.md) |
-| Jira e Confluence | Projeto `VEL` com 52 cards: 12 épicos, 31 histórias e 9 tarefas. Espaço `VELOUR` com 5 páginas. O espaço pessoal tem mais 8 páginas, de 18/08, com requisitos, protótipo e fluxo de telas, plano de testes e manual. | [matriz-alinhamento.md](matriz-alinhamento.md) |
+| Jira e Confluence | Projeto `VEL` com 55 cards: 13 épicos, 33 histórias e 9 tarefas. Espaço `VELOUR` com 5 páginas. O espaço pessoal tem mais 8 páginas, de 18/08, com requisitos, protótipo e fluxo de telas, plano de testes e manual. | [matriz-alinhamento.md](matriz-alinhamento.md) |
 | Figma | Protótipo no Figma Make, com link na página "Cronograma e status das entregas" do Confluence desde 29/09/2026. O arquivo é privado e não foi aberto nesta revisão. | [prototipo-figma-telas.md](prototipo-figma-telas.md) |
 
 ## Pontuação por Épico (Pódio)
@@ -24,7 +24,7 @@ Cada Épico vale até 100 pontos. O ranking acumulado dá bônus na nota da Banc
 | Critério | Pontos | O que conta | Situação do Velour em 06/10/2026 |
 |---|---|---|---|
 | Pontualidade & Tasks | 20 | Histórias e tarefas no prazo do Épico, vídeos enviados por e-mail com link do Google Drive | Depende do grupo. A 1ª entrega teve nota 0,0, registrada pela professora em 17/08. |
-| Documentação & Canvas | 20 | Confluence atualizado, regras de negócio e critérios de aceite das histórias | As histórias têm descrição no formato "Como…, quero…". Nove delas trazem regras em tópicos que servem de critério: VEL-26, 27, 28, 31, 33, 36, 41, 42 e 48. Nenhuma tem uma seção formal de critérios de aceite, e VEL-11, VEL-12 e VEL-13 estão sem descrição. A Gestão de Custos ainda não aparece no Confluence. Os critérios propostos para os cards de custos estão abaixo. |
+| Documentação & Canvas | 20 | Confluence atualizado, regras de negócio e critérios de aceite das histórias | As histórias têm descrição no formato "Como…, quero…". VEL-11, VEL-12, VEL-13, VEL-63 e VEL-64 têm seção de critérios de aceite. Outras nove trazem regras em tópicos que servem de critério: VEL-26, 27, 28, 31, 33, 36, 41, 42 e 48. A Gestão de Custos está documentada no Confluence desde 06/10. |
 | Qualidade & Padrão de Código | 30 | Repositório funcional, com commits rastreáveis às chaves do Jira (`PI6-XX`) | Código testado. Os commits até 29/09 **não** têm chave. A partir de 06/10, o hook e a CI exigem a chave `VEL-<número>`. Veja a nota sobre `PI6` abaixo. |
 | Fidelidade UI/UX (Figma) | 15 | Figma aderente à proposta e usável | Há protótipo no Figma Make, ligado no Confluence. Não consegui abri-lo, então não sei se cobre a aba Custos, criada em 06/10. |
 | Evolução nas Mentorias | 15 | Feedbacks da professora absorvidos | Depende do grupo. |
@@ -77,32 +77,21 @@ Requisitos para gravar: um quadro do Jira para o projeto `VEL` e cards em mais d
 | Regra | Situação |
 |---|---|
 | Nenhum commit sem a chave do card do Jira | Atendida a partir de 06/10/2026: o hook em `.githooks/commit-msg` e o job "Commit traceability (Jira)" da CI recusam commit sem chave. Cada clone ativa o hook com `git config core.hooksPath .githooks`. O histórico anterior não foi reescrito. |
-| Definição de pronto: só vai para Done o que funciona, foi testado e está documentado no Confluence | **Não atendida no Jira.** VEL-55 a VEL-58, VEL-60 e VEL-61 estão em Concluído com datas futuras, até 24/11. O épico VEL-22 está concluído, mas a Gestão de Custos não tem página no Confluence. |
+| Definição de pronto: só vai para Done o que funciona, foi testado e está documentado no Confluence | **Parcial.** Os cards da Gestão de Custos (VEL-62 a VEL-64) só foram para Concluído depois da documentação no Confluence. VEL-55 a VEL-58, VEL-60 e VEL-61 continuam em Concluído com datas futuras, até 24/11, como o usuário pediu em 29/09. |
 | Pontualidade | Depende do grupo. |
 
-## Cards propostos para a Gestão de Custos
+## Jira e Confluence em 06/10/2026
 
-Ainda não existem no Jira. Os commits de 06/10 citam épicos existentes: VEL-22 (Módulo Financeiro) para custos, VEL-20 (Dashboard e Relatórios) para acessibilidade e VEL-25 (Entregas Acadêmicas) para governança e documentação. Se o grupo criar os cards abaixo, os próximos commits devem citar as novas chaves.
+Atualizados com o mínimo para atender ao guia, a pedido do usuário:
 
-**Épico: EP13 — Gestão de Custos.** Custeio variável do salão a partir dos registros, com orçamento mensal e alertas.
-
-| História | Critérios de aceite |
-|---|---|
-| Painel de custos do mês | Dado um mês com atendimentos concluídos e despesas, a aba Custos mostra receita, custos variáveis (insumos, comissões e ISS), margem de contribuição em reais e em percentual, custos fixos e resultado. O ponto de equilíbrio é custo fixo dividido pelo índice de margem. Sem margem positiva, aparece "Não calculável". Sem custos fixos, é zero. Mês sem dados não inventa percentuais. Profissional recebe 403. |
-| Orçado × realizado | Gerente ou administrador define o orçamento por linha de custo no mês. Salvar substitui o orçamento inteiro. Valor negativo, linha repetida ou desconhecida retornam 422. Linha acima do orçamento aparece como "Acima do orçamento" e gera alerta. O orçamento de um salão não aparece em outro. |
-| Margem por serviço e por profissional | Cada serviço e cada profissional do mês mostra receita, insumos, comissões, ISS e margem. Margem negativa gera alerta. |
-| Custo-padrão pela ficha técnica | Cada serviço ativo mostra o custo de insumos da ficha técnica, o ISS e a margem antes da comissão. Preço que não cobre insumos e ISS gera alerta. |
-| Relatório de custos em CSV | O download traz indicadores, orçamento, serviços, profissionais e custo-padrão, com `;` e vírgula decimal. Nomes que começam com `=`, `+`, `-` ou `@` não viram fórmula. |
-
-**Tarefas:**
-- Commits rastreáveis: hook e verificação na CI.
-- Acessibilidade: atalho "Pular para o conteúdo".
-- Seção "Gestão de custos" na página "Módulos Financeiro, Fiscal e Contábil" do Confluence, que hoje lista seis abas, sem Custos. O texto-base está em [FINANCEIRO_MVP.md](../../FINANCEIRO_MVP.md#gestão-de-custos).
+- **Jira:** criados o épico VEL-62 (EP13 — Gestão de Custos) e as histórias VEL-63 (painel de custos e ponto de equilíbrio) e VEL-64 (orçado × realizado com alertas), com critérios de aceite, todos em Concluído. VEL-11, VEL-12 e VEL-13 ganharam descrição e critérios de aceite.
+- **Confluence:** a página de módulos passou a se chamar "Módulos Financeiro, Custos, Fiscal e Contábil" e ganhou a seção 4, Gestão de Custos. O cronograma ganhou a linha da Gestão de Custos, e a visão geral, o épico VEL-62, o DER e o padrão de commits. A página inicial cita o módulo e o link do Figma Make.
+- Os commits de código de 06/10 citam épicos que já existiam: VEL-22 (Módulo Financeiro) para custos, VEL-20 (Dashboard e Relatórios) para acessibilidade e VEL-25 (Entregas Acadêmicas) para governança e documentação. Os próximos sobre custos devem citar VEL-62, VEL-63 ou VEL-64.
 
 ## O que depende do grupo
 
-1. Criar o quadro Scrum do projeto `VEL`, com as sprints do guia, e mover os cards conforme a definição de pronto. Inclui devolver a pendente as tarefas com data futura.
-2. Criar o épico e os cards da Gestão de Custos e documentá-la no Confluence. Completar a descrição de VEL-11 a VEL-13 e acrescentar critérios de aceite às histórias.
+1. Ter um quadro com coluna "Em andamento" para o vídeo. O `VEL` é um projeto de negócios (Jira Work Management), que não tem sprints e só tem os status "Tarefas pendentes" e "Concluído". Na visualização Quadro do projeto, dá para acrescentar a coluna "Em andamento". Sprints de verdade exigiriam um projeto de software, e mover os cards trocaria as chaves `VEL` citadas nos commits. Tarefas com data futura em Concluído contrariam a definição de pronto do guia.
+2. Acrescentar critérios de aceite às histórias que só têm a descrição, se a professora cobrar.
 3. Instalar o aplicativo *GitHub for Jira* para os commits aparecerem nos cards. É exigido na Entrega 4.
 4. Compartilhar o protótipo do Figma Make com a professora, conferir se ele cobre a aba Custos e linkar também nos cards do Jira. Os 8 documentos do espaço pessoal do Confluence só valem como evidência se a professora tiver acesso a eles.
 5. Gravar o vídeo da Entrega 4 com 3 a 5 minutos e enviá-lo pelo Google Drive.
