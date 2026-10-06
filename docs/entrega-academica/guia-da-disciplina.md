@@ -84,7 +84,7 @@ Requisitos para gravar: um quadro do Jira para o projeto `VEL` e cards em mais d
 
 Atualizados com o mínimo para atender ao guia, a pedido do usuário:
 
-- **Jira:** criados o épico VEL-62 (EP13 — Gestão de Custos) e as histórias VEL-63 (painel de custos e ponto de equilíbrio) e VEL-64 (orçado × realizado com alertas), com critérios de aceite, todos em Concluído. VEL-11, VEL-12 e VEL-13 ganharam descrição e critérios de aceite.
+- **Jira:** criados o épico VEL-62 (EP13 — Gestão de Custos) e as histórias VEL-63 (painel de custos e ponto de equilíbrio) e VEL-64 (orçado × realizado com alertas), com critérios de aceite, todos em Concluído. VEL-11, VEL-12 e VEL-13 ganharam descrição e critérios de aceite. Depois, VEL-54 (vídeo e apresentação) foi para Concluído, e foram criados VEL-65 (Entrega 4, de 19 e 20/10) e VEL-66 (atualizar o protótipo no Figma Make com a aba Custos), ambos pendentes.
 - **Confluence:** a página de módulos passou a se chamar "Módulos Financeiro, Custos, Fiscal e Contábil" e ganhou a seção 4, Gestão de Custos. O cronograma ganhou a linha da Gestão de Custos, e a visão geral, o épico VEL-62, o DER e o padrão de commits. A página inicial cita o módulo e o link do Figma Make.
 - Os commits de código de 06/10 citam épicos que já existiam: VEL-22 (Módulo Financeiro) para custos, VEL-20 (Dashboard e Relatórios) para acessibilidade e VEL-25 (Entregas Acadêmicas) para governança e documentação. Os próximos sobre custos devem citar VEL-62, VEL-63 ou VEL-64.
 
